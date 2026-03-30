@@ -399,11 +399,19 @@
                         opacity  0.6s ease;
         }
 
-        /* Paused: strip animation so transition takes over → bars melt to near-flat */
+        /* Paused (CSS fake mode): strip animation so transition takes over → bars melt to near-flat */
         .eq-paused .eq-bar {
             animation: none;
             transform: scaleY(0.07);
             opacity: 0.22;
+        }
+
+        /* RMS-driven mode: JS writes inline transform, CSS animation must be off.
+           The [data-rms] attribute is set on #eq-bars when the driver is active.   */
+        #eq-bars[data-rms] .eq-bar {
+            animation: none !important;
+            transition: none !important;
+            opacity: 1 !important;
         }
 
         /* ── Profile Modal ────────────────────────────────────────────────── */
@@ -2759,6 +2767,162 @@
     // Pre-fill input if key exists
     if (getKey()) apikeyInput.value = getKey();
 
+})();
+</script>
+
+<!-- ── RMS Waveform Driver ─────────────────────────────────────── -->
+<!-- Replaces CSS fake eq-wave animation with real-time audio analysis -->
+<script>
+(function () {
+    'use strict';
+
+    // ── Config ────────────────────────────────────────────────────────────
+    const NUM_BARS   = 52;    // must match the WAVEFORM array length
+    const MIN_SCALE  = 0.07;  // floor height when silent (mirrors eq-paused)
+    const ATTACK     = 0.40;  // 0‒1, higher = faster rise
+    const RELEASE    = 0.78;  // 0‒1, higher = slower fall (smooth tail)
+    // Map bars to the first N% of FFT bins (covers vocals + instruments well)
+    const BIN_COVER  = 0.55;
+
+    // ── State ─────────────────────────────────────────────────────────────
+    let audioCtx = null;
+    let analyser = null;
+    let freqBuf  = null;   // Uint8Array  – frequency magnitudes
+    let timeBuf  = null;   // Uint8Array  – time-domain samples (for RMS)
+    let smooth   = null;   // Float32Array – per-bar smoothed levels
+    let rafId    = null;
+    let running  = false;
+
+    // ── AudioContext init (called once, lazily) ───────────────────────────
+    function initCtx(audioEl) {
+        if (audioCtx) return true;
+        try {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            analyser = audioCtx.createAnalyser();
+            analyser.fftSize              = 256;
+            analyser.smoothingTimeConstant = 0;  // we apply our own per-frame smoothing
+            const src = audioCtx.createMediaElementSource(audioEl);
+            src.connect(analyser);
+            analyser.connect(audioCtx.destination);
+            freqBuf = new Uint8Array(analyser.frequencyBinCount);   // 128 bins
+            timeBuf = new Uint8Array(analyser.fftSize);             // 256 samples
+            smooth  = new Float32Array(NUM_BARS).fill(MIN_SCALE);
+            return true;
+        } catch (err) {
+            console.warn('[RmsWave] AudioContext init failed:', err);
+            return false;
+        }
+    }
+
+    // ── RAF loop ──────────────────────────────────────────────────────────
+    function tick() {
+        if (!running) return;
+        rafId = requestAnimationFrame(tick);
+
+        // Get fresh frequency data
+        analyser.getByteFrequencyData(freqBuf);
+
+        // Compute global RMS from time-domain (drives overall envelope floor)
+        analyser.getByteTimeDomainData(timeBuf);
+        let rmsSum = 0;
+        for (let i = 0; i < timeBuf.length; i++) {
+            const v = (timeBuf[i] - 128) / 128;
+            rmsSum += v * v;
+        }
+        const rms = Math.sqrt(rmsSum / timeBuf.length);  // 0‒1
+
+        const bars     = document.querySelectorAll('#eq-bars .eq-bar');
+        const numBins  = freqBuf.length;                  // 128
+        const binRange = Math.floor(numBins * BIN_COVER); // first 70 bins
+
+        bars.forEach((bar, i) => {
+            // Map bar index → frequency bin (linear within binRange)
+            const binIdx    = Math.floor((i / NUM_BARS) * binRange);
+            const freqLevel = freqBuf[binIdx] / 255;     // 0‒1
+
+            // Blend: per-bar frequency shape + global RMS boost
+            const target = Math.min(1, freqLevel * 0.85 + rms * 0.60);
+
+            // Exponential envelope: fast attack, slow release
+            const prev   = smooth[i];
+            smooth[i]    = target > prev
+                ? prev + (target - prev) * ATTACK    // attack
+                : prev + (target - prev) * (1 - RELEASE);  // release
+
+            const scale  = MIN_SCALE + (1 - MIN_SCALE) * smooth[i];
+            bar.style.transform = 'scaleY(' + scale.toFixed(3) + ')';
+        });
+    }
+
+    // ── Start / Stop ──────────────────────────────────────────────────────
+    function start(audioEl) {
+        if (running) return;
+        if (!initCtx(audioEl)) return;           // AudioContext failed → stay on CSS
+
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+
+        // Mark container — CSS rule `#eq-bars[data-rms] .eq-bar` disables animation/transition
+        const eqBarsEl = document.getElementById('eq-bars');
+        if (eqBarsEl) {
+            eqBarsEl.setAttribute('data-rms', '1');
+            eqBarsEl.classList.remove('eq-paused');
+        }
+        // Restore opacity on all bars in case stop() had dimmed them
+        document.querySelectorAll('#eq-bars .eq-bar').forEach(bar => {
+            bar.style.opacity = '1';
+        });
+
+        running = true;
+        rafId   = requestAnimationFrame(tick);
+    }
+
+    function stop() {
+        running = false;
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+
+        // Animate bars down to near-flat via smooth exponential decay
+        if (!smooth) return;
+        let steps = 0;
+        function decay() {
+            let anyAbove = false;
+            document.querySelectorAll('#eq-bars .eq-bar').forEach((bar, i) => {
+                smooth[i] *= 0.72;
+                const above = smooth[i] > 0.005;
+                if (above) anyAbove = true;
+                const s = MIN_SCALE + (1 - MIN_SCALE) * smooth[i];
+                bar.style.transform = 'scaleY(' + s.toFixed(3) + ')';
+                // When fully settled, apply dim opacity matching eq-paused look
+                if (!above) bar.style.opacity = '0.22';
+            });
+            if (anyAbove && steps++ < 90) {
+                requestAnimationFrame(decay);
+            }
+        }
+        requestAnimationFrame(decay);
+    }
+
+    // ── Hook into the shared sunoAudio element ────────────────────────────
+    function hook(audioEl) {
+        audioEl.addEventListener('play',  () => start(audioEl));
+        audioEl.addEventListener('pause', stop);
+        audioEl.addEventListener('ended', stop);
+        if (!audioEl.paused) start(audioEl);   // already playing on hook
+    }
+
+    // Wait for DOM, then attach to #suno-audio
+    function attach() {
+        const audio = document.getElementById('suno-audio');
+        if (audio) hook(audio);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', attach);
+    } else {
+        attach();
+    }
+
+    // Expose for debugging / other scripts
+    window.rmsWave = { start, stop };
 })();
 </script>
 
