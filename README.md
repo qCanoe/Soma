@@ -2,7 +2,7 @@
 
 > **Biometric-Driven Adaptive Music Therapy** — a 4-layer architecture that converts real-time Apple Watch health data into personalised AI-generated music for mental wellness.
 
-The single-page app brand in the UI (`web.html`) is **Soma**; this git repository is **MindWave**.
+The single-page app brand in the UI (`apps/web/index.html`) is **Soma**; this git repository is **MindWave**.
 
 ---
 
@@ -60,32 +60,43 @@ Apple Watch / HealthKit
 
 ```
 MindWave/
-├── web.html                   # Single-page therapy UI (all-in-one; branded “Soma” in-app)
-├── music_ai_module/           # Python pipeline library
-│   ├── __init__.py            # Public API exports
+├── apps/
+│   └── web/
+│       └── index.html         # Single-page therapy UI (“Soma”; all-in-one, no build)
+├── music_ai_module/           # Python pipeline library (importable package)
+│   ├── __init__.py
 │   ├── models.py              # Layer 1: dataclasses & validation
 │   ├── processor.py           # Layer 2: BiometricProcessor
 │   ├── compiler.py            # Layer 3: MusicPromptCompiler
-│   ├── pipeline.py            # End-to-end orchestrator (MusicAIPipeline)
-│   ├── config.py              # SystemConfig (all tunable parameters)
-│   └── example.py             # Smoke-test / quick-start script
-├── Music AI.ipynb             # Research notebook — full pipeline walkthrough
-├── api_test.js                # Node.js Suno API smoke test (single request + poll)
-├── generate_cases.js          # Batch script: generate 5 demo tracks via Suno
-├── case_audio_urls.json       # Cached MP3 URLs for 5 demo cases
-├── case.md                    # Clinical case definitions (input tags + prompts)
-├── ui_mvp.md                  # Internal MVP / UI notes (optional)
-├── .env                       # API keys (not committed — see .gitignore)
-└── README.md
+│   ├── pipeline.py            # MusicAIPipeline
+│   ├── config.py              # SystemConfig
+│   └── example.py             # CLI smoke test
+├── scripts/
+│   ├── generate_cases.js      # Batch-generate 5 demo tracks → data/case_audio_urls.json
+│   └── api_test.js            # Suno API smoke test
+├── data/
+│   ├── case_audio_urls.json   # Cached demo MP3 URLs (regenerate via scripts)
+│   └── case.md                # Clinical case definitions
+├── notebooks/
+│   └── pipeline_demo.ipynb    # Minimal Jupyter walkthrough (imports music_ai_module)
+├── docs/
+│   └── mvp-prd.md             # Legacy MVP product notes (zh)
+├── pyproject.toml             # pip install -e . (optional)
+├── requirements.txt
+├── .env.example               # Copy to .env for local keys
+├── README.md
+└── LICENSE
 ```
+
+**Conventions:** keep **domain data** under `data/`, **automation** under `scripts/`, and the **static web client** under `apps/web/`. The Python package stays at the repository root so existing `from music_ai_module import …` and `python music_ai_module/example.py` continue to work.
 
 ---
 
 ## Features
 
-### Therapy Interface (`web.html`)
+### Therapy Interface (`apps/web/index.html`)
 
-A fully self-contained single-page application — no build step, no dependencies to install.
+Open the file in a browser (double-click or “Open with Live Server”). Fully self-contained — no build step, no npm install.
 
 
 | Area                  | Details                                                                                                                                 |
@@ -132,7 +143,7 @@ Displays a live Apple Watch biometric snapshot with derived clinical analysis:
 
 ### Demo Cases
 
-Five pre-loaded clinical demonstration cases, each with a full profile, biometric snapshot, and a pre-generated Suno V5 track (titles below are the API `returnedTitle` values stored in `case_audio_urls.json`):
+Five pre-loaded clinical demonstration cases, each with a full profile, biometric snapshot, and a pre-generated Suno V5 track (titles below are the API `returnedTitle` values stored in `data/case_audio_urls.json`):
 
 
 | ID         | Patient          | Condition                                            | Track                       |
@@ -158,10 +169,11 @@ Clicking a case instantly loads: profile data into the modal, mood input and mod
 ### Installation
 
 ```bash
-pip install openai numpy
+pip install -r requirements.txt
+# or: pip install -e .
 ```
 
-No additional packages are required for core pipeline operation.
+Core dependencies: `openai`, `numpy` (see `pyproject.toml`).
 
 ### Quick Start
 
@@ -258,15 +270,15 @@ Sympathetic Load → Emotional Anchor
 
 **Prerequisites:** Node.js **18+** (global `fetch`).
 
-To regenerate the five demo case tracks, put your Suno API key in `.env` and run:
+To regenerate the five demo case tracks, copy `.env.example` → `.env`, add your Suno key, then from the **repository root**:
 
 ```bash
-node generate_cases.js
+node scripts/generate_cases.js
 ```
 
-The script submits all five prompts **sequentially** (to reduce rate-limit issues), polls until completion, and writes results to `case_audio_urls.json`. Each generation typically takes about **1–3 minutes** per track.
+The script submits all five prompts **sequentially** (to reduce rate-limit issues), polls until completion, and writes results to `data/case_audio_urls.json`. Merge new URLs into the `DEMO_CASES` object in `apps/web/index.html` if you want the UI to play refreshed tracks. Each generation typically takes about **1–3 minutes** per track.
 
-Polling in this script: **6 s** interval, **7 minute** overall timeout (`generate_cases.js`). The in-browser UI uses **5 s** polling and a **6 minute** timeout — see the Suno section below.
+Polling in this script: **6 s** interval, **7 minute** overall timeout. The in-browser UI uses **5 s** polling and a **6 minute** timeout — see below.
 
 ---
 
@@ -281,8 +293,8 @@ GET   https://api.sunoapi.org/api/v1/generate/record-info?taskId=…
 
 - Model: **V5** (instrumental, non-custom mode)
 - Prompt cap: **500** characters
-- **Web UI (`web.html`):** poll every **5 s**, max wait **6 minutes**
-- **`generate_cases.js`:** poll every **6 s**, max wait **7 minutes**
+- **Web UI (`apps/web/index.html`):** poll every **5 s**, max wait **6 minutes**
+- **`scripts/generate_cases.js`:** poll every **6 s**, max wait **7 minutes**
 - Typical status flow: `PENDING → … → SUCCESS` (intermediate states may include `TEXT_SUCCESS`, `FIRST_SUCCESS`, depending on API version)
 
 **Privacy:** In the browser, your API key is stored in `localStorage` under `moodtune-suno-key` and is only sent to `https://api.sunoapi.org` from your machine (not through a first-party MindWave backend).
@@ -316,7 +328,7 @@ The UI is built on a dark glass-morphism aesthetic:
 
 ## Environment Setup
 
-Create a `.env` file in the project root for **Node** scripts (`generate_cases.js`, `api_test.js`):
+Create a `.env` file in the project root for **Node** scripts (`scripts/generate_cases.js`, `scripts/api_test.js`). See `.env.example`.
 
 ```env
 API_KEY=your_suno_api_key_here

@@ -11,9 +11,9 @@ const path = require('path');
 
 const SUNO_BASE = 'https://api.sunoapi.org';
 
-// Load .env from project root
+// Load .env from project root (run: node scripts/api_test.js)
 function loadEnv() {
-  const envPath = path.join(__dirname, '.env');
+  const envPath = path.join(__dirname, '..', '.env');
   if (!fs.existsSync(envPath)) return;
   fs.readFileSync(envPath, 'utf8')
     .split('\n')

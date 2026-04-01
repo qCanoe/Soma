@@ -1,15 +1,17 @@
 /**
  * Batch-generate 5 demo case music tracks via Suno API.
  * Reads API_KEY from .env, submits all 5 prompts, polls until done,
- * then prints the audioUrl for each so they can be hard-coded into web.html.
+ * then prints the audioUrl for each so they can be merged into apps/web/index.html (DEMO_CASES).
  */
 
 const fs   = require('fs');
 const path = require('path');
 
+const REPO_ROOT = path.join(__dirname, '..');
+
 // ── Load .env ─────────────────────────────────────────────────────────────
 function loadEnv() {
-  const envPath = path.join(__dirname, '.env');
+  const envPath = path.join(REPO_ROOT, '.env');
   if (!fs.existsSync(envPath)) return;
   fs.readFileSync(envPath, 'utf8')
     .split('\n')
@@ -163,7 +165,7 @@ async function main() {
 
   // ── Print summary ─────────────────────────────────────────────────────
   console.log('\n\n════════════════════════════════════════════');
-  console.log('  RESULTS — copy these into DEMO_CASES in web.html');
+  console.log('  RESULTS — copy these into DEMO_CASES in apps/web/index.html');
   console.log('════════════════════════════════════════════\n');
 
   results.forEach(r => {
@@ -177,7 +179,7 @@ async function main() {
   });
 
   // Also write to results.json for easy copy-paste
-  const outPath = path.join(__dirname, 'case_audio_urls.json');
+  const outPath = path.join(REPO_ROOT, 'data', 'case_audio_urls.json');
   fs.writeFileSync(outPath, JSON.stringify(results, null, 2), 'utf8');
   console.log(`\n📄 Full results also saved to: ${outPath}`);
 }
