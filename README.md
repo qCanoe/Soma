@@ -1,6 +1,8 @@
-# Soma
+# MindWave · Soma
 
 > **Biometric-Driven Adaptive Music Therapy** — a 4-layer architecture that converts real-time Apple Watch health data into personalised AI-generated music for mental wellness.
+
+The single-page app brand in the UI (`web.html`) is **Soma**; this git repository is **MindWave**.
 
 ---
 
@@ -8,7 +10,7 @@
 
 MindWave bridges physiological sensing and generative music AI. It reads live biometric signals from Apple Watch (heart rate, HRV, respiratory rate, SpO₂, and more), passes them through a neuroscience-grounded rules engine, compiles a deterministic music generation prompt, and delivers the result via the Suno AI music API — all presented through a polished, single-page therapy interface.
 
-The system is designed around **rhythmic entrainment theory**: music tempo and texture are derived directly from a user's current physiological state, not from subjective mood tags alone. A 15% BPM reduction from the measured heart rate creates a physical anchor that guides cardiovascular rhythms downward.
+The system is designed around **rhythmic entrainment theory**: music tempo and texture are derived directly from a user's current physiological state, not from subjective mood tags alone. A configurable BPM reduction from the measured heart rate (default **15%**, i.e. HR × 0.85) creates a physical anchor that guides cardiovascular rhythms downward, clamped between `min_bpm` and `max_bpm` (see `SystemConfig`).
 
 ---
 
@@ -21,33 +23,34 @@ Apple Watch / HealthKit
 ┌────────────────────────────────────────────────────────────┐
 │  Layer 1 · Input & Validation                              │
 │  StaticUserProfile + AppleWatchBiometrics (dataclasses)    │
-│  Physiological range validation (HR, HRV, SpO₂, temp…)    │
+│  Physiological range validation (HR, HRV, SpO₂, temp…)     │
 └────────────────────┬───────────────────────────────────────┘
                      │
                      ▼
 ┌────────────────────────────────────────────────────────────┐
 │  Layer 2 · Middleware Rules Engine  (BiometricProcessor)   │
-│  • HR → Target BPM  (entrainment: HR × 0.85, floor 45)    │
-│  • HRV < 40 ms → pink noise + continuous pad               │
-│  • Resp rate > 18 br/min → cello legato + sustained synth  │
-│  • Ambient noise > 70 dB → transient / peak safeguards     │
-│  • Sympathetic load = current HR − resting baseline        │
+│  • HR → Target BPM  (entrainment: HR × (1 − rhythm_reduction_pct%),   │
+│    clamped to [min_bpm, max_bpm], default 45–140)           │
+│  • HRV < 40 ms → pink noise + continuous pad                │
+│  • Resp rate > 18 br/min → cello legato + sustained synth │
+│  • Ambient noise > 70 dB → transient / peak safeguards      │
+│  • Sympathetic load = current HR − resting baseline         │
 └────────────────────┬───────────────────────────────────────┘
                      │
                      ▼
 ┌────────────────────────────────────────────────────────────┐
 │  Layer 3 · LLM Compiler  (MusicPromptCompiler)             │
-│  7-segment deterministic template engine                   │
-│  [1] Music Type  [2] Genre  [3] Tempo  [4] Instruments     │
-│  [5] Texture     [6] Emotional Anchor  [7] Constraints      │
-│  Optional: LLM technical verification via OpenAI-compat.   │
+│  7-segment deterministic template engine                    │
+│  [1] Music Type  [2] Genre  [3] Tempo  [4] Instruments      │
+│  [5] Texture     [6] Emotional Anchor  [7] Constraints       │
+│  Optional: LLM technical verification via OpenAI-compat. API │
 └────────────────────┬───────────────────────────────────────┘
                      │
                      ▼
 ┌────────────────────────────────────────────────────────────┐
 │  Layer 4 · Music Generation  (Suno API v5)                 │
-│  POST /api/v1/generate → poll → stream/download MP3        │
-│  Real-time progress tracking, cancellation, auto-playback  │
+│  POST /api/v1/generate → poll → stream/download MP3         │
+│  Real-time progress tracking, cancellation, auto-playback   │
 └────────────────────────────────────────────────────────────┘
 ```
 
@@ -57,7 +60,7 @@ Apple Watch / HealthKit
 
 ```
 MindWave/
-├── web.html                   # Single-page therapy UI (all-in-one)
+├── web.html                   # Single-page therapy UI (all-in-one; branded “Soma” in-app)
 ├── music_ai_module/           # Python pipeline library
 │   ├── __init__.py            # Public API exports
 │   ├── models.py              # Layer 1: dataclasses & validation
@@ -67,11 +70,12 @@ MindWave/
 │   ├── config.py              # SystemConfig (all tunable parameters)
 │   └── example.py             # Smoke-test / quick-start script
 ├── Music AI.ipynb             # Research notebook — full pipeline walkthrough
-├── api_test.js                # Node.js Suno API integration test
+├── api_test.js                # Node.js Suno API smoke test (single request + poll)
 ├── generate_cases.js          # Batch script: generate 5 demo tracks via Suno
 ├── case_audio_urls.json       # Cached MP3 URLs for 5 demo cases
 ├── case.md                    # Clinical case definitions (input tags + prompts)
-├── .env                       # API keys (not committed)
+├── ui_mvp.md                  # Internal MVP / UI notes (optional)
+├── .env                       # API keys (not committed — see .gitignore)
 └── README.md
 ```
 
@@ -87,9 +91,9 @@ A fully self-contained single-page application — no build step, no dependencie
 | Area                  | Details                                                                                                                                 |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
 | **Mood Input**        | Free-text entry interpreted into therapy mode                                                                                           |
-| **Mode Chips**        | Deep Focus · Calm Down · Drift to Sleep · Anxiety Relief · Grounding · Energy Boost · Trauma Gentle                                     |
+| **Mode Chips**        | Deep Focus · Calm Down · Drift to Sleep · Anxiety Relief · Grounding · Energy Boost · Trauma Gentle                                      |
 | **Vibe Chips**        | Anxious · Overwhelmed · Creative Flow (multi-select, up to 3)                                                                           |
-| **Brainwave Mapping** | Each mode maps to a clinical frequency: Gamma 40Hz / Theta 6Hz / Delta 2Hz / Alpha 10Hz / Schumann 7.83Hz / Beta 18Hz / Infra-Low 0.5Hz |
+| **Brainwave Mapping** | Each mode maps to a clinical frequency: Gamma 40 Hz / Theta 6 Hz / Delta 2 Hz / Alpha 10 Hz / Schumann 7.83 Hz / Beta 18 Hz / Infra-Low 0.5 Hz |
 | **Vinyl Player**      | Gramophone-style visualiser with EQ bars, progress scrubbing, skip ±30s                                                                 |
 | **Suno Generation**   | One-click AI music generation via Suno V5 API with live status polling                                                                  |
 | **Controls Drawer**   | Intensity (1–4) · Duration (15/30/45 min) · Environment (None/Rain/Noise)                                                               |
@@ -105,7 +109,7 @@ A fully self-contained single-page application — no build step, no dependencie
 4. **Music Preferences** — Styles, sounds to avoid, rhythm preference (slider), volume sensitivity
 5. **Treatment History** — Previous therapy, types, session count, effectiveness
 
-Profile data persists to `localStorage` and auto-restores on reload.
+Profile data persists to `localStorage` under the key `moodtune-profile` and auto-restores on reload.
 
 ### Biometric Monitor (Vitals Modal)
 
@@ -118,7 +122,7 @@ Displays a live Apple Watch biometric snapshot with derived clinical analysis:
 | HRV · SDNN           | HealthKit     | 8-bar trend chart; threshold alert at < 40 ms                                                    |
 | Stress Score         | Derived       | Circular ring gauge, colour-graded (green/amber/red)                                             |
 | Respiratory Rate     | HealthKit     | Instrument selection trigger at > 18 br/min                                                      |
-| Blood Oxygen SpO₂    | HealthKit     | Alert below 94%                                                                                  |
+| Blood Oxygen SpO₂    | HealthKit     | Alert styling below 94%                                                                          |
 | Wrist Temperature    | HealthKit     | Warning above 37.5 °C                                                                            |
 | Ambient Noise        | HealthKit     | Safeguard trigger above 70 dB                                                                    |
 | Body Motion (XYZ)    | Accelerometer | Three-axis bar visualisation                                                                     |
@@ -128,7 +132,7 @@ Displays a live Apple Watch biometric snapshot with derived clinical analysis:
 
 ### Demo Cases
 
-Five pre-loaded clinical demonstration cases, each with a full profile, biometric snapshot, and a pre-generated Suno V5 track:
+Five pre-loaded clinical demonstration cases, each with a full profile, biometric snapshot, and a pre-generated Suno V5 track (titles below are the API `returnedTitle` values stored in `case_audio_urls.json`):
 
 
 | ID         | Patient          | Condition                                            | Track                       |
@@ -145,6 +149,11 @@ Clicking a case instantly loads: profile data into the modal, mood input and mod
 ---
 
 ## Python Module (`music_ai_module`)
+
+### Requirements
+
+- **Python 3.10+** recommended (stdlib `dataclasses` / typing usage)
+- **Packages**: `openai`, `numpy` (see Installation)
 
 ### Installation
 
@@ -206,12 +215,12 @@ All parameters are centralised in `SystemConfig` and can be overridden via envir
 | `OPENAI_API_KEY`       | —                            | LLM API key (optional verification only) |
 | `LLM_BASE_URL`         | `https://api.zyai.online/v1` | OpenAI-compatible endpoint               |
 | `LLM_MODEL`            | `gpt-3.5-turbo`              | Model for prompt verification            |
-| `SUNO_API_KEY`         | —                            | Suno music generation key                |
+| `SUNO_API_KEY`         | —                            | Suno music generation key (Layer 4)      |
 | `min_bpm`              | 45                           | Hard floor for entrainment BPM           |
 | `max_bpm`              | 140                          | Hard ceiling for entrainment BPM         |
 | `rhythm_reduction_pct` | 15.0                         | Entrainment reduction (%)                |
 | `hrv_safety_threshold` | 40.0 ms                      | HRV below which masking activates        |
-| `max_noise_db`         | 70.0 dB                      | Noise above which safeguards fire        |
+| `max_noise_db`         | 70.0 dB                      | Noise above which safeguards fire          |
 | `sample_interval_s`    | 30 s                         | Biometric sampling interval              |
 | `feedback_loop_s`      | 180 s                        | Duration of one intervention cycle       |
 | `cycles_per_session`   | 3                            | Cycles per full therapy session          |
@@ -222,8 +231,8 @@ All parameters are centralised in `SystemConfig` and can be overridden via envir
 
 ```
 Heart Rate → Target BPM
-    target = max(45, HR × 0.85)
-    Rhythmic entrainment effect: 15% reduction triggers measurable HR descent
+    target = clamp( HR × (1 − rhythm_reduction_pct / 100), min_bpm … max_bpm )
+    Default: 15% reduction; Rhythmic entrainment: slower auditory tempo supports HR descent
 
 HRV (SDNN) → Acoustic Texture
     < 40 ms  →  pink noise broadband masking + continuous synthesizer pad
@@ -247,19 +256,23 @@ Sympathetic Load → Emotional Anchor
 
 ## Demo Track Generation
 
-To regenerate the five demo case tracks (requires Suno API key in `.env`):
+**Prerequisites:** Node.js **18+** (global `fetch`).
+
+To regenerate the five demo case tracks, put your Suno API key in `.env` and run:
 
 ```bash
 node generate_cases.js
 ```
 
-The script submits all five prompts sequentially, polls until completion, and saves the resulting MP3 URLs to `case_audio_urls.json`. Each generation takes approximately 1–3 minutes per track.
+The script submits all five prompts **sequentially** (to reduce rate-limit issues), polls until completion, and writes results to `case_audio_urls.json`. Each generation typically takes about **1–3 minutes** per track.
+
+Polling in this script: **6 s** interval, **7 minute** overall timeout (`generate_cases.js`). The in-browser UI uses **5 s** polling and a **6 minute** timeout — see the Suno section below.
 
 ---
 
 ## Suno API Integration
 
-The web interface uses the [sunoapi.org](https://sunoapi.org) third-party wrapper:
+The web interface and Node scripts use the [sunoapi.org](https://sunoapi.org) third-party wrapper. API reference: [Suno API docs](https://docs.sunoapi.org/suno-api/generate-music).
 
 ```
 POST  https://api.sunoapi.org/api/v1/generate
@@ -267,11 +280,12 @@ GET   https://api.sunoapi.org/api/v1/generate/record-info?taskId=…
 ```
 
 - Model: **V5** (instrumental, non-custom mode)
-- Prompt cap: 500 characters
-- Poll interval: 5 seconds, timeout: 7 minutes
-- Status flow: `PENDING → TEXT_SUCCESS → FIRST_SUCCESS → SUCCESS`
+- Prompt cap: **500** characters
+- **Web UI (`web.html`):** poll every **5 s**, max wait **6 minutes**
+- **`generate_cases.js`:** poll every **6 s**, max wait **7 minutes**
+- Typical status flow: `PENDING → … → SUCCESS` (intermediate states may include `TEXT_SUCCESS`, `FIRST_SUCCESS`, depending on API version)
 
-Your API key is stored only in `localStorage` and is never forwarded to any server other than the Suno endpoint.
+**Privacy:** In the browser, your API key is stored in `localStorage` under `moodtune-suno-key` and is only sent to `https://api.sunoapi.org` from your machine (not through a first-party MindWave backend).
 
 ---
 
@@ -280,11 +294,11 @@ Your API key is stored only in `localStorage` and is never forwarded to any serv
 
 | Principle                         | Implementation                                                                                                                                                      |
 | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Rhythmic Entrainment**          | Music BPM set 15% below heart rate; repeated auditory stimuli entrain cardiovascular rhythms via baroreflex modulation                                              |
-| **HRV & Vagal Tone**              | SDNN < 40 ms indicates sympathetic dominance; acoustic masking (pink noise) reduces perceived threat and supports parasympathetic re-engagement                     |
+| **Rhythmic Entrainment**          | Music BPM set below heart rate (default 15%); repeated auditory stimuli entrain cardiovascular rhythms via baroreflex modulation                                    |
+| **HRV & Vagal Tone**              | SDNN < 40 ms indicates sympathetic dominance; acoustic masking (pink noise) reduces perceived threat and supports parasympathetic re-engagement                   |
 | **Respiratory Synchronisation**   | Sustained legato instruments at slow tempos naturally extend exhalation cycles, activating the parasympathetic nervous system                                       |
-| **Brainwave Entrainment**         | Binaural beat frequencies embedded at clinically relevant bands: Delta (2 Hz, sleep), Theta (6 Hz, relaxation), Alpha (10 Hz, anxiety relief), Gamma (40 Hz, focus) |
-| **Environmental Acoustic Safety** | Above 70 dB ambient, sharp transients risk startle responses; constraints are applied automatically                                                                 |
+| **Brainwave Entrainment**         | Binaural beat frequencies embedded at clinically relevant bands: Delta (2 Hz, sleep), Theta (6 Hz, relaxation), Alpha (10 Hz), Gamma (40 Hz, focus), etc.        |
+| **Environmental Acoustic Safety** | Above 70 dB ambient, sharp transients risk startle responses; constraints are applied automatically                                                                  |
 
 
 ---
@@ -302,19 +316,23 @@ The UI is built on a dark glass-morphism aesthetic:
 
 ## Environment Setup
 
-Create a `.env` file in the project root:
+Create a `.env` file in the project root for **Node** scripts (`generate_cases.js`, `api_test.js`):
 
 ```env
 API_KEY=your_suno_api_key_here
 ```
 
-For the Python module's LLM verification feature:
+You can alternatively set `SUNO_API_KEY` — both are read by the Node utilities.
+
+For the Python module's **optional** LLM verification:
 
 ```env
 OPENAI_API_KEY=your_llm_key
 LLM_BASE_URL=https://api.zyai.online/v1
 LLM_MODEL=gpt-3.5-turbo
 ```
+
+Suno generation inside Python (`SUNO_API_KEY`) is only needed if you call Layer 4 from code paths that use it.
 
 ---
 
