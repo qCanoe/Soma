@@ -1,2 +1,5 @@
 openai>=1.0.0
 numpy>=1.24
+beautifulsoup4>=4.12.0
+networkx>=3.0
+pyyaml>=6.0

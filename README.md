@@ -55,6 +55,8 @@ Apple Watch / HealthKit
 └────────────────────────────────────────────────────────────┘
 ```
 
+Optional **clinical music knowledge graph** (GraphRAG) can run *between* Layer 2 and Layer 3: it retrieves evidence-backed constraints from `data/knowledge/` (chunks + `graph.json`), merges safety rules, and attaches `clinical_audit` metadata — enable with `use_knowledge_graph=True` on `MusicAIPipeline.run()` (see [Medical music knowledge graph](#medical-music-knowledge-graph-graphrag)).
+
 ---
 
 ## Repository Structure
@@ -72,6 +74,7 @@ MindWave/
 │   ├── compiler.py            # Layer 3: MusicPromptCompiler
 │   ├── pipeline.py            # MusicAIPipeline
 │   ├── config.py              # SystemConfig
+│   ├── knowledge/             # GraphRAG: ingest, graph store, retriever, clinical auditor
 │   └── example.py             # CLI smoke test
 ├── tests/                     # pytest regression suite (`pip install -e ".[dev]"`)
 ├── scripts/
@@ -79,7 +82,8 @@ MindWave/
 │   └── api_test.js            # Suno API smoke test
 ├── data/
 │   ├── case_audio_urls.json   # Cached demo MP3 URLs (regenerate via scripts)
-│   └── case.md                # Clinical case definitions
+│   ├── case.md                # Clinical case definitions
+│   └── knowledge/             # GraphRAG sources, seed chunks/graph, ingest output
 ├── notebooks/
 │   └── pipeline_demo.ipynb    # Minimal Jupyter walkthrough (imports music_ai_module)
 ├── docs/
@@ -167,7 +171,7 @@ Clicking a case instantly loads: profile data into the modal, mood input and mod
 ### Requirements
 
 - **Python 3.10+** recommended (stdlib `dataclasses` / typing usage)
-- **Packages**: `openai`, `numpy` (see Installation)
+- **Packages**: `openai`, `numpy`, `beautifulsoup4`, `networkx`, `pyyaml` (see Installation)
 
 ### Installation
 
@@ -177,7 +181,7 @@ pip install -r requirements.txt
 # optional dev/tests: pip install -e ".[dev]"
 ```
 
-Core dependencies: `openai`, `numpy` (see `pyproject.toml`).
+Core dependencies: `openai`, `numpy`, `beautifulsoup4`, `networkx`, `pyyaml` (see `pyproject.toml`).
 
 ### Quick Start
 
@@ -213,9 +217,34 @@ print(result["prompt"])           # → final Suno prompt string
 print(result["processed_params"]) # → Layer 2 bundle (legacy rhythm/texture/… + features/state/music_strategy)
 MusicAIPipeline.describe(result)  # → formatted console summary
 
-# Optional: fail fast on implausible sensors
-# result = pipeline.run(user, biometrics, strict_validation=True)
+# Optional: clinical music knowledge graph (Layer 2.5) — evidence-aware safety merge
+# result = pipeline.run(user, biometrics, use_knowledge_graph=True, user_intent="exam anxiety")
 ```
+
+### Medical music knowledge graph (GraphRAG)
+
+The `music_ai_module/knowledge/` package maintains **local** files under `data/knowledge/`:
+
+| File | Purpose |
+|------|---------|
+| `sources.yaml` | Registry of fetchable URLs (NCCIH, WHO ICD license page, etc.) |
+| `chunks.jsonl` | Text chunks + offsets (ingest appends; repo ships a small **seed** excerpt) |
+| `graph.json` | Nodes/edges with `evidence.chunk_id` + verbatim `quote` when extracted |
+| `raw/` | Optional HTML snapshots from ingest (gitignored by default) |
+
+**CLI** (module entry point):
+
+```bash
+python -m music_ai_module.knowledge ingest --sources data/knowledge/sources.yaml
+python -m music_ai_module.knowledge ingest --sources data/knowledge/sources.yaml --extract  # needs LLM key
+python -m music_ai_module.knowledge query "anxiety sleep music intervention"
+python -m music_ai_module.knowledge audit --case case_003
+```
+
+- Without `OPENAI_API_KEY`, retrieval falls back to **keyword overlap** on chunks (good for tests/offline demos).
+- With a key + `EMBEDDING_MODEL`, retrieval uses **embedding cosine similarity** on chunks; `--extract` calls an OpenAI-compatible chat model to populate `graph.json` (every relation must quote text that appears in the chunk).
+
+**Scope & disclaimer:** this layer supports **wellness music planning** only. It does **not** diagnose or treat medical conditions. Seed content cites public-domain / openly licensed pages (credit NCCIH and WHO as applicable). Do not ship proprietary manuals (e.g. full DSM-5 text) inside the repo.
 
 ### Run the Smoke Test
 
@@ -232,9 +261,15 @@ All parameters are centralised in `SystemConfig` and can be overridden via envir
 
 | Parameter                                        | Default                      | Description                              |
 | ------------------------------------------------ | ---------------------------- | ---------------------------------------- |
-| `OPENAI_API_KEY`                                 | —                            | LLM API key (optional verification only) |
+| `OPENAI_API_KEY`                                 | —                            | LLM API key (optional verification + GraphRAG extract/embed) |
 | `LLM_BASE_URL`                                   | `https://api.zyai.online/v1` | OpenAI-compatible endpoint               |
-| `LLM_MODEL`                                      | `gpt-3.5-turbo`              | Model for prompt verification            |
+| `LLM_MODEL`                                      | `gpt-3.5-turbo`              | Model for prompt verification + KG extract |
+| `EMBEDDING_MODEL`                                  | `text-embedding-3-small`     | Embedding model for chunk retrieval       |
+| `KNOWLEDGE_DATA_DIR`                             | *(repo)* `data/knowledge`   | Override path for graph/chunks/cache      |
+| `KNOWLEDGE_CHUNK_SIZE`                           | 1200                         | Ingest chunk character length             |
+| `KNOWLEDGE_CHUNK_OVERLAP`                       | 200                          | Ingest chunk overlap                      |
+| `KNOWLEDGE_MAX_ANCHOR_CHARS`                     | 200                          | Max extra emotional-anchor suffix text    |
+| `KNOWLEDGE_ENABLED_DEFAULT`                      | false                        | If `true`, pipeline always runs KG audit  |
 | `SUNO_API_KEY`                                   | —                            | Suno music generation key (Layer 4)      |
 | `MIN_BPM`                                        | 45                           | Hard floor for entrainment BPM           |
 | `MAX_BPM`                                        | 140                          | Hard ceiling for entrainment BPM         |

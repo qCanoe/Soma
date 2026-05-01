@@ -111,6 +111,17 @@ class SystemConfig:
     llm_model: str = os.environ.get("LLM_MODEL", "gpt-3.5-turbo")
     suno_api_key: str = os.environ.get("SUNO_API_KEY", "")
 
+    # Knowledge graph / GraphRAG (optional)
+    embedding_model: str = os.environ.get("EMBEDDING_MODEL", "text-embedding-3-small")
+    knowledge_data_dir: str = os.environ.get("KNOWLEDGE_DATA_DIR", "")
+    knowledge_max_prompt_chars: int = _env_int("KNOWLEDGE_MAX_PROMPT_CHARS", 500)
+    knowledge_max_anchor_chars: int = _env_int("KNOWLEDGE_MAX_ANCHOR_CHARS", 200)
+    knowledge_chunk_size: int = _env_int("KNOWLEDGE_CHUNK_SIZE", 1200)
+    knowledge_chunk_overlap: int = _env_int("KNOWLEDGE_CHUNK_OVERLAP", 200)
+    knowledge_enabled_default: bool = os.environ.get(
+        "KNOWLEDGE_ENABLED_DEFAULT", ""
+    ).lower() in ("1", "true", "yes")
+
     # Music generation bounds
     min_bpm: int = _env_int("MIN_BPM", 45)
     max_bpm: int = _env_int("MAX_BPM", 140)

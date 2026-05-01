@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "nodes": {
+    "condition_anxiety": {
+      "id": "condition_anxiety",
+      "type": "Condition",
+      "label": "Anxiety",
+      "properties": {}
+    },
+    "condition_sleep_problems": {
+      "id": "condition_sleep_problems",
+      "type": "Condition",
+      "label": "Sleep problems",
+      "properties": {}
+    },
+    "intervention_music_based": {
+      "id": "intervention_music_based",
+      "type": "MusicIntervention",
+      "label": "Music-based interventions",
+      "properties": {}
+    },
+    "safety_sharp_onsets": {
+      "id": "safety_sharp_onsets",
+      "type": "SafetyConstraint",
+      "label": "Sudden loud onsets, sharp transients, and heavy percussion",
+      "properties": {}
+    }
+  },
+  "edges": [
+    {
+      "id": "e_seed_anxiety_mbi",
+      "source_id": "condition_anxiety",
+      "target_id": "intervention_music_based",
+      "predicate": "MAY_HELP",
+      "evidence": {
+        "chunk_id": "nccih_music_health_seed_001",
+        "quote": "Most studies have had promising results.",
+        "confidence": 0.85,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_seed_sleep_mixed",
+      "source_id": "condition_sleep_problems",
+      "target_id": "intervention_music_based",
+      "predicate": "RELATED_TO",
+      "evidence": {
+        "chunk_id": "nccih_music_health_seed_001",
+        "quote": "Results of studies have been mixed as to whether music-based interventions can be helpful for sleep problems.",
+        "confidence": 0.8,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_seed_sharp_avoid_anxiety",
+      "source_id": "safety_sharp_onsets",
+      "target_id": "condition_anxiety",
+      "predicate": "AVOID_FOR",
+      "evidence": {
+        "chunk_id": "nccih_music_health_seed_001",
+        "quote": "Music-based interventions have been evaluated for their effects on anxiety in a variety of disease conditions and health care settings.",
+        "confidence": 0.65,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed_note"
+      }
+    }
+  ]
+}

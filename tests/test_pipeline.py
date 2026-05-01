@@ -32,3 +32,19 @@ def test_run_returns_strategy_bundle(profile: StaticUserProfile, biometrics: App
     assert "state" in result["processed_params"]
     assert isinstance(result["prompt"], str)
     assert len(result["prompt"]) > 40
+
+
+def test_pipeline_with_knowledge_graph(
+    profile: StaticUserProfile, biometrics: AppleWatchBiometrics
+) -> None:
+    result = MusicAIPipeline().run(
+        profile,
+        biometrics,
+        use_knowledge_graph=True,
+        user_intent="work anxiety relief",
+    )
+    assert isinstance(result["prompt"], str)
+    assert len(result["prompt"]) > 40
+    ca = result["metadata"].get("clinical_audit")
+    assert isinstance(ca, dict)
+    assert "query_used" in ca

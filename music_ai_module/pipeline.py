@@ -37,7 +37,7 @@ Usage (minimal)
 from __future__ import annotations
 
 import warnings
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from .compiler import MusicPromptCompiler
 from .config import SystemConfig, default_config
@@ -69,6 +69,8 @@ class MusicAIPipeline:
         biometrics: AppleWatchBiometrics,
         verify: bool = False,
         strict_validation: bool = False,
+        use_knowledge_graph: bool = False,
+        user_intent: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         Execute the full pipeline.
@@ -89,6 +91,17 @@ class MusicAIPipeline:
                 )
 
         processed = self.processor.process(profile, biometrics, validation_errors=errors)
+
+        use_kg = use_knowledge_graph or self.config.knowledge_enabled_default
+        if use_kg:
+            from .knowledge.auditor import (
+                ClinicalMusicAuditor,
+                apply_audit_to_processed,
+            )
+
+            auditor = ClinicalMusicAuditor(self.config)
+            audit = auditor.audit(profile, processed, user_intent=user_intent)
+            processed = apply_audit_to_processed(processed, audit, self.config)
 
         compiled = self.compiler.compile(profile, processed, verify=verify)
 

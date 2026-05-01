@@ -171,7 +171,7 @@ class MusicPromptCompiler:
         texture = processed_params["texture"]
         state = processed_params.get("state") or {}
 
-        return {
+        meta: Dict[str, Any] = {
             "prompt_length_chars": len(prompt),
             "prompt_length_tokens_estimate": token_estimate,
             "target_bpm": rhythm["target_bpm"],
@@ -185,6 +185,16 @@ class MusicPromptCompiler:
             "api_cost_estimate_usd": token_estimate * 0.00002,
             "validation_status": "pass" if len(prompt) < 2000 else "warning",
         }
+        ca = processed_params.get("clinical_audit")
+        if isinstance(ca, dict):
+            meta["clinical_audit"] = {
+                "query_used": ca.get("query_used"),
+                "evidence_summary": ca.get("evidence_summary"),
+                "bpm_min": ca.get("bpm_min"),
+                "bpm_max": ca.get("bpm_max"),
+                "disclaimer": ca.get("disclaimer"),
+            }
+        return meta
 
     # ------------------------------------------------------------------
     # Optional LLM verification

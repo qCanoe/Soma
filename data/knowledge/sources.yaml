@@ -1,0 +1,28 @@
+# Initial open-access / public-domain friendly seeds for GraphRAG ingestion.
+# Run: python -m music_ai_module.knowledge ingest --sources data/knowledge/sources.yaml
+# With LLM extraction: add --extract (requires OPENAI_API_KEY and compatible endpoints).
+
+sources:
+  - id: nccih_music_health
+    url: https://www.nccih.nih.gov/health/providers/digest/music-and-health
+    title: "Music and Health | NCCIH"
+    license_note: "NCCIH pages are typically U.S. public domain — credit NCCIH as source."
+    full_text_allowed: true
+    topics: [anxiety, sleep, stress, pain, dementia, general]
+    trust_score: 0.95
+
+  - id: nccih_mbi_toolkit
+    url: https://www.nccih.nih.gov/research/the-nih-music-based-intervention-toolkit
+    title: "NIH Music-Based Intervention Toolkit | NCCIH"
+    license_note: "NCCIH — public domain with credit."
+    full_text_allowed: true
+    topics: [intervention_design, music_therapy, music_medicine, research_methods]
+    trust_score: 0.95
+
+  - id: who_icd11_license
+    url: https://icd.who.int/icdapi/docs2/license/
+    title: "ICD-11 API License (WHO)"
+    license_note: "CC BY-ND 3.0 IGO — use WHO ICD API for classification URIs; do not redistribute adaptations."
+    full_text_allowed: true
+    topics: [classification, licensing]
+    trust_score: 1.0
