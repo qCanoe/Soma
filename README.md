@@ -10,7 +10,7 @@ The single-page app brand in the UI (`apps/web/index.html`) is **Soma**; this gi
 
 MindWave bridges physiological sensing and generative music AI. It reads live biometric signals from Apple Watch (heart rate, HRV, respiratory rate, SpO₂, and more), passes them through a neuroscience-grounded rules engine, compiles a deterministic music generation prompt, and delivers the result via the Suno AI music API — all presented through a polished, single-page therapy interface.
 
-The system is designed around **rhythmic entrainment theory**: music tempo and texture are derived directly from a user's current physiological state, not from subjective mood tags alone. A configurable BPM reduction from the measured heart rate (default **15%**, i.e. HR × 0.85) creates a physical anchor that guides cardiovascular rhythms downward, clamped between `min_bpm` and `max_bpm` (see `SystemConfig`).
+The system is designed around **rhythmic entrainment theory**: music tempo and texture are derived directly from a user's current physiological state, not from subjective mood tags alone. Layer 2 uses a **smoothed heart rate** (moving average), applies a configurable BPM reduction (default **15%**), optionally pulls tempo slightly lower under **high arousal**, then clamps between `min_bpm` and `max_bpm` (see `SystemConfig`).
 
 ---
 
@@ -28,22 +28,23 @@ Apple Watch / HealthKit
                      │
                      ▼
 ┌────────────────────────────────────────────────────────────┐
-│  Layer 2 · Middleware Rules Engine  (BiometricProcessor)   │
-│  • HR → Target BPM  (entrainment: HR × (1 − rhythm_reduction_pct%),   │
-│    clamped to [min_bpm, max_bpm], default 45–140)           │
-│  • HRV < 40 ms → pink noise + continuous pad                │
-│  • Resp rate > 18 br/min → cello legato + sustained synth │
-│  • Ambient noise > 70 dB → transient / peak safeguards      │
-│  • Sympathetic load = current HR − resting baseline         │
+│  Layer 2 · BiometricProcessor                             │
+│  Features → continuous scores → arousal (0–100) → state     │
+│  • BiometricFeatures (HR/HRV/resp/noise/motion…)           │
+│  • PhysiologicalState (stress band, recovery priority,      │
+│    confidence, trend, sympathetic load on smoothed HR)       │
+│  • MusicStrategy (genre text, tempo, instruments, texture, │
+│    emotional anchor, safeguards) — single rendering input    │
+│  • Temporal hysteresis on masking & noisy-environment bans   │
 └────────────────────┬───────────────────────────────────────┘
                      │
                      ▼
 ┌────────────────────────────────────────────────────────────┐
-│  Layer 3 · LLM Compiler  (MusicPromptCompiler)             │
-│  7-segment deterministic template engine                    │
-│  [1] Music Type  [2] Genre  [3] Tempo  [4] Instruments      │
+│  Layer 3 · MusicPromptCompiler                             │
+│  Pure deterministic renderer for MusicStrategy              │
+│  [1] Music Type  [2] Genre  [3] Tempo  [4] Instruments       │
 │  [5] Texture     [6] Emotional Anchor  [7] Constraints       │
-│  Optional: LLM technical verification via OpenAI-compat. API │
+│  Optional: lazy LLM client — verification only when verify=True │
 └────────────────────┬───────────────────────────────────────┘
                      │
                      ▼
@@ -65,12 +66,14 @@ MindWave/
 │       └── index.html         # Single-page therapy UI (“Soma”; all-in-one, no build)
 ├── music_ai_module/           # Python pipeline library (importable package)
 │   ├── __init__.py
-│   ├── models.py              # Layer 1: dataclasses & validation
+│   ├── models.py              # Layer 1 + Features / State / Strategy dataclasses
+│   ├── style_maps.py          # Occupation → genre prompt (single source)
 │   ├── processor.py           # Layer 2: BiometricProcessor
 │   ├── compiler.py            # Layer 3: MusicPromptCompiler
 │   ├── pipeline.py            # MusicAIPipeline
 │   ├── config.py              # SystemConfig
 │   └── example.py             # CLI smoke test
+├── tests/                     # pytest regression suite (`pip install -e ".[dev]"`)
 ├── scripts/
 │   ├── generate_cases.js      # Batch-generate 5 demo tracks → data/case_audio_urls.json
 │   └── api_test.js            # Suno API smoke test
@@ -171,6 +174,7 @@ Clicking a case instantly loads: profile data into the modal, mood input and mod
 ```bash
 pip install -r requirements.txt
 # or: pip install -e .
+# optional dev/tests: pip install -e ".[dev]"
 ```
 
 Core dependencies: `openai`, `numpy` (see `pyproject.toml`).
@@ -206,8 +210,11 @@ pipeline = MusicAIPipeline()
 result = pipeline.run(user, biometrics)
 
 print(result["prompt"])           # → final Suno prompt string
-print(result["processed_params"]) # → Layer 2 acoustic parameters
+print(result["processed_params"]) # → Layer 2 bundle (legacy rhythm/texture/… + features/state/music_strategy)
 MusicAIPipeline.describe(result)  # → formatted console summary
+
+# Optional: fail fast on implausible sensors
+# result = pipeline.run(user, biometrics, strict_validation=True)
 ```
 
 ### Run the Smoke Test
@@ -215,6 +222,7 @@ MusicAIPipeline.describe(result)  # → formatted console summary
 ```bash
 python music_ai_module/example.py            # no API calls
 python music_ai_module/example.py --verify   # optional LLM verification (~$0.0005)
+python -m pytest tests -q                     # algorithm regression tests (requires `.[dev]`)
 ```
 
 ### Configuration
@@ -228,41 +236,74 @@ All parameters are centralised in `SystemConfig` and can be overridden via envir
 | `LLM_BASE_URL`         | `https://api.zyai.online/v1` | OpenAI-compatible endpoint               |
 | `LLM_MODEL`            | `gpt-3.5-turbo`              | Model for prompt verification            |
 | `SUNO_API_KEY`         | —                            | Suno music generation key (Layer 4)      |
-| `min_bpm`              | 45                           | Hard floor for entrainment BPM           |
-| `max_bpm`              | 140                          | Hard ceiling for entrainment BPM         |
-| `rhythm_reduction_pct` | 15.0                         | Entrainment reduction (%)                |
-| `hrv_safety_threshold` | 40.0 ms                      | HRV below which masking activates        |
-| `max_noise_db`         | 70.0 dB                      | Noise above which safeguards fire          |
+| `MIN_BPM`              | 45                           | Hard floor for entrainment BPM           |
+| `MAX_BPM`              | 140                          | Hard ceiling for entrainment BPM         |
+| `RHYTHM_REDUCTION_PCT` | 15.0                         | Entrainment reduction (%)                |
+| `AROUSAL_EXTRA_BPM_REDUCTION_MAX` | 8.0                  | Extra BPM pull-down when arousal → 100    |
+| `HRV_SAFETY_THRESHOLD_MS` | 40.0                      | HRV curve anchor (risk ↑ when lower)     |
+| `MAX_NOISE_DB`         | 70.0 dB                      | Noise-risk curve anchor                  |
+| `RESPIRATORY_ELEVATED_THRESHOLD` | 18.0              | Respiratory load curve anchor            |
+| `AROUSAL_WEIGHT_HR` … `AROUSAL_WEIGHT_MOTION` | see `config.py` | Normalised arousal blend |
+| `MASKING_ENTER_AROUSAL` / `MASKING_EXIT_AROUSAL` | 58 / 48 | Masking latch thresholds (0–100) |
+| `NOISE_FORBID_ENTER_DB` / `NOISE_FORBID_EXIT_DB` | 72 / 66 | Safeguard latch thresholds (dB) |
+| `TEMPORAL_HISTORY_MAXLEN` | 12                       | Samples remembered for trend estimation    |
 | `sample_interval_s`    | 30 s                         | Biometric sampling interval              |
 | `feedback_loop_s`      | 180 s                        | Duration of one intervention cycle       |
 | `cycles_per_session`   | 3                            | Cycles per full therapy session          |
-| `hr_smoothing_window`  | 5                            | Moving-average window for HR filter      |
+| `HR_SMOOTHING_WINDOW`  | 5                            | Moving-average window for HR filter      |
 
 
 ### Layer 2 Mapping Logic
 
+Layer 2 now follows **Features → continuous scores → arousal → PhysiologicalState → MusicStrategy**.
+
 ```
-Heart Rate → Target BPM
-    target = clamp( HR × (1 − rhythm_reduction_pct / 100), min_bpm … max_bpm )
-    Default: 15% reduction; Rhythmic entrainment: slower auditory tempo supports HR descent
+Heart Rate → smoothed HR (moving average)
+Sympathetic load (Layer 2 display) = smoothed HR − baseline HR
 
-HRV (SDNN) → Acoustic Texture
-    < 40 ms  →  pink noise broadband masking + continuous synthesizer pad
-    ≥ 40 ms  →  clean instruments with natural resonance
+Component scores (each 0–100, continuous ramps — no single hard flip at 40 ms / 18 br/min)
+    HR load score from ΔHR vs baseline
+    HRV risk score from SDNN (lower ⇒ higher risk)
+    Respiratory load score vs calm ↔ stress anchors
+    Noise risk score vs calm ↔ harsh anchors
+    Motion intensity score from accelerometer magnitude
 
-Respiratory Rate → Instrument Set
-    > 18 br/min  →  cello_legato + sustained_synth  (guides exhalation lengthening)
-    ≤ 18 br/min  →  piano + ambient_strings
+arousal_score (0–100)
+    weighted blend of the five scores (weights configurable)
 
-Ambient Noise → Safety Constraints
-    > 70 dB  →  forbid sharp transients, high-freq peaks, percussive hits
+stress_state bands on arousal_score
+    low ≤ `AROUSAL_LOW_MAX` (31)
+    moderate ≤ `AROUSAL_MODERATE_MAX` (66)
+    high above that
 
-Sympathetic Load → Emotional Anchor
-    = current HR − resting baseline HR
-    > 20 BPM  →  deep grounding, vagal tone rebalancing
-    > 10 BPM  →  calm deactivation, breath recovery
-    ≤ 10 BPM  →  focus support, transparent presence
+recovery_priority
+    High arousal forces grounding; otherwise honours `therapy_goal`
+    (`focus` | `calm` | `sleep` | `grounding`)
+
+Target BPM
+    base = smoothed_HR × (1 − rhythm_reduction_pct / 100)
+         − (arousal_score / 100) × arousal_extra_bpm_reduction_max
+    clamp to [min_bpm, max_bpm]
+
+Masking / pink-noise + pad strength
+    blends HRV risk + arousal; hysteresis latch prevents flicker at thresholds
+
+Instruments
+    respiratory_load_score chooses piano/strings ↔ hybrid ↔ cello legato set
+    respects `avoid_instruments` on StaticUserProfile
+
+Ambient noise safeguards (startle constraints)
+    hysteresis on enter/exit dB so constraints do not chatter
+
+Emotional anchor text
+    sympathetic_load breakpoints + recovery_priority + chronic_stress_sources context
+
+StaticUserProfile personalization
+    music_preference, sound_sensitivity, preferred_density, therapy_goal
+    blend into genre_style resolved once in MusicStrategy
 ```
+
+**SPA note:** `apps/web/index.html` still mirrors parts of Layer 2 for the Vitals demo and uses a separate prompt path for mood-based Suno generation; production integrations should treat **`music_ai_module` as the canonical physiology→prompt engine**.
 
 ---
 

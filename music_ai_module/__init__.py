@@ -3,7 +3,7 @@ music_ai_module
 ===============
 
 Biometric-to-music pipeline: converts Apple Watch physiological data into
-a standardised music generation prompt via a 4-layer architecture.
+a standardised music generation prompt via a layered architecture.
 
 Public API
 ----------
@@ -13,7 +13,14 @@ Public API
 
 from .config import SystemConfig, default_config
 from .compiler import MusicPromptCompiler
-from .models import AppleWatchBiometrics, StaticUserProfile
+from .models import (
+    AppleWatchBiometrics,
+    BiometricFeatures,
+    MusicStrategy,
+    PhysiologicalState,
+    StaticUserProfile,
+    dataclass_to_dict,
+)
 from .pipeline import MusicAIPipeline
 from .processor import BiometricProcessor
 
@@ -25,4 +32,8 @@ __all__ = [
     "default_config",
     "StaticUserProfile",
     "AppleWatchBiometrics",
+    "BiometricFeatures",
+    "PhysiologicalState",
+    "MusicStrategy",
+    "dataclass_to_dict",
 ]

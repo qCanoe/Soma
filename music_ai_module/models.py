@@ -1,13 +1,16 @@
 """
 Layer 1: Multi-Modal Data Input Models
 
-Defines the data structures for static user profiles and real-time
-Apple Watch biometric readings.
+Defines the data structures for static user profiles, real-time
+Apple Watch biometric readings, extracted features, inferred physiological
+state, and compiled music strategy for deterministic prompt rendering.
 """
 
-from dataclasses import dataclass, field
+from __future__ import annotations
+
+from dataclasses import dataclass, field, asdict
 from datetime import datetime
-from typing import Optional, Dict, List
+from typing import Any, Dict, List, Optional
 
 
 # ---------------------------------------------------------------------------
@@ -15,12 +18,12 @@ from typing import Optional, Dict, List
 # ---------------------------------------------------------------------------
 
 VALID_RANGES = {
-    "heart_rate":              (30, 200),   # BPM
-    "heart_rate_variability":  (5,  250),   # ms (SDNN)
-    "respiratory_rate":        (8,  30),    # breaths/min
-    "wrist_temperature":       (35, 42),    # °C
-    "blood_oxygen":            (85, 100),   # SpO2 %
-    "environmental_audio":     (20, 130),   # dB
+    "heart_rate": (30, 200),  # BPM
+    "heart_rate_variability": (5, 250),  # ms (SDNN)
+    "respiratory_rate": (8, 30),  # breaths/min
+    "wrist_temperature": (35, 42),  # °C
+    "blood_oxygen": (85, 100),  # SpO2 %
+    "environmental_audio": (20, 130),  # dB
 }
 
 
@@ -29,16 +32,8 @@ class StaticUserProfile:
     """
     User static characteristics — captured at onboarding, updated quarterly.
 
-    Fields
-    ------
-    occupation            : Occupational context used for genre/style mapping.
-                            Supported values: "software_engineer", "student",
-                            "healthcare_worker", or any string (falls back to default).
-    age                   : Age in years.
-    height_cm             : Height in centimetres (reserved for future normalisation).
-    baseline_heart_rate   : Resting heart rate in BPM, taken after 5-min rest.
-    chronic_stress_sources: List of known chronic stressors (narrative context).
-    music_preference      : Aesthetic direction string (e.g. "minimalist_ambient").
+    occupation / baseline_heart_rate drive personalization.
+    therapy_goal steers recovery_priority when not overridden by high arousal.
     """
 
     occupation: str
@@ -47,28 +42,17 @@ class StaticUserProfile:
     baseline_heart_rate: int
     chronic_stress_sources: List[str] = field(default_factory=list)
     music_preference: str = "ambient"
+    # Personalization (optional; safe defaults preserve backward compatibility)
+    sound_sensitivity: str = "normal"  # low | normal | high
+    preferred_density: str = "medium"  # low | medium | high
+    avoid_instruments: List[str] = field(default_factory=list)
+    therapy_goal: str = "calm"  # focus | calm | sleep | grounding
 
 
 @dataclass
 class AppleWatchBiometrics:
     """
     Real-time biometric snapshot from Apple Watch.
-
-    Required fields are sampled every 30–60 s via HealthKit.
-    Optional fields depend on device generation and user permissions.
-
-    Fields
-    ------
-    timestamp                  : UTC datetime of measurement.
-    heart_rate                 : Instantaneous heart rate in BPM.
-    heart_rate_variability     : SDNN in milliseconds.
-    respiratory_rate           : Breaths per minute.
-    environmental_audio_exposure: Ambient noise level in dB.
-    body_motion                : 3-axis accelerometer dict {"x", "y", "z"} in g.
-    wrist_temperature          : Skin temperature in °C (optional).
-    blood_oxygen               : SpO2 percentage (optional).
-    sleep_stage                : Current sleep stage: "awake", "core", "deep", "rem"
-                                 (optional — only available during sleep tracking).
     """
 
     timestamp: datetime
@@ -82,18 +66,13 @@ class AppleWatchBiometrics:
     sleep_stage: Optional[str] = None
 
     def validate(self) -> List[str]:
-        """
-        Check all sensor values are within physiologically plausible bounds.
-
-        Returns a list of error strings. Empty list means all data is valid.
-        """
         errors: List[str] = []
 
         checks = [
-            ("heart_rate",             self.heart_rate),
+            ("heart_rate", self.heart_rate),
             ("heart_rate_variability", self.heart_rate_variability),
-            ("respiratory_rate",       self.respiratory_rate),
-            ("environmental_audio",    self.environmental_audio_exposure),
+            ("respiratory_rate", self.respiratory_rate),
+            ("environmental_audio", self.environmental_audio_exposure),
         ]
 
         if self.wrist_temperature is not None:
@@ -109,3 +88,57 @@ class AppleWatchBiometrics:
                 )
 
         return errors
+
+
+@dataclass
+class BiometricFeatures:
+    """Normalized measurements and component stress scores (0–100 each)."""
+
+    raw_hr: int
+    smoothed_hr: float
+    baseline_hr: int
+    hr_delta_bpm: float
+    hr_delta_pct: float
+    hrv_ms: float
+    respiratory_rate: float
+    ambient_noise_db: float
+    motion_magnitude_g: float
+
+    hr_load_score: float
+    hrv_risk_score: float
+    respiratory_load_score: float
+    noise_risk_score: float
+    motion_intensity_score: float
+
+
+@dataclass
+class PhysiologicalState:
+    """Fused interpretation used for strategy and UX."""
+
+    arousal_score: float
+    stress_state: str  # low | moderate | high
+    recovery_priority: str  # focus | calm | sleep | grounding
+    confidence: float
+    trend: str  # improving | stable | worsening
+    sympathetic_load_bpm: float
+
+
+@dataclass
+class MusicStrategy:
+    """
+    Layer 3 input: deterministic rendering only — no physiologic inference here.
+    """
+
+    tempo_bpm: int
+    genre_style: str
+    instrument_set: List[str]
+    acoustic_texture_description: str
+    emotional_anchor_description: str
+    forbid_sharp_transients: bool
+    forbid_high_freq_peaks: bool
+    forbid_percussive_hits: bool
+
+
+def dataclass_to_dict(obj: Any) -> Dict[str, Any]:
+    """JSON-friendly dict for nested dataclasses."""
+    return asdict(obj)

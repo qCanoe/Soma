@@ -1,5 +1,5 @@
 """
-Main Pipeline — end-to-end orchestration of all three layers.
+Main Pipeline — end-to-end orchestration of all layers.
 
 Usage (minimal)
 ---------------
@@ -30,13 +30,14 @@ Usage (minimal)
     )
 
     result = pipeline.run(user, biometrics)
-    print(result["prompt"])          # → final music generation prompt
-    print(result["processed_params"]) # → Layer-2 acoustic parameters
+    print(result["prompt"])           # → final music generation prompt
+    print(result["processed_params"]) # → Layer-2 bundle + music_strategy
 """
 
 from __future__ import annotations
 
-from typing import Dict, Optional
+import warnings
+from typing import Any, Dict
 
 from .compiler import MusicPromptCompiler
 from .config import SystemConfig, default_config
@@ -48,92 +49,57 @@ class MusicAIPipeline:
     """
     Orchestrates Layer 1 → Layer 2 → Layer 3.
 
-    Parameters
-    ----------
-    config : SystemConfig instance.  Defaults to the module-level
-             ``default_config`` (reads environment variables at import time).
+    Validation policy
+    -----------------
+    By default, invalid sensor ranges emit warnings and processing continues
+    using the current reading (see README — downstream clinical products should
+    gate on ``validation_errors``).
 
-    Methods
-    -------
-    run(profile, biometrics, verify=False)
-        Execute the full pipeline for a single biometric reading.
-        Returns a flat result dict containing all intermediate and final outputs.
+    Set ``strict_validation=True`` to raise ``ValueError`` when any check fails.
     """
 
     def __init__(self, config: SystemConfig = default_config) -> None:
-        self.config    = config
+        self.config = config
         self.processor = BiometricProcessor(config)
-        self.compiler  = MusicPromptCompiler(config)
-
-    # ------------------------------------------------------------------
-    # Primary entry point
-    # ------------------------------------------------------------------
+        self.compiler = MusicPromptCompiler(config)
 
     def run(
         self,
         profile: StaticUserProfile,
         biometrics: AppleWatchBiometrics,
         verify: bool = False,
-    ) -> Dict:
+        strict_validation: bool = False,
+    ) -> Dict[str, Any]:
         """
         Execute the full pipeline.
 
-        Pipeline steps
-        ~~~~~~~~~~~~~~
-        1. Validate biometric sensor data (Layer 1).
-        2. Map biometrics to acoustic parameters (Layer 2).
-        3. Compile 7-segment music generation prompt (Layer 3).
-        4. Optionally verify prompt via LLM endpoint.
-
-        Parameters
-        ----------
-        profile    : Static user profile.
-        biometrics : Real-time Apple Watch snapshot.
-        verify     : Forward compiled prompt to LLM for a completeness check.
-
         Returns
         -------
-        {
-            "prompt":           str,   # final music generation prompt
-            "segments":         dict,  # individual prompt segments
-            "metadata":         dict,  # token estimates, cost, validation
-            "processed_params": dict,  # Layer-2 acoustic parameters
-            "validation_errors": list, # sensor validation issues (empty = OK)
-            # present when verify=True:
-            "verified_prompt":      str,
-            "verification_status":  str,
-        }
-
-        Raises
-        ------
-        ValueError
-            If biometric validation fails with critical out-of-range values.
+        Flat dict with compiled prompt, segments, metadata, processed_params
+        (features, state, music_strategy), and validation_errors.
         """
-        # ── Step 1: Layer-1 validation ──────────────────────────────────
         errors = biometrics.validate()
+
         if errors:
-            # Log warnings but do not abort — use last valid reading in processor
             for err in errors:
-                print(f"[WARN] Biometric validation: {err}")
+                warnings.warn(f"Biometric validation: {err}", UserWarning, stacklevel=2)
+            if strict_validation:
+                raise ValueError(
+                    "Biometric validation failed: " + "; ".join(errors)
+                )
 
-        # ── Step 2: Layer-2 processing ──────────────────────────────────
-        processed = self.processor.process(profile, biometrics)
+        processed = self.processor.process(profile, biometrics, validation_errors=errors)
 
-        # ── Step 3 + 4: Layer-3 compilation (+ optional verification) ──
         compiled = self.compiler.compile(profile, processed, verify=verify)
 
         return {
             **compiled,
-            "processed_params":  processed,
+            "processed_params": processed,
             "validation_errors": errors,
         }
 
-    # ------------------------------------------------------------------
-    # Convenience: pretty-print a result
-    # ------------------------------------------------------------------
-
     @staticmethod
-    def describe(result: Dict) -> None:
+    def describe(result: Dict[str, Any]) -> None:
         """Print a human-readable summary of a pipeline result."""
         sep = "=" * 70
 
@@ -149,18 +115,30 @@ class MusicAIPipeline:
             print(f"\n[{name.upper()}]\n{content}\n")
 
         print(sep)
-        print("ACOUSTIC PARAMETERS (Layer 2 output)")
+        print("PHYSIOLOGICAL STATE (Layer 2)")
         print(sep)
-        rhythm    = result["processed_params"]["rhythm"]
-        texture   = result["processed_params"]["texture"]
+        st = result["processed_params"].get("state") or {}
+        print(f"  Arousal score      : {st.get('arousal_score')}")
+        print(f"  Stress state       : {st.get('stress_state')}")
+        print(f"  Recovery priority  : {st.get('recovery_priority')}")
+        print(f"  Confidence         : {st.get('confidence')}")
+        print(f"  Trend              : {st.get('trend')}")
+
+        print(sep)
+        print("ACOUSTIC PARAMETERS (legacy Layer 2 summary)")
+        print(sep)
+        rhythm = result["processed_params"]["rhythm"]
+        texture = result["processed_params"]["texture"]
         breathing = result["processed_params"]["breathing"]
         safeguard = result["processed_params"]["safeguards"]
-        print(f"  Target BPM        : {rhythm['target_bpm']}")
-        print(f"  Sympathetic Load  : +{rhythm['sympathetic_load']} BPM above baseline")
-        print(f"  HRV Status        : {texture['hrv_status']}")
-        print(f"  Pink Noise        : {texture['apply_pink_noise']}")
-        print(f"  Breathing Status  : {breathing['respiratory_status']}")
-        print(f"  Environment       : {safeguard['noise_environment']}")
+        print(f"  Target BPM         : {rhythm['target_bpm']}")
+        print(f"  Raw HR             : {rhythm['current_hr']}")
+        print(f"  Smoothed HR        : {rhythm.get('smoothed_hr')}")
+        print(f"  Sympathetic Load   : +{rhythm['sympathetic_load']} BPM vs baseline")
+        print(f"  HRV Status         : {texture['hrv_status']}")
+        print(f"  Pink Noise         : {texture['apply_pink_noise']}")
+        print(f"  Breathing Status   : {breathing['respiratory_status']}")
+        print(f"  Environment        : {safeguard['noise_environment']}")
 
         print(sep)
         print("METADATA")
@@ -172,4 +150,4 @@ class MusicAIPipeline:
                 print(f"  {key}: {val}")
 
         if result.get("verification_status"):
-            print(f"\n  Verification      : {result['verification_status']}")
+            print(f"\n  Verification       : {result['verification_status']}")
