@@ -102,15 +102,15 @@ MindWave/
 Open the file in a browser (double-click or “Open with Live Server”). Fully self-contained — no build step, no npm install.
 
 
-| Area                  | Details                                                                                                                                 |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| **Mood Input**        | Free-text entry interpreted into therapy mode                                                                                           |
-| **Mode Chips**        | Deep Focus · Calm Down · Drift to Sleep · Anxiety Relief · Grounding · Energy Boost · Trauma Gentle                                      |
-| **Vibe Chips**        | Anxious · Overwhelmed · Creative Flow (multi-select, up to 3)                                                                           |
+| Area                  | Details                                                                                                                                        |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Mood Input**        | Free-text entry interpreted into therapy mode                                                                                                  |
+| **Mode Chips**        | Deep Focus · Calm Down · Drift to Sleep · Anxiety Relief · Grounding · Energy Boost · Trauma Gentle                                            |
+| **Vibe Chips**        | Anxious · Overwhelmed · Creative Flow (multi-select, up to 3)                                                                                  |
 | **Brainwave Mapping** | Each mode maps to a clinical frequency: Gamma 40 Hz / Theta 6 Hz / Delta 2 Hz / Alpha 10 Hz / Schumann 7.83 Hz / Beta 18 Hz / Infra-Low 0.5 Hz |
-| **Vinyl Player**      | Gramophone-style visualiser with EQ bars, progress scrubbing, skip ±30s                                                                 |
-| **Suno Generation**   | One-click AI music generation via Suno V5 API with live status polling                                                                  |
-| **Controls Drawer**   | Intensity (1–4) · Duration (15/30/45 min) · Environment (None/Rain/Noise)                                                               |
+| **Vinyl Player**      | Gramophone-style visualiser with EQ bars, progress scrubbing, skip ±30s                                                                        |
+| **Suno Generation**   | One-click AI music generation via Suno V5 API with live status polling                                                                         |
+| **Controls Drawer**   | Intensity (1–4) · Duration (15/30/45 min) · Environment (None/Rain/Noise)                                                                      |
 
 
 ### Profile Modal
@@ -230,27 +230,27 @@ python -m pytest tests -q                     # algorithm regression tests (requ
 All parameters are centralised in `SystemConfig` and can be overridden via environment variables:
 
 
-| Parameter              | Default                      | Description                              |
-| ---------------------- | ---------------------------- | ---------------------------------------- |
-| `OPENAI_API_KEY`       | —                            | LLM API key (optional verification only) |
-| `LLM_BASE_URL`         | `https://api.zyai.online/v1` | OpenAI-compatible endpoint               |
-| `LLM_MODEL`            | `gpt-3.5-turbo`              | Model for prompt verification            |
-| `SUNO_API_KEY`         | —                            | Suno music generation key (Layer 4)      |
-| `MIN_BPM`              | 45                           | Hard floor for entrainment BPM           |
-| `MAX_BPM`              | 140                          | Hard ceiling for entrainment BPM         |
-| `RHYTHM_REDUCTION_PCT` | 15.0                         | Entrainment reduction (%)                |
-| `AROUSAL_EXTRA_BPM_REDUCTION_MAX` | 8.0                  | Extra BPM pull-down when arousal → 100    |
-| `HRV_SAFETY_THRESHOLD_MS` | 40.0                      | HRV curve anchor (risk ↑ when lower)     |
-| `MAX_NOISE_DB`         | 70.0 dB                      | Noise-risk curve anchor                  |
-| `RESPIRATORY_ELEVATED_THRESHOLD` | 18.0              | Respiratory load curve anchor            |
-| `AROUSAL_WEIGHT_HR` … `AROUSAL_WEIGHT_MOTION` | see `config.py` | Normalised arousal blend |
-| `MASKING_ENTER_AROUSAL` / `MASKING_EXIT_AROUSAL` | 58 / 48 | Masking latch thresholds (0–100) |
-| `NOISE_FORBID_ENTER_DB` / `NOISE_FORBID_EXIT_DB` | 72 / 66 | Safeguard latch thresholds (dB) |
-| `TEMPORAL_HISTORY_MAXLEN` | 12                       | Samples remembered for trend estimation    |
-| `sample_interval_s`    | 30 s                         | Biometric sampling interval              |
-| `feedback_loop_s`      | 180 s                        | Duration of one intervention cycle       |
-| `cycles_per_session`   | 3                            | Cycles per full therapy session          |
-| `HR_SMOOTHING_WINDOW`  | 5                            | Moving-average window for HR filter      |
+| Parameter                                        | Default                      | Description                              |
+| ------------------------------------------------ | ---------------------------- | ---------------------------------------- |
+| `OPENAI_API_KEY`                                 | —                            | LLM API key (optional verification only) |
+| `LLM_BASE_URL`                                   | `https://api.zyai.online/v1` | OpenAI-compatible endpoint               |
+| `LLM_MODEL`                                      | `gpt-3.5-turbo`              | Model for prompt verification            |
+| `SUNO_API_KEY`                                   | —                            | Suno music generation key (Layer 4)      |
+| `MIN_BPM`                                        | 45                           | Hard floor for entrainment BPM           |
+| `MAX_BPM`                                        | 140                          | Hard ceiling for entrainment BPM         |
+| `RHYTHM_REDUCTION_PCT`                           | 15.0                         | Entrainment reduction (%)                |
+| `AROUSAL_EXTRA_BPM_REDUCTION_MAX`                | 8.0                          | Extra BPM pull-down when arousal → 100   |
+| `HRV_SAFETY_THRESHOLD_MS`                        | 40.0                         | HRV curve anchor (risk ↑ when lower)     |
+| `MAX_NOISE_DB`                                   | 70.0 dB                      | Noise-risk curve anchor                  |
+| `RESPIRATORY_ELEVATED_THRESHOLD`                 | 18.0                         | Respiratory load curve anchor            |
+| `AROUSAL_WEIGHT_HR` … `AROUSAL_WEIGHT_MOTION`    | see `config.py`              | Normalised arousal blend                 |
+| `MASKING_ENTER_AROUSAL` / `MASKING_EXIT_AROUSAL` | 58 / 48                      | Masking latch thresholds (0–100)         |
+| `NOISE_FORBID_ENTER_DB` / `NOISE_FORBID_EXIT_DB` | 72 / 66                      | Safeguard latch thresholds (dB)          |
+| `TEMPORAL_HISTORY_MAXLEN`                        | 12                           | Samples remembered for trend estimation  |
+| `sample_interval_s`                              | 30 s                         | Biometric sampling interval              |
+| `feedback_loop_s`                                | 180 s                        | Duration of one intervention cycle       |
+| `cycles_per_session`                             | 3                            | Cycles per full therapy session          |
+| `HR_SMOOTHING_WINDOW`                            | 5                            | Moving-average window for HR filter      |
 
 
 ### Layer 2 Mapping Logic
@@ -303,7 +303,7 @@ StaticUserProfile personalization
     blend into genre_style resolved once in MusicStrategy
 ```
 
-**SPA note:** `apps/web/index.html` still mirrors parts of Layer 2 for the Vitals demo and uses a separate prompt path for mood-based Suno generation; production integrations should treat **`music_ai_module` as the canonical physiology→prompt engine**.
+**SPA note:** `apps/web/index.html` still mirrors parts of Layer 2 for the Vitals demo and uses a separate prompt path for mood-based Suno generation; production integrations should treat `**music_ai_module` as the canonical physiology→prompt engine**.
 
 ---
 
@@ -335,7 +335,7 @@ GET   https://api.sunoapi.org/api/v1/generate/record-info?taskId=…
 - Model: **V5** (instrumental, non-custom mode)
 - Prompt cap: **500** characters
 - **Web UI (`apps/web/index.html`):** poll every **5 s**, max wait **6 minutes**
-- **`scripts/generate_cases.js`:** poll every **6 s**, max wait **7 minutes**
+- `**scripts/generate_cases.js`:** poll every **6 s**, max wait **7 minutes**
 - Typical status flow: `PENDING → … → SUCCESS` (intermediate states may include `TEXT_SUCCESS`, `FIRST_SUCCESS`, depending on API version)
 
 **Privacy:** In the browser, your API key is stored in `localStorage` under `moodtune-suno-key` and is only sent to `https://api.sunoapi.org` from your machine (not through a first-party MindWave backend).
@@ -345,25 +345,14 @@ GET   https://api.sunoapi.org/api/v1/generate/record-info?taskId=…
 ## Neuroscience Basis
 
 
-| Principle                         | Implementation                                                                                                                                                      |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Rhythmic Entrainment**          | Music BPM set below heart rate (default 15%); repeated auditory stimuli entrain cardiovascular rhythms via baroreflex modulation                                    |
-| **HRV & Vagal Tone**              | SDNN < 40 ms indicates sympathetic dominance; acoustic masking (pink noise) reduces perceived threat and supports parasympathetic re-engagement                   |
-| **Respiratory Synchronisation**   | Sustained legato instruments at slow tempos naturally extend exhalation cycles, activating the parasympathetic nervous system                                       |
-| **Brainwave Entrainment**         | Binaural beat frequencies embedded at clinically relevant bands: Delta (2 Hz, sleep), Theta (6 Hz, relaxation), Alpha (10 Hz), Gamma (40 Hz, focus), etc.        |
-| **Environmental Acoustic Safety** | Above 70 dB ambient, sharp transients risk startle responses; constraints are applied automatically                                                                  |
+| Principle                         | Implementation                                                                                                                                            |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Rhythmic Entrainment**          | Music BPM set below heart rate (default 15%); repeated auditory stimuli entrain cardiovascular rhythms via baroreflex modulation                          |
+| **HRV & Vagal Tone**              | SDNN < 40 ms indicates sympathetic dominance; acoustic masking (pink noise) reduces perceived threat and supports parasympathetic re-engagement           |
+| **Respiratory Synchronisation**   | Sustained legato instruments at slow tempos naturally extend exhalation cycles, activating the parasympathetic nervous system                             |
+| **Brainwave Entrainment**         | Binaural beat frequencies embedded at clinically relevant bands: Delta (2 Hz, sleep), Theta (6 Hz, relaxation), Alpha (10 Hz), Gamma (40 Hz, focus), etc. |
+| **Environmental Acoustic Safety** | Above 70 dB ambient, sharp transients risk startle responses; constraints are applied automatically                                                       |
 
-
----
-
-## Design System
-
-The UI is built on a dark glass-morphism aesthetic:
-
-- **Fonts**: Cormorant Garamond (display) · Outfit (body) · JetBrains Mono (data)
-- **Colour palette**: Deep space black `#030305`, layered white-alpha glass surfaces
-- **Animations**: Organic morphing background (UnicornStudio), EQ bar waveforms, vinyl record rotation, floating music notes, CSS entrances with staggered blur-up reveals
-- **Framework**: Tailwind CSS (CDN) · Iconify icons · No build toolchain required
 
 ---
 
@@ -380,9 +369,9 @@ You can alternatively set `SUNO_API_KEY` — both are read by the Node utilities
 For the Python module's **optional** LLM verification:
 
 ```env
-OPENAI_API_KEY=your_llm_key
-LLM_BASE_URL=https://api.zyai.online/v1
-LLM_MODEL=gpt-3.5-turbo
+OPENAI_API_KEY=
+LLM_BASE_URL=
+LLM_MODEL=
 ```
 
 Suno generation inside Python (`SUNO_API_KEY`) is only needed if you call Layer 4 from code paths that use it.
