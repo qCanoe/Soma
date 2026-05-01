@@ -106,7 +106,7 @@ class SystemConfig:
     # LLM / API
     llm_api_key: str = os.environ.get("OPENAI_API_KEY", "")
     llm_base_url: str = os.environ.get(
-        "LLM_BASE_URL", "https://api.zyai.online/v1"
+        "LLM_BASE_URL", "https://api.openai.com/v1"
     )
     llm_model: str = os.environ.get("LLM_MODEL", "gpt-3.5-turbo")
     suno_api_key: str = os.environ.get("SUNO_API_KEY", "")

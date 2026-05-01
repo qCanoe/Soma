@@ -262,7 +262,7 @@ All parameters are centralised in `SystemConfig` and can be overridden via envir
 | Parameter                                        | Default                      | Description                              |
 | ------------------------------------------------ | ---------------------------- | ---------------------------------------- |
 | `OPENAI_API_KEY`                                 | —                            | LLM API key (optional verification + GraphRAG extract/embed) |
-| `LLM_BASE_URL`                                   | `https://api.zyai.online/v1` | OpenAI-compatible endpoint               |
+| `LLM_BASE_URL`                                   | `https://api.openai.com/v1` | OpenAI-compatible endpoint               |
 | `LLM_MODEL`                                      | `gpt-3.5-turbo`              | Model for prompt verification + KG extract |
 | `EMBEDDING_MODEL`                                  | `text-embedding-3-small`     | Embedding model for chunk retrieval       |
 | `KNOWLEDGE_DATA_DIR`                             | *(repo)* `data/knowledge`   | Override path for graph/chunks/cache      |
