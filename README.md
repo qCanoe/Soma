@@ -393,23 +393,12 @@ GET   https://api.sunoapi.org/api/v1/generate/record-info?taskId=…
 
 ## Environment Setup
 
-Create a `.env` file in the project root for **Node** scripts (`scripts/generate_cases.js`, `scripts/api_test.js`). See `.env.example`.
+Copy [`.env.example`](.env.example) to `.env` and fill in secrets. **Do not commit `.env`.**
 
-```env
-API_KEY=your_suno_api_key_here
-```
+- **Node** (`scripts/generate_cases.js`, `scripts/api_test.js`): these load `.env` from the repo root. They accept **`API_KEY`** or **`SUNO_API_KEY`** (same Suno key).
+- **Python** (`music_ai_module`): reads **process environment variables only** — it does not load `.env` automatically. Set `OPENAI_API_KEY`, `SUNO_API_KEY`, etc. in your shell, IDE, or a small wrapper that calls `load_dotenv`. For Suno from Python, use **`SUNO_API_KEY`** (Python does not read `API_KEY`).
 
-You can alternatively set `SUNO_API_KEY` — both are read by the Node utilities.
-
-For the Python module's **optional** LLM verification:
-
-```env
-OPENAI_API_KEY=
-LLM_BASE_URL=
-LLM_MODEL=
-```
-
-Suno generation inside Python (`SUNO_API_KEY`) is only needed if you call Layer 4 from code paths that use it.
+See commented sections in `.env.example` for GraphRAG (`EMBEDDING_MODEL`, `KNOWLEDGE_*`, …) and optional biometric tuning variables.
 
 ---
 
