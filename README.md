@@ -228,7 +228,8 @@ The `music_ai_module/knowledge/` package maintains **local** files under `data/k
 | File | Purpose |
 |------|---------|
 | `sources.yaml` | Registry of fetchable URLs (NCCIH, WHO ICD license page, etc.) |
-| `chunks.jsonl` | Text chunks + offsets (ingest appends; repo ships a small **seed** excerpt) |
+| `README.md` | Seed corpus coverage, validation rules, and update workflow |
+| `chunks.jsonl` | Text chunks + offsets (ingest appends; repo ships curated **seed** excerpts) |
 | `graph.json` | Nodes/edges with `evidence.chunk_id` + verbatim `quote` when extracted |
 | `raw/` | Optional HTML snapshots from ingest (gitignored by default) |
 

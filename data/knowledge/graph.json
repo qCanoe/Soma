@@ -13,16 +13,172 @@
       "label": "Sleep problems",
       "properties": {}
     },
+    "condition_stress": {
+      "id": "condition_stress",
+      "type": "Condition",
+      "label": "Stress",
+      "properties": {}
+    },
+    "condition_insomnia": {
+      "id": "condition_insomnia",
+      "type": "Condition",
+      "label": "Insomnia",
+      "properties": {}
+    },
+    "condition_adhd": {
+      "id": "condition_adhd",
+      "type": "Condition",
+      "label": "ADHD",
+      "properties": {}
+    },
+    "condition_hyperacusis": {
+      "id": "condition_hyperacusis",
+      "type": "Condition",
+      "label": "Hyperacusis",
+      "properties": {}
+    },
+    "condition_ptsd": {
+      "id": "condition_ptsd",
+      "type": "Condition",
+      "label": "PTSD",
+      "properties": {}
+    },
+    "condition_trauma_exposure": {
+      "id": "condition_trauma_exposure",
+      "type": "Condition",
+      "label": "Trauma exposure",
+      "properties": {}
+    },
+    "symptom_inattention": {
+      "id": "symptom_inattention",
+      "type": "Symptom",
+      "label": "Inattention",
+      "properties": {}
+    },
+    "symptom_hyperactivity_impulsivity": {
+      "id": "symptom_hyperactivity_impulsivity",
+      "type": "Symptom",
+      "label": "Hyperactivity and impulsivity",
+      "properties": {}
+    },
+    "symptom_sound_intolerance": {
+      "id": "symptom_sound_intolerance",
+      "type": "Symptom",
+      "label": "Sound intolerance",
+      "properties": {}
+    },
+    "symptom_sleep_onset_latency": {
+      "id": "symptom_sleep_onset_latency",
+      "type": "Symptom",
+      "label": "Sleep-onset latency",
+      "properties": {}
+    },
+    "symptom_hyperarousal": {
+      "id": "symptom_hyperarousal",
+      "type": "Symptom",
+      "label": "Hyperarousal",
+      "properties": {}
+    },
     "intervention_music_based": {
       "id": "intervention_music_based",
       "type": "MusicIntervention",
       "label": "Music-based interventions",
       "properties": {}
     },
+    "intervention_music_therapy": {
+      "id": "intervention_music_therapy",
+      "type": "MusicIntervention",
+      "label": "Music therapy",
+      "properties": {}
+    },
+    "intervention_music_medicine": {
+      "id": "intervention_music_medicine",
+      "type": "MusicIntervention",
+      "label": "Music medicine",
+      "properties": {}
+    },
+    "intervention_recorded_music_listening": {
+      "id": "intervention_recorded_music_listening",
+      "type": "MusicIntervention",
+      "label": "Listening to recorded music",
+      "properties": {}
+    },
+    "intervention_sound_therapy": {
+      "id": "intervention_sound_therapy",
+      "type": "MusicIntervention",
+      "label": "Sound therapy",
+      "properties": {}
+    },
+    "intervention_sleep_promoting_music": {
+      "id": "intervention_sleep_promoting_music",
+      "type": "MusicIntervention",
+      "label": "Sleep-promoting music",
+      "properties": {}
+    },
+    "intervention_progressive_relaxation_music": {
+      "id": "intervention_progressive_relaxation_music",
+      "type": "MusicIntervention",
+      "label": "Music with progressive relaxation",
+      "properties": {}
+    },
+    "parameter_slow_tempo_60_80_bpm": {
+      "id": "parameter_slow_tempo_60_80_bpm",
+      "type": "AcousticParameter",
+      "label": "Slow tempo 60-80 BPM",
+      "properties": {}
+    },
+    "parameter_soft_smooth_instrumental_simple": {
+      "id": "parameter_soft_smooth_instrumental_simple",
+      "type": "AcousticParameter",
+      "label": "Soft smooth instrumental simple structure",
+      "properties": {}
+    },
+    "parameter_30_45_min_daily_bedtime": {
+      "id": "parameter_30_45_min_daily_bedtime",
+      "type": "AcousticParameter",
+      "label": "30-45 min daily listening before bedtime",
+      "properties": {}
+    },
+    "parameter_comfortable_low_volume": {
+      "id": "parameter_comfortable_low_volume",
+      "type": "AcousticParameter",
+      "label": "Comfortable low volume",
+      "properties": {}
+    },
+    "parameter_avoid_lyrics_beats_percussion_syncopation": {
+      "id": "parameter_avoid_lyrics_beats_percussion_syncopation",
+      "type": "AcousticParameter",
+      "label": "Avoid lyrics accented beats percussion and syncopation",
+      "properties": {}
+    },
     "safety_sharp_onsets": {
       "id": "safety_sharp_onsets",
       "type": "SafetyConstraint",
       "label": "Sudden loud onsets, sharp transients, and heavy percussion",
+      "properties": {}
+    },
+    "safety_high_volume_hearing_loss": {
+      "id": "safety_high_volume_hearing_loss",
+      "type": "SafetyConstraint",
+      "label": "Avoid high volume to reduce hearing risk",
+      "properties": {}
+    },
+    "safety_specific_music_distress": {
+      "id": "safety_specific_music_distress",
+      "type": "SafetyConstraint",
+      "label": "Avoid music that triggers distressing memories",
+      "properties": {}
+    },
+    "safety_sound_sensitivity_conservative_volume": {
+      "id": "safety_sound_sensitivity_conservative_volume",
+      "type": "SafetyConstraint",
+      "label": "Use conservative volume for sound sensitivity",
+      "properties": {}
+    },
+    "source_who_icd11": {
+      "id": "source_who_icd11",
+      "type": "Source",
+      "label": "WHO ICD-11",
       "properties": {}
     }
   },
@@ -54,16 +210,367 @@
       }
     },
     {
-      "id": "e_seed_sharp_avoid_anxiety",
-      "source_id": "safety_sharp_onsets",
+      "id": "e_science_recorded_music_anxiety",
+      "source_id": "intervention_recorded_music_listening",
       "target_id": "condition_anxiety",
+      "predicate": "MAY_HELP",
+      "evidence": {
+        "chunk_id": "nccih_music_health_science_anxiety_001",
+        "quote": "listening to recorded music significantly reduced anxiety in people who were waiting to have surgery.",
+        "confidence": 0.86,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_science_mbi_cancer_anxiety",
+      "source_id": "intervention_music_based",
+      "target_id": "condition_anxiety",
+      "predicate": "MAY_HELP",
+      "evidence": {
+        "chunk_id": "nccih_music_health_science_anxiety_001",
+        "quote": "music-based interventions may have a large anxiety-reducing effect as well as beneficial effects on pain, fatigue, and quality of life in people with cancer.",
+        "confidence": 0.82,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_science_insomnia_music",
+      "source_id": "intervention_music_based",
+      "target_id": "condition_insomnia",
+      "predicate": "MAY_HELP",
+      "evidence": {
+        "chunk_id": "nccih_music_health_science_sleep_stress_safety_001",
+        "quote": "music-based interventions may be effective for improving subjective sleep quality in adults with insomnia.",
+        "confidence": 0.8,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_science_stress_music",
+      "source_id": "intervention_music_therapy",
+      "target_id": "condition_stress",
+      "predicate": "MAY_HELP",
+      "evidence": {
+        "chunk_id": "nccih_music_health_science_sleep_stress_safety_001",
+        "quote": "Music-based interventions, particularly music therapy, may be helpful for improving physical and psychological markers associated with stress.",
+        "confidence": 0.82,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_science_high_volume_risk",
+      "source_id": "safety_high_volume_hearing_loss",
+      "target_id": "intervention_music_based",
       "predicate": "AVOID_FOR",
       "evidence": {
-        "chunk_id": "nccih_music_health_seed_001",
-        "quote": "Music-based interventions have been evaluated for their effects on anxiety in a variety of disease conditions and health care settings.",
-        "confidence": 0.65,
+        "chunk_id": "nccih_music_health_science_sleep_stress_safety_001",
+        "quote": "listening to music at too high a volume can contribute to noise-induced hearing loss.",
+        "confidence": 0.9,
         "extracted_at": "2026-05-01T00:00:00+00:00",
-        "model": "hand_seed_note"
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_science_memory_distress",
+      "source_id": "safety_specific_music_distress",
+      "target_id": "intervention_music_based",
+      "predicate": "RELATED_TO",
+      "evidence": {
+        "chunk_id": "nccih_music_health_science_sleep_stress_safety_001",
+        "quote": "Because music can be associated with strong memories or emotional reactions, some people may be distressed by exposure to specific pieces or types of music.",
+        "confidence": 0.82,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_anxiety_music_medical",
+      "source_id": "intervention_recorded_music_listening",
+      "target_id": "condition_anxiety",
+      "predicate": "MAY_HELP",
+      "evidence": {
+        "chunk_id": "nccih_anxiety_music_safety_001",
+        "quote": "There is some evidence that listening to music may help reduce anxiety for people undergoing medical procedures.",
+        "confidence": 0.82,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_anxiety_volume_safety",
+      "source_id": "safety_high_volume_hearing_loss",
+      "target_id": "condition_anxiety",
+      "predicate": "RELATED_TO",
+      "evidence": {
+        "chunk_id": "nccih_anxiety_music_safety_001",
+        "quote": "However, listening to music at too high a volume can contribute to noise-induced hearing loss.",
+        "confidence": 0.86,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_toolkit_mbi_categories_therapy",
+      "source_id": "intervention_music_based",
+      "target_id": "intervention_music_therapy",
+      "predicate": "RELATED_TO",
+      "evidence": {
+        "chunk_id": "nccih_mbi_toolkit_definitions_001",
+        "quote": "Music-based interventions are divided into two major categories: music therapy and music medicine.",
+        "confidence": 0.92,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_toolkit_mbi_categories_medicine",
+      "source_id": "intervention_music_based",
+      "target_id": "intervention_music_medicine",
+      "predicate": "RELATED_TO",
+      "evidence": {
+        "chunk_id": "nccih_mbi_toolkit_definitions_001",
+        "quote": "Music-based interventions are divided into two major categories: music therapy and music medicine.",
+        "confidence": 0.92,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_toolkit_music_therapy_definition",
+      "source_id": "intervention_music_therapy",
+      "target_id": "intervention_music_based",
+      "predicate": "RELATED_TO",
+      "evidence": {
+        "chunk_id": "nccih_mbi_toolkit_definitions_001",
+        "quote": "Music therapy is an established health profession in which music is used within a therapeutic relationship to address physical, emotional, cognitive, and social needs of individuals",
+        "confidence": 0.9,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_who_icd_license",
+      "source_id": "source_who_icd11",
+      "target_id": "source_who_icd11",
+      "predicate": "RELATED_TO",
+      "evidence": {
+        "chunk_id": "who_icd11_license_001",
+        "quote": "ICD-11 is licensed under the Creative Commons Attribution-NoDerivs 3.0 IGO license (CC BY-ND 3.0 IGO).",
+        "confidence": 1.0,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_sleep_music_tempo",
+      "source_id": "intervention_sleep_promoting_music",
+      "target_id": "parameter_slow_tempo_60_80_bpm",
+      "predicate": "HAS_PARAMETER",
+      "evidence": {
+        "chunk_id": "frontiers_sleep_music_elements_001",
+        "quote": "Music that was slow in tempo (60-80 bpm), soft and smooth in melodies, instrumental, and simple in structure, often classical or new age, was most effective.",
+        "confidence": 0.82,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_sleep_music_soft_simple",
+      "source_id": "intervention_sleep_promoting_music",
+      "target_id": "parameter_soft_smooth_instrumental_simple",
+      "predicate": "HAS_PARAMETER",
+      "evidence": {
+        "chunk_id": "frontiers_sleep_music_elements_001",
+        "quote": "soft and smooth in melodies, instrumental, and simple in structure",
+        "confidence": 0.82,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_sleep_music_dosing",
+      "source_id": "intervention_sleep_promoting_music",
+      "target_id": "parameter_30_45_min_daily_bedtime",
+      "predicate": "HAS_PARAMETER",
+      "evidence": {
+        "chunk_id": "frontiers_sleep_music_elements_001",
+        "quote": "Optimal dosing included 30-45 min of daily listening before bedtime at comfortable volume levels.",
+        "confidence": 0.8,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_sleep_music_avoid_features",
+      "source_id": "parameter_avoid_lyrics_beats_percussion_syncopation",
+      "target_id": "intervention_sleep_promoting_music",
+      "predicate": "AVOID_FOR",
+      "evidence": {
+        "chunk_id": "frontiers_sleep_music_elements_001",
+        "quote": "certain features were deliberately avoided in music interventions, including lyrics, accented beats, percussive characteristics, and syncopation.",
+        "confidence": 0.82,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_sleep_sudden_stimuli",
+      "source_id": "safety_sharp_onsets",
+      "target_id": "intervention_sleep_promoting_music",
+      "predicate": "AVOID_FOR",
+      "evidence": {
+        "chunk_id": "frontiers_sleep_safety_delivery_001",
+        "quote": "Accented beats and percussive characteristics can create sudden auditory stimuli that may startle or alert listeners.",
+        "confidence": 0.84,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_sleep_low_volume",
+      "source_id": "intervention_sleep_promoting_music",
+      "target_id": "parameter_comfortable_low_volume",
+      "predicate": "HAS_PARAMETER",
+      "evidence": {
+        "chunk_id": "frontiers_sleep_safety_delivery_001",
+        "quote": "The volume should be kept low, creating a gentle auditory backdrop rather than an overwhelming sensory experience.",
+        "confidence": 0.82,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_adhd_indicates_inattention",
+      "source_id": "condition_adhd",
+      "target_id": "symptom_inattention",
+      "predicate": "INDICATES",
+      "evidence": {
+        "chunk_id": "pmc_adhd_music_review_001",
+        "quote": "ADHD is characterized by inattention, hyperactivity and impulsivity as symptoms.",
+        "confidence": 0.9,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_adhd_indicates_hyperactivity",
+      "source_id": "condition_adhd",
+      "target_id": "symptom_hyperactivity_impulsivity",
+      "predicate": "INDICATES",
+      "evidence": {
+        "chunk_id": "pmc_adhd_music_review_001",
+        "quote": "ADHD is characterized by inattention, hyperactivity and impulsivity as symptoms.",
+        "confidence": 0.9,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_adhd_music_therapy_trend",
+      "source_id": "intervention_music_therapy",
+      "target_id": "condition_adhd",
+      "predicate": "MAY_HELP",
+      "evidence": {
+        "chunk_id": "pmc_adhd_music_review_001",
+        "quote": "Music therapy was associated with a trend of efficacy involving ADHD symptoms",
+        "confidence": 0.68,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_hyperacusis_indicates_sound_intolerance",
+      "source_id": "condition_hyperacusis",
+      "target_id": "symptom_sound_intolerance",
+      "predicate": "INDICATES",
+      "evidence": {
+        "chunk_id": "pmc_hyperacusis_sound_therapy_001",
+        "quote": "Hyperacusis is a condition that is characterized by hypersensitivity to normal everyday sounds or reduced sound tolerance",
+        "confidence": 0.9,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_hyperacusis_sound_therapy",
+      "source_id": "intervention_sound_therapy",
+      "target_id": "condition_hyperacusis",
+      "predicate": "MAY_HELP",
+      "evidence": {
+        "chunk_id": "pmc_hyperacusis_sound_therapy_001",
+        "quote": "Sound therapy is a treatment intervention that is used to desensitize patients.",
+        "confidence": 0.8,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_hyperacusis_conservative_volume",
+      "source_id": "safety_sound_sensitivity_conservative_volume",
+      "target_id": "condition_hyperacusis",
+      "predicate": "RELATED_TO",
+      "evidence": {
+        "chunk_id": "pmc_hyperacusis_sound_therapy_001",
+        "quote": "reduced tolerance to sound (s) that are perceived as normal to the majority of the population",
+        "confidence": 0.78,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_ptsd_indicates_hyperarousal",
+      "source_id": "condition_ptsd",
+      "target_id": "symptom_hyperarousal",
+      "predicate": "INDICATES",
+      "evidence": {
+        "chunk_id": "pmc_ptsd_music_therapy_001",
+        "quote": "PTSD, a condition characterized by enduring symptoms of distressing memory intrusions, avoidance, emotional disturbance, and hyperarousal",
+        "confidence": 0.9,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_ptsd_music_therapy",
+      "source_id": "intervention_music_therapy",
+      "target_id": "condition_ptsd",
+      "predicate": "MAY_HELP",
+      "evidence": {
+        "chunk_id": "pmc_ptsd_music_therapy_001",
+        "quote": "Music therapy may be a useful therapeutic tool to reduce symptoms and improve functioning among individuals with trauma exposure and PTSD",
+        "confidence": 0.72,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_trauma_music_grounding",
+      "source_id": "intervention_music_therapy",
+      "target_id": "condition_trauma_exposure",
+      "predicate": "RELATED_TO",
+      "evidence": {
+        "chunk_id": "pmc_ptsd_music_therapy_001",
+        "quote": "Music may address emotion dysregulation associated with intrusive memories that leave individuals feeling triggered and distressed.",
+        "confidence": 0.72,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
+      }
+    },
+    {
+      "id": "e_trauma_relaxation_anxiety_sleep",
+      "source_id": "intervention_progressive_relaxation_music",
+      "target_id": "condition_anxiety",
+      "predicate": "MAY_HELP",
+      "evidence": {
+        "chunk_id": "pmc_ptsd_music_therapy_001",
+        "quote": "Results indicated that the music therapy group showed a greater pre-post reduction in anxiety, and significantly improved sleep quality.",
+        "confidence": 0.72,
+        "extracted_at": "2026-05-01T00:00:00+00:00",
+        "model": "hand_seed"
       }
     }
   ]

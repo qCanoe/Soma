@@ -6,15 +6,31 @@ sources:
   - id: nccih_music_health
     url: https://www.nccih.nih.gov/health/providers/digest/music-and-health
     title: "Music and Health | NCCIH"
-    license_note: "NCCIH pages are typically U.S. public domain — credit NCCIH as source."
+    license_note: "NCCIH pages are typically U.S. public domain; credit NCCIH as source."
     full_text_allowed: true
     topics: [anxiety, sleep, stress, pain, dementia, general]
+    trust_score: 0.95
+
+  - id: nccih_music_health_science
+    url: https://www.nccih.nih.gov/health/providers/digest/music-and-health-science
+    title: "Music and Health: What the Science Says | NCCIH"
+    license_note: "NCCIH pages are typically U.S. public domain; credit NCCIH as source."
+    full_text_allowed: true
+    topics: [anxiety, sleep, stress, safety, pain, depression, dementia]
+    trust_score: 0.98
+
+  - id: nccih_anxiety_complementary
+    url: https://www.nccih.nih.gov/health/anxiety-and-complementary-health-approaches
+    title: "Anxiety and Complementary Health Approaches | NCCIH"
+    license_note: "NCCIH pages are typically U.S. public domain; credit NCCIH as source."
+    full_text_allowed: true
+    topics: [anxiety, music_based_interventions, safety, medical_procedures]
     trust_score: 0.95
 
   - id: nccih_mbi_toolkit
     url: https://www.nccih.nih.gov/research/the-nih-music-based-intervention-toolkit
     title: "NIH Music-Based Intervention Toolkit | NCCIH"
-    license_note: "NCCIH — public domain with credit."
+    license_note: "NCCIH; public domain with credit."
     full_text_allowed: true
     topics: [intervention_design, music_therapy, music_medicine, research_methods]
     trust_score: 0.95
@@ -26,3 +42,35 @@ sources:
     full_text_allowed: true
     topics: [classification, licensing]
     trust_score: 1.0
+
+  - id: frontiers_sleep_music_elements
+    url: https://www.frontiersin.org/journals/sleep/articles/10.3389/frsle.2025.1707162/full
+    title: "Elements of music that work to improve sleep, a narrative review"
+    license_note: "Frontiers open access article; cite DOI and authors when reused."
+    full_text_allowed: true
+    topics: [sleep, insomnia, tempo, volume, dosing, acoustic_parameters]
+    trust_score: 0.82
+
+  - id: pmc_adhd_music_review
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC12962369/
+    title: "Outcomes of music therapy on children and adolescents with ADHD"
+    license_note: "Open access article distributed under Creative Commons Attribution; cite original article."
+    full_text_allowed: true
+    topics: [adhd, attention, music_therapy, children, adolescents]
+    trust_score: 0.82
+
+  - id: pmc_hyperacusis_sound_therapy
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC11352218/
+    title: "Current Recommendations for the Use of Sound Therapy in Adults with Hyperacusis"
+    license_note: "Open access article under CC BY 4.0; cite original article."
+    full_text_allowed: true
+    topics: [hyperacusis, sound_sensitivity, sound_therapy, safety]
+    trust_score: 0.86
+
+  - id: pmc_ptsd_music_therapy
+    url: https://pmc.ncbi.nlm.nih.gov/articles/PMC5744879/
+    title: "Music Therapy for Posttraumatic Stress in Adults"
+    license_note: "PMC author manuscript; cite original publication and observe PMC copyright notice."
+    full_text_allowed: true
+    topics: [ptsd, trauma, hyperarousal, grounding, music_therapy]
+    trust_score: 0.78
