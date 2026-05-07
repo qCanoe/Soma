@@ -846,6 +846,72 @@
             padding-bottom: 2px;
         }
         #demo-cases-scroll::-webkit-scrollbar { display: none; }
+
+        /* ── Soma session / history UI tokens (stage 1) ─────────────────── */
+        .soma-section-label {
+            font-size: 10px;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.25);
+            font-weight: 500;
+        }
+        .soma-panel-soft {
+            background: rgba(15, 15, 18, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.25rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        .soma-pill {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 10px;
+            letter-spacing: 0.06em;
+            border: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.45);
+            background: rgba(255,255,255,0.03);
+            transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+        }
+        .soma-pill-active {
+            border-color: rgba(255,255,255,0.22);
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.88);
+        }
+        .soma-action-primary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 0.04em;
+            border: 1px solid rgba(255,255,255,0.18);
+            background: rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.9);
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .soma-action-primary:hover {
+            background: rgba(255,255,255,0.16);
+            border-color: rgba(255,255,255,0.28);
+        }
+        .soma-action-ghost {
+            font-size: 10px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.32);
+            transition: color 0.2s ease;
+        }
+        .soma-action-ghost:hover {
+            color: rgba(255,255,255,0.55);
+        }
+        #reason-panel-body.is-collapsed #reason-bullets,
+        #reason-panel-body.is-collapsed #reason-pills {
+            display: none;
+        }
+        #history-list-scroll::-webkit-scrollbar { width: 0; }
     </style>
 </head>
 <body class="antialiased selection:bg-white/20 selection:text-white overflow-hidden flex flex-col h-screen">
@@ -870,6 +936,10 @@
                 <span class="text-xl font-medium tracking-wide text-white/90 font-display italic">Soma</span>
             </a>
             <div class="flex items-center gap-3">
+                <button id="history-btn" type="button" class="text-xs font-light px-5 py-2.5 rounded-full border transition-all duration-300 bg-transparent border-white/10 text-white/50 hover:border-white/30 hover:text-white flex items-center gap-2 group">
+                    <iconify-icon icon="lucide:history" width="13"></iconify-icon>
+                    <span id="history-btn-label">History</span>
+                </button>
                 <button id="vitals-btn" class="text-xs font-light px-5 py-2.5 rounded-full border transition-all duration-300 bg-transparent border-white/10 text-white/50 hover:border-white/30 hover:text-white flex items-center gap-2 group">
                     <iconify-icon icon="lucide:activity" width="13"></iconify-icon>
                     <span id="vitals-btn-label">Vitals</span>
@@ -943,7 +1013,7 @@
                        class="w-full bg-transparent py-5 pl-8 pr-32 text-white/90 placeholder:text-white/30 focus:outline-none text-lg font-normal tracking-wide caret-white selection:bg-white/20">
                 <button id="tune-btn" class="absolute right-3 h-10 px-6 rounded-full bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition-all flex items-center gap-2 backdrop-blur-md border border-white/5 hover:scale-105">
                     <iconify-icon id="tune-icon" icon="lucide:sparkles" width="16"></iconify-icon>
-                    <span id="tune-label">Tune</span>
+                    <span id="tune-label">Start Session</span>
                 </button>
             </div>
 
@@ -974,6 +1044,21 @@
                 <span class="text-[10px] text-white/25 uppercase tracking-[0.3em] font-medium flex-shrink-0">Interpreting as</span>
                 <span id="interpreting-text" class="text-[11px] text-white/60 font-light tracking-wide"></span>
             </div>
+
+            <div id="reason-panel" class="w-full soma-panel-soft px-5 py-4 flex flex-col gap-3 transition-opacity duration-300">
+                <div class="flex items-start justify-between gap-3">
+                    <div class="flex flex-col gap-1 min-w-0">
+                        <span class="soma-section-label">Why Soma chose this</span>
+                        <p id="reason-title" class="text-sm text-white/80 font-light tracking-wide leading-snug">Adjust your check-in — we’ll explain each session.</p>
+                    </div>
+                    <button type="button" id="reason-toggle" class="soma-action-ghost flex-shrink-0">Hide</button>
+                </div>
+                <div id="reason-panel-body" class="reason-collapsible flex flex-col gap-3">
+                    <ul id="reason-bullets" class="list-none space-y-2 text-[11px] text-white/45 font-light leading-relaxed pl-0">
+                    </ul>
+                    <div id="reason-pills" class="flex flex-wrap gap-2"></div>
+                </div>
+            </div>
         </div>
 
         <!-- Player Card -->
@@ -990,6 +1075,10 @@
                         <div id="suno-track-badge" class="mt-1.5 flex items-center gap-1.5 opacity-0 translate-y-1 pointer-events-none">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400/80 flex-shrink-0"></span>
                             <span id="suno-track-title" class="text-[10px] text-white/40 font-light tracking-wide truncate max-w-[180px]">AI Generated</span>
+                        </div>
+                        <div id="session-strip" class="mt-3 w-full max-w-[280px] soma-panel-soft px-3 py-2.5 flex flex-wrap items-center gap-2 opacity-90">
+                            <span id="session-status-label" class="text-[10px] text-white/35 uppercase tracking-widest">Session · idle</span>
+                            <button type="button" id="end-session-btn" class="soma-action-ghost hidden">End Session</button>
                         </div>
                     </div>
                     <button id="regen-btn" class="w-10 h-10 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all duration-500">
@@ -1422,6 +1511,87 @@
 </div>
 
 <!-- ═══════════════════════════════════════════════════════════════
+     FEEDBACK MODAL (session end)
+════════════════════════════════════════════════════════════════ -->
+<div id="feedback-modal" class="fixed inset-0 z-[112] flex items-center justify-center" style="opacity:0;pointer-events:none;">
+    <div id="feedback-backdrop" class="absolute inset-0 bg-black/65 backdrop-blur-sm cursor-pointer"></div>
+    <div id="feedback-card" class="relative glass-panel rounded-[2.5rem] w-full max-w-md mx-5 flex flex-col shadow-[0_40px_80px_rgba(0,0,0,0.65)]" style="border:1px solid rgba(255,255,255,0.1);">
+        <div class="px-8 pt-8 pb-4 flex items-start justify-between">
+            <div>
+                <span class="soma-section-label block mb-2">Session complete</span>
+                <h2 class="font-display text-2xl text-white/90 italic tracking-wide">How was it for you?</h2>
+                <p id="feedback-session-summary" class="text-[11px] text-white/32 font-light mt-2 leading-relaxed"></p>
+            </div>
+            <button type="button" id="feedback-close" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0">
+                <iconify-icon icon="lucide:x" width="15"></iconify-icon>
+            </button>
+        </div>
+        <div class="px-8 pb-8 flex flex-col gap-5 max-h-[min(72vh,520px)] overflow-y-auto" style="-webkit-overflow-scrolling:touch;">
+            <div>
+                <span class="text-[10px] text-white/30 uppercase tracking-[0.2em] font-medium block mb-2">Calm right now (1–5)</span>
+                <div id="fb-calm-group" class="flex flex-wrap gap-2"></div>
+            </div>
+            <div>
+                <span class="text-[10px] text-white/30 uppercase tracking-[0.2em] font-medium block mb-2">Did this help?</span>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="soma-pill fb-help" data-help="helped">Helped</button>
+                    <button type="button" class="soma-pill fb-help soma-pill-active" data-help="neutral">Not sure</button>
+                    <button type="button" class="soma-pill fb-help" data-help="worse">Felt worse</button>
+                </div>
+            </div>
+            <div>
+                <span class="text-[10px] text-white/30 uppercase tracking-[0.2em] font-medium block mb-2">Sound fit</span>
+                <div class="flex flex-wrap gap-2">
+                    <button type="button" class="soma-pill fb-sound soma-pill-active" data-sound="good">Good</button>
+                    <button type="button" class="soma-pill fb-sound" data-sound="too_fast">Too fast</button>
+                    <button type="button" class="soma-pill fb-sound" data-sound="too_busy">Too busy</button>
+                    <button type="button" class="soma-pill fb-sound" data-sound="too_sharp">Too sharp</button>
+                    <button type="button" class="soma-pill fb-sound" data-sound="disliked">Not my style</button>
+                </div>
+            </div>
+            <div>
+                <label class="text-[10px] text-white/30 uppercase tracking-[0.2em] font-medium block mb-2" for="fb-notes">Note (optional)</label>
+                <textarea id="fb-notes" rows="3" class="w-full rounded-2xl bg-white/[0.04] border border-white/10 text-white/80 text-sm font-light px-4 py-3 placeholder:text-white/20 focus:outline-none focus:border-white/20 resize-none" placeholder="Anything you want to remember…"></textarea>
+            </div>
+            <div class="flex gap-3 pt-1">
+                <button type="button" id="fb-skip" class="flex-1 py-3 rounded-2xl border border-white/10 text-white/40 text-xs font-light hover:text-white/70 transition-all">Skip</button>
+                <button type="button" id="fb-submit" class="flex-1 py-3 rounded-2xl border border-white/20 bg-white/10 text-white text-xs font-medium hover:bg-white/18 transition-all">Save feedback</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     HISTORY MODAL
+════════════════════════════════════════════════════════════════ -->
+<div id="history-modal" class="fixed inset-0 z-[111] flex items-center justify-center" style="opacity:0;pointer-events:none;">
+    <div id="history-backdrop" class="absolute inset-0 bg-black/65 backdrop-blur-sm cursor-pointer"></div>
+    <div id="history-card" class="relative glass-panel rounded-[2.5rem] w-full max-w-lg mx-5 flex flex-col shadow-[0_40px_80px_rgba(0,0,0,0.65)]" style="height:min(88vh,640px);border:1px solid rgba(255,255,255,0.1);">
+        <div class="px-8 pt-8 pb-4 flex items-start justify-between flex-shrink-0">
+            <div>
+                <span class="soma-section-label block mb-2">Your sessions</span>
+                <h2 class="font-display text-2xl text-white/90 italic tracking-wide">History</h2>
+                <p id="history-summary-line" class="text-[11px] text-white/32 font-light mt-2">—</p>
+            </div>
+            <button type="button" id="history-close" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0">
+                <iconify-icon icon="lucide:x" width="15"></iconify-icon>
+            </button>
+        </div>
+        <div class="px-8 pb-3 flex flex-wrap gap-2 flex-shrink-0">
+            <button type="button" class="soma-pill soma-pill-active hist-filter" data-filter="all">All</button>
+            <button type="button" class="soma-pill hist-filter" data-filter="calm">Calm</button>
+            <button type="button" class="soma-pill hist-filter" data-filter="focus">Focus</button>
+            <button type="button" class="soma-pill hist-filter" data-filter="sleep">Sleep</button>
+            <button type="button" class="soma-pill hist-filter" data-filter="helped">Helped</button>
+        </div>
+        <div id="history-list-scroll" class="flex-1 overflow-y-auto px-8 pb-8 min-h-0">
+            <div id="history-list" class="flex flex-col gap-2"></div>
+            <p id="history-empty" class="text-center text-[11px] text-white/25 py-12 font-light">No completed sessions yet. Finish a session and save feedback.</p>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
      PROFILE MODAL
 ════════════════════════════════════════════════════════════════ -->
 <div id="profile-modal" class="fixed inset-0 z-[100] flex items-center justify-center" style="opacity:0;pointer-events:none;">
@@ -1834,6 +2004,10 @@
 
     const INTENSITY_LABELS = { 1: 'Light', 2: 'Gentle', 3: 'Medium', 4: 'Strong' };
 
+    function triggerSomaDraftRefresh() {
+        if (typeof window.somaRefreshDraft === 'function') window.somaRefreshDraft();
+    }
+
     // ── DOM refs ──────────────────────────────────────────────────────────
     const gramophoneContainer = document.getElementById('gramophone-container');
     const record        = document.getElementById('gramophone-record');
@@ -2005,7 +2179,11 @@
     function startTicker() {
         if (ticker) return;
         ticker = setInterval(() => {
-            if (elapsedSec >= totalSec) { setPlaying(false); return; }
+            if (elapsedSec >= totalSec) {
+                setPlaying(false);
+                if (window.somaOnFakeSessionTimerEnd) window.somaOnFakeSessionTimerEnd();
+                return;
+            }
             elapsedSec++;
             updateProgressVisuals(elapsedSec);
         }, 1000);
@@ -2049,6 +2227,7 @@
             currentMode = mode;
             applyMode(mode);
             refreshInterpretation();
+            triggerSomaDraftRefresh();
         });
     });
 
@@ -2065,6 +2244,7 @@
                 setChipActive(btn, true);
             }
             refreshInterpretation();
+            triggerSomaDraftRefresh();
         });
     });
 
@@ -2158,6 +2338,7 @@
             setDrawerActive(btn, true);
             currentIntensity = val;
             summaryIntensity.textContent = INTENSITY_LABELS[val];
+            triggerSomaDraftRefresh();
         });
     });
 
@@ -2182,6 +2363,7 @@
 
             timeTotal.textContent        = `${String(mins).padStart(2,'0')}:00`;
             summaryDuration.textContent  = `${mins} min`;
+            triggerSomaDraftRefresh();
         });
     });
 
@@ -2194,6 +2376,7 @@
             setDrawerActive(btn, true);
             currentEnv = env;
             summaryEnv.textContent = env;
+            triggerSomaDraftRefresh();
         });
     });
 
@@ -2219,6 +2402,7 @@
         currentMode = nextMode;
         applyMode(nextMode);
         refreshInterpretation();
+        triggerSomaDraftRefresh();
 
         // Reset progress for new session
         elapsedSec = 0;
@@ -2237,7 +2421,10 @@
     skipForwardBtn.addEventListener('click', () => {
         elapsedSec = Math.min(elapsedSec + 30, totalSec);
         updateProgressVisuals(elapsedSec);
-        if (elapsedSec >= totalSec) { setPlaying(false); }
+        if (elapsedSec >= totalSec) {
+            setPlaying(false);
+            if (window.somaOnFakeSessionTimerEnd) window.somaOnFakeSessionTimerEnd();
+        }
         else if (!isPlaying) { setPlaying(true); }
     });
 
@@ -2275,6 +2462,8 @@
         resetProgressAnimated();
         if (!isPlaying) setPlaying(true);
         window.showToast('Aura reset');
+        if (typeof window.somaClearActive === 'function') window.somaClearActive();
+        triggerSomaDraftRefresh();
     });
 
     // ── Play / Pause ──────────────────────────────────────────────────────
@@ -2330,6 +2519,624 @@
     updateEqSpeed(currentMode);   // sync EQ tempo with initial mode
     startTicker();
     document.title = '▶ Playing… · Soma';
+
+    // ── Global player API (Soma session / guided fallback) ─────────────
+    window.somaPlayerApi = {
+        startFakePlayback() {
+            const sunoAudio = document.getElementById('suno-audio');
+            if (sunoAudio) {
+                sunoAudio.pause();
+                sunoAudio.removeAttribute('src');
+            }
+            if (typeof window.somaDetachSunoPlayer === 'function') window.somaDetachSunoPlayer();
+            elapsedSec = 0;
+            resetProgressAnimated();
+            if (!isPlaying) setPlaying(true);
+            else startTicker();
+            updateProgressVisuals(elapsedSec);
+        },
+        setTotalFromMinutes(mins) {
+            totalSec = Math.max(60, (+mins || 45) * 60);
+            timeTotal.textContent = fmt(totalSec);
+            updateProgressVisuals(elapsedSec);
+        },
+    };
+
+    const moodIn = document.getElementById('mood-input');
+    if (moodIn) moodIn.addEventListener('input', triggerSomaDraftRefresh);
+})();
+</script>
+
+<!-- ── Soma Session (history, feedback, recommendations) ─────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const LS_SESSIONS = 'soma-sessions-v1';
+    const LS_ACTIVE = 'soma-active-session-v1';
+
+    const MODE_PROMPTS = {
+        focus:   'Ambient electronic music for deep concentration, steady binaural 40Hz gamma entrainment, no vocals, minimalist texture',
+        calm:    'Gentle calming piano with soft strings, theta 6Hz entrainment, slow tempo, warm and soothing, no vocals',
+        sleep:   'Very slow ambient soundscape, deep delta 2Hz tones, soft pads, sleep induction, no percussion',
+        anxious: 'Soothing alpha wave 10Hz ambient music, slow breathing rhythm, tension release, gentle nature sounds',
+        ground:  'Earthy acoustic ambient, Schumann resonance 7.83Hz, grounding tones, organic and natural feel',
+        energy:  'Uplifting energetic electronic, beta wave 18Hz, motivating beats, no lyrics, bright and activating',
+        trauma:  'Ultra-gentle infra-low ambient, 0.5Hz rhythm, very soft and tender, safe soundscape, minimal',
+    };
+    const VIBE_SUFFIXES = {
+        anxious:    ', grounding elements, stabilizing',
+        overwhelmed:', decompressing, open space sound',
+        creative:   ', generative flow, evolving textures',
+    };
+
+    let historyFilter = 'all';
+    let fbCalmAfter = 3;
+    let fbHelp = 'neutral';
+    let fbSound = 'good';
+
+    function isoNow() { return new Date().toISOString(); }
+    function uid() { return 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9); }
+
+    function loadJson(key, fb) {
+        try { const x = JSON.parse(localStorage.getItem(key) || ''); return x == null ? fb : x; } catch (_) { return fb; }
+    }
+    function saveJson(key, val) {
+        try { localStorage.setItem(key, JSON.stringify(val)); } catch (_) {}
+    }
+
+    function listSessions() {
+        const arr = loadJson(LS_SESSIONS, []);
+        return Array.isArray(arr) ? arr : [];
+    }
+    function saveSessions(arr) { saveJson(LS_SESSIONS, arr.slice(-50)); }
+
+    function getActive() { return loadJson(LS_ACTIVE, null); }
+    function setActive(s) {
+        if (s == null) localStorage.removeItem(LS_ACTIVE);
+        else saveJson(LS_ACTIVE, s);
+    }
+
+    function getProfileSnapshot() {
+        const raw = localStorage.getItem('moodtune-profile');
+        if (!raw) return {};
+        try {
+            const p = JSON.parse(raw);
+            return {
+                name: p.name || '',
+                sleep: p.sleep,
+                goals: p.goals || [],
+                styles: p.styles || [],
+                sensitive: (p.sensitive || '').trim(),
+                rhythm: p.rhythm,
+                volume: p.volume || '',
+            };
+        } catch (_) { return {}; }
+    }
+
+    function readUiInput() {
+        const moodInput = document.getElementById('mood-input');
+        const modeEl = document.querySelector('.mode-chip.text-white');
+        const mode = modeEl?.dataset?.mode || 'focus';
+        const vibes = [...document.querySelectorAll('.vibe-chip.text-white')].map(b => b.dataset.vibe);
+        const durEl = document.getElementById('summary-duration');
+        let durationMin = 45;
+        if (durEl) {
+            const m = /(\d+)\s*min/.exec(durEl.textContent || '');
+            if (m) durationMin = +m[1];
+        }
+        const intEl = document.getElementById('summary-intensity');
+        const labelToInt = { Light: 1, Gentle: 2, Medium: 3, Strong: 4 };
+        let intensity = 3;
+        if (intEl && labelToInt[intEl.textContent.trim()]) intensity = labelToInt[intEl.textContent.trim()];
+        const envEl = document.getElementById('summary-env');
+        const environment = envEl ? envEl.textContent.trim() : 'None';
+        return {
+            freeText: (moodInput?.value || '').trim(),
+            mode, vibes, durationMin, intensity, environment,
+        };
+    }
+
+    function snapshotVitals() {
+        const o = window.__somaLastVitals;
+        if (!o || o.heartRate == null) return null;
+        return {
+            heartRate: o.heartRate,
+            hrv: o.hrv,
+            respiratoryRate: o.respiratoryRate,
+            bloodOxygen: o.bloodOxygen,
+            wristTemperature: o.wristTemperature,
+            ambientNoise: o.ambientNoise,
+            bodyMotion: o.bodyMotion,
+            sleepStage: o.sleepStage,
+            stressScore: o.stressScore,
+            baselineHR: o.baselineHR,
+        };
+    }
+
+    function computeMw(v) {
+        if (typeof window.somaComputeMiddleware === 'function') return window.somaComputeMiddleware(v);
+        return {
+            targetBpm: Math.max(45, Math.round(v.heartRate * 0.85)),
+            hrvStatus: v.hrv < 40 ? 'stressed_rigid' : 'flexible_resilient',
+            texture: v.hrv < 40 ? 'pink_noise + continuous_pad' : 'open_pad',
+            instruments: v.respiratoryRate > 18 ? 'cello_legato, sustained_synth' : 'piano, ambient_strings',
+            safeguard: v.ambientNoise > 70 ? 'transients blocked' : 'all_clear',
+        };
+    }
+
+    function buildRecommendation(input, profile, vitals, demoCaseId) {
+        const modeNice = {
+            focus: 'focus and concentration', calm: 'calm regulation', sleep: 'sleep support',
+            anxious: 'anxiety relief', ground: 'grounding', energy: 'gentle activation', trauma: 'gentle nervous-system support',
+        };
+        const title = 'Soma recommends a session shaped for ' + (modeNice[input.mode] || 'your check-in') + '.';
+        const bullets = [];
+        const pills = [];
+
+        if (input.freeText) {
+            bullets.push('Your words anchor the session — they are woven into the listening goal (wellness support, not medical advice).');
+        }
+        if (profile.sensitive) {
+            bullets.push('Your profile asks for careful dynamics — we bias toward soft onsets and gentle timbres.');
+        }
+        if (vitals && vitals.heartRate != null) {
+            const mw = computeMw(vitals);
+            pills.push(mw.targetBpm + ' BPM target');
+            pills.push(input.intensity <= 2 ? 'lighter intensity' : input.intensity >= 4 ? 'full intensity' : 'medium intensity');
+            if (vitals.hrv != null && vitals.hrv < 40) {
+                bullets.push('HRV is below the calm threshold — softer texture and continuous pad reduce perceived threat.');
+            } else if (vitals.hrv != null) {
+                bullets.push('HRV looks resilient — we can keep the arrangement more open.');
+            }
+            if (vitals.ambientNoise != null && vitals.ambientNoise > 70) {
+                bullets.push('Ambient noise is elevated — safeguards prioritize reducing sharp transients.');
+            }
+            const tex = (mw.texture || '').split('+')[0].trim();
+            if (tex) pills.push(tex);
+            if (mw.safeguard && mw.safeguard !== 'all_clear') pills.push('safeguards on');
+        } else {
+            bullets.push('No Apple Watch snapshot yet — recommendations use your check-in, mode, and profile only.');
+        }
+        if (demoCaseId) bullets.push('Demo case loaded — vitals and profile illustrate a teaching scenario.');
+        if (input.environment && input.environment !== 'None') pills.push(input.environment.toLowerCase() + ' ambience');
+        while (bullets.length > 3) bullets.pop();
+        return { title, reasonBullets: bullets, strategyPills: pills.slice(0, 6), prompt: '' };
+    }
+
+    function buildStoredPrompt(input, rec) {
+        let prompt = MODE_PROMPTS[input.mode] || MODE_PROMPTS.focus;
+        (input.vibes || []).forEach(v => { if (VIBE_SUFFIXES[v]) prompt += VIBE_SUFFIXES[v]; });
+        if (input.freeText) prompt = input.freeText.slice(0, 200) + '. ' + prompt;
+        const extra = (rec.strategyPills || []).slice(0, 4).join(', ');
+        if (extra) prompt += ' Session emphasis: ' + extra + '.';
+        return prompt.slice(0, 500);
+    }
+
+    function renderReasonPanel(rec) {
+        const titleEl = document.getElementById('reason-title');
+        const ul = document.getElementById('reason-bullets');
+        const pills = document.getElementById('reason-pills');
+        if (titleEl) titleEl.textContent = rec.title || '';
+        if (ul) {
+            ul.innerHTML = '';
+            (rec.reasonBullets || []).forEach(t => {
+                const li = document.createElement('li');
+                li.textContent = '· ' + t;
+                ul.appendChild(li);
+            });
+        }
+        if (pills) {
+            pills.innerHTML = '';
+            (rec.strategyPills || []).forEach(p => {
+                const span = document.createElement('span');
+                span.className = 'soma-pill';
+                span.textContent = p;
+                pills.appendChild(span);
+            });
+        }
+    }
+
+    function updateSessionStrip() {
+        const act = getActive();
+        const lbl = document.getElementById('session-status-label');
+        const endBtn = document.getElementById('end-session-btn');
+        if (!lbl || !endBtn) return;
+        if (!act) {
+            lbl.textContent = 'Session · idle';
+            endBtn.classList.add('hidden');
+            return;
+        }
+        if (act.status === 'generating') lbl.textContent = 'Session · composing…';
+        else if (act.status === 'playing') lbl.textContent = 'Session · playing';
+        else lbl.textContent = 'Session · ' + act.status;
+        endBtn.classList.toggle('hidden', act.status !== 'playing' && act.status !== 'generating');
+    }
+
+    function beginSessionFromUi() {
+        const input = readUiInput();
+        const profile = getProfileSnapshot();
+        const vitals = snapshotVitals();
+        const demoCaseId = window.__somaDemoCaseId || null;
+        const rec = buildRecommendation(input, profile, vitals, demoCaseId);
+        rec.prompt = buildStoredPrompt(input, rec);
+        const active = {
+            id: uid(),
+            createdAt: isoNow(),
+            updatedAt: isoNow(),
+            status: 'generating',
+            input,
+            profileSnapshot: profile,
+            vitalsSnapshot: vitals,
+            demoCaseId,
+            recommendation: rec,
+            track: null,
+            feedback: null,
+        };
+        setActive(active);
+        updateSessionStrip();
+        return active;
+    }
+
+    function refreshDraft() {
+        const input = readUiInput();
+        const profile = getProfileSnapshot();
+        const vitals = snapshotVitals();
+        const demoId = window.__somaDemoCaseId || null;
+        const act = getActive();
+        if (act && (act.status === 'playing' || act.status === 'generating')) {
+            renderReasonPanel(act.recommendation || buildRecommendation(input, profile, vitals, demoId));
+            updateSessionStrip();
+            return;
+        }
+        const rec = buildRecommendation(input, profile, vitals, demoId);
+        rec.prompt = buildStoredPrompt(input, rec);
+        renderReasonPanel(rec);
+    }
+
+    window.somaRefreshDraft = refreshDraft;
+
+    window.somaClearActive = function () {
+        setActive(null);
+        updateSessionStrip();
+    };
+
+    window.somaTuneGate = function () {
+        const act = getActive();
+        if (act && act.status === 'playing') return 'End the current session first.';
+        if (act && act.status === 'generating') return 'Still composing — please wait.';
+        return null;
+    };
+
+    window.somaStartGuidedFallback = function () {
+        const act = beginSessionFromUi();
+        act.status = 'playing';
+        act.track = {
+            source: 'guided_fallback',
+            title: 'Timed session (no AI audio)',
+            audioUrl: '',
+            streamUrl: '',
+            taskId: '',
+        };
+        act.updatedAt = isoNow();
+        setActive(act);
+        updateSessionStrip();
+        if (window.somaPlayerApi) {
+            window.somaPlayerApi.setTotalFromMinutes(act.input.durationMin);
+            window.somaPlayerApi.startFakePlayback();
+        }
+        if (window.showToast) window.showToast('Timer session — add an API key for AI music.');
+    };
+
+    window.somaStartDemoSession = function (caseId, c) {
+        window.__somaDemoCaseId = caseId;
+        const input = {
+            freeText: c.moodInput || '',
+            mode: c.mode,
+            vibes: c.vibes || [],
+            durationMin: 45,
+            intensity: 3,
+            environment: 'None',
+        };
+        const p = c.profile || {};
+        const profile = {
+            name: p.name || '',
+            sleep: p.sleep,
+            goals: p.goals || [],
+            styles: p.styles || [],
+            sensitive: (p.sensitive || '').trim(),
+            rhythm: p.rhythm,
+            volume: p.volume || '',
+        };
+        const vit = snapshotVitals();
+        const rec = buildRecommendation(input, profile, vit, caseId);
+        rec.prompt = (c.sunoPrompt || buildStoredPrompt(input, rec)).slice(0, 500);
+        const active = {
+            id: uid(),
+            createdAt: isoNow(),
+            updatedAt: isoNow(),
+            status: 'playing',
+            input,
+            profileSnapshot: profile,
+            vitalsSnapshot: vit,
+            demoCaseId: caseId,
+            recommendation: rec,
+            track: {
+                source: 'cached_demo',
+                title: (c.cachedTrack && c.cachedTrack.title) || 'Demo',
+                audioUrl: (c.cachedTrack && c.cachedTrack.audioUrl) || '',
+                streamUrl: (c.cachedTrack && c.cachedTrack.streamUrl) || '',
+                taskId: '',
+            },
+            feedback: null,
+        };
+        setActive(active);
+        updateSessionStrip();
+        renderReasonPanel(rec);
+    };
+
+        const act = getActive();
+        const modal = document.getElementById('feedback-modal');
+        const card = document.getElementById('feedback-card');
+        const sum = document.getElementById('feedback-session-summary');
+        if (!modal || !act) return;
+        if (sum) {
+            const mode = act.input?.mode || '—';
+            const t = act.track?.title || '—';
+            sum.textContent = `Mode: ${mode} · ${t}`;
+        }
+        fbCalmAfter = 3;
+        fbHelp = 'neutral';
+        fbSound = 'good';
+        document.querySelectorAll('.fb-calm').forEach(b => b.classList.toggle('soma-pill-active', +b.dataset.calm === fbCalmAfter));
+        document.querySelectorAll('.fb-help').forEach(b => b.classList.toggle('soma-pill-active', b.dataset.help === fbHelp));
+        document.querySelectorAll('.fb-sound').forEach(b => b.classList.toggle('soma-pill-active', b.dataset.sound === fbSound));
+        const notes = document.getElementById('fb-notes');
+        if (notes) notes.value = '';
+        modal.style.opacity = '1';
+        modal.style.pointerEvents = 'auto';
+        if (card) {
+            card.style.animation = 'none';
+            void card.offsetWidth;
+            card.style.animation = 'modal-in 0.5s cubic-bezier(0.16,1,0.3,1) both';
+        }
+    }
+
+    function closeFeedbackModal() {
+        const modal = document.getElementById('feedback-modal');
+        if (!modal) return;
+        modal.style.opacity = '0';
+        modal.style.pointerEvents = 'none';
+    }
+
+    function submitFeedback() {
+        const act = getActive();
+        if (!act) { closeFeedbackModal(); return; }
+        act.feedback = {
+            calmAfter: fbCalmAfter,
+            helpfulness: fbHelp,
+            soundFit: fbSound,
+            notes: (document.getElementById('fb-notes')?.value || '').trim(),
+            submittedAt: isoNow(),
+        };
+        act.status = 'completed';
+        act.updatedAt = isoNow();
+        const arr = listSessions();
+        arr.push(act);
+        saveSessions(arr);
+        setActive(null);
+        closeFeedbackModal();
+        updateSessionStrip();
+        if (window.showToast) window.showToast('Feedback saved — thank you.');
+        renderHistoryList();
+    }
+
+    function skipFeedback() {
+        const act = getActive();
+        if (act) {
+            act.status = 'abandoned';
+            act.updatedAt = isoNow();
+        }
+        setActive(null);
+        closeFeedbackModal();
+        updateSessionStrip();
+    }
+
+    window.somaOnFakeSessionTimerEnd = function () {
+        const act = getActive();
+        if (act && act.status === 'playing' && act.track && act.track.source === 'guided_fallback') {
+            openFeedbackModal();
+        }
+    };
+
+    window.somaOnAudioEnded = function () {
+        const act = getActive();
+        if (act && act.status === 'playing') openFeedbackModal();
+    };
+
+    function openHistoryModal() {
+        const modal = document.getElementById('history-modal');
+        const card = document.getElementById('history-card');
+        if (!modal) return;
+        renderHistoryList();
+        modal.style.opacity = '1';
+        modal.style.pointerEvents = 'auto';
+        if (card) {
+            card.style.animation = 'none';
+            void card.offsetWidth;
+            card.style.animation = 'modal-in 0.5s cubic-bezier(0.16,1,0.3,1) both';
+        }
+    }
+
+    function closeHistoryModal() {
+        const modal = document.getElementById('history-modal');
+        if (!modal) return;
+        modal.style.opacity = '0';
+        modal.style.pointerEvents = 'none';
+    }
+
+    function renderHistoryList() {
+        const list = document.getElementById('history-list');
+        const empty = document.getElementById('history-empty');
+        const sumLine = document.getElementById('history-summary-line');
+        if (!list) return;
+        let rows = listSessions().filter(s => s.status === 'completed' && s.feedback);
+        if (historyFilter === 'calm') rows = rows.filter(s => s.input?.mode === 'calm');
+        else if (historyFilter === 'focus') rows = rows.filter(s => s.input?.mode === 'focus');
+        else if (historyFilter === 'sleep') rows = rows.filter(s => s.input?.mode === 'sleep');
+        else if (historyFilter === 'helped') rows = rows.filter(s => s.feedback?.helpfulness === 'helped');
+        rows = rows.slice().reverse();
+        if (sumLine) {
+            const all = listSessions().filter(s => s.status === 'completed');
+            const helped = all.filter(s => s.feedback?.helpfulness === 'helped').length;
+            sumLine.textContent = all.length ? `${all.length} completed · ${helped} marked “helped”` : 'No history yet';
+        }
+        list.innerHTML = '';
+        if (empty) empty.style.display = rows.length ? 'none' : 'block';
+        rows.forEach(row => {
+            const wrap = document.createElement('div');
+            wrap.className = 'soma-panel-soft px-4 py-3 flex flex-col gap-2';
+            const title = row.track?.title || row.recommendation?.title || row.id;
+            const dt = row.feedback?.submittedAt ? new Date(row.feedback.submittedAt).toLocaleString() : '';
+            const calm = row.feedback?.calmAfter != null ? `Calm ${row.feedback.calmAfter}/5` : '';
+            wrap.innerHTML = '<div class="flex justify-between gap-2"><span class="text-xs text-white/75 font-light truncate">' + escapeHtml(title) + '</span><span class="text-[10px] text-white/28 flex-shrink-0">' + escapeHtml(dt) + '</span></div>' +
+                '<div class="text-[10px] text-white/35">' + escapeHtml(calm) + ' · ' + escapeHtml(row.feedback?.helpfulness || '') + '</div>' +
+                '<div class="flex flex-wrap gap-2 mt-1">' +
+                '<button type="button" class="hist-replay soma-action-ghost" data-id="' + row.id + '">Replay</button>' +
+                '<button type="button" class="hist-template soma-action-ghost" data-id="' + row.id + '">Use as template</button>' +
+                '<button type="button" class="hist-del soma-action-ghost" data-id="' + row.id + '" style="color:rgba(248,113,113,0.55)">Delete</button></div>';
+            list.appendChild(wrap);
+        });
+        list.querySelectorAll('.hist-replay').forEach(btn => btn.addEventListener('click', () => replayHistory(btn.dataset.id)));
+        list.querySelectorAll('.hist-template').forEach(btn => btn.addEventListener('click', () => templateHistory(btn.dataset.id)));
+        list.querySelectorAll('.hist-del').forEach(btn => btn.addEventListener('click', () => deleteHistory(btn.dataset.id)));
+    }
+
+    function escapeHtml(s) {
+        if (!s) return '';
+        const d = document.createElement('div');
+        d.textContent = s;
+        return d.innerHTML;
+    }
+
+    function replayHistory(id) {
+        const row = listSessions().find(s => s.id === id);
+        if (!row || !row.track?.audioUrl) {
+            if (window.showToast) window.showToast('No audio URL for this session');
+            return;
+        }
+        if (typeof window.somaLoadTrackIntoPlayer === 'function') {
+            window.somaLoadTrackIntoPlayer({ title: row.track.title, audioUrl: row.track.audioUrl, audio_url: row.track.audioUrl, streamAudioUrl: row.track.streamUrl });
+        }
+        closeHistoryModal();
+        if (window.showToast) window.showToast('Replay started');
+    }
+
+    function templateHistory(id) {
+        const row = listSessions().find(s => s.id === id);
+        if (!row || !row.input) return;
+        const mi = document.getElementById('mood-input');
+        if (mi) mi.value = row.input.freeText || '';
+        document.querySelectorAll('.vibe-chip.text-white').forEach(b => b.click());
+        (row.input.vibes || []).forEach(v => {
+            const vb = document.querySelector('.vibe-chip[data-vibe="' + v + '"]');
+            if (vb) vb.click();
+        });
+        const modeBtn = document.querySelector('.mode-chip[data-mode="' + row.input.mode + '"]');
+        if (modeBtn) modeBtn.click();
+        window.__somaDemoCaseId = null;
+        setActive(null);
+        refreshDraft();
+        closeHistoryModal();
+        if (window.showToast) window.showToast('Template applied');
+    }
+
+    function deleteHistory(id) {
+        saveSessions(listSessions().filter(s => s.id !== id));
+        renderHistoryList();
+    }
+
+    function initFeedbackDom() {
+        const calmGrp = document.getElementById('fb-calm-group');
+        if (calmGrp && !calmGrp.dataset.ready) {
+            calmGrp.dataset.ready = '1';
+            for (let i = 1; i <= 5; i++) {
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.className = 'soma-pill fb-calm' + (i === 3 ? ' soma-pill-active' : '');
+                b.textContent = String(i);
+                b.dataset.calm = String(i);
+                b.addEventListener('click', () => {
+                    fbCalmAfter = i;
+                    document.querySelectorAll('.fb-calm').forEach(x => x.classList.toggle('soma-pill-active', +x.dataset.calm === i));
+                });
+                calmGrp.appendChild(b);
+            }
+        }
+        document.querySelectorAll('.fb-help').forEach(b => {
+            b.addEventListener('click', () => {
+                fbHelp = b.dataset.help;
+                document.querySelectorAll('.fb-help').forEach(x => x.classList.toggle('soma-pill-active', x === b));
+            });
+        });
+        document.querySelectorAll('.fb-sound').forEach(b => {
+            b.addEventListener('click', () => {
+                fbSound = b.dataset.sound;
+                document.querySelectorAll('.fb-sound').forEach(x => x.classList.toggle('soma-pill-active', x === b));
+            });
+        });
+        document.getElementById('fb-submit')?.addEventListener('click', submitFeedback);
+        document.getElementById('fb-skip')?.addEventListener('click', skipFeedback);
+        document.getElementById('feedback-close')?.addEventListener('click', skipFeedback);
+        document.getElementById('feedback-backdrop')?.addEventListener('click', skipFeedback);
+    }
+
+    function initHistoryDom() {
+        document.getElementById('history-btn')?.addEventListener('click', openHistoryModal);
+        document.getElementById('history-close')?.addEventListener('click', closeHistoryModal);
+        document.getElementById('history-backdrop')?.addEventListener('click', closeHistoryModal);
+        document.querySelectorAll('.hist-filter').forEach(b => {
+            b.addEventListener('click', () => {
+                historyFilter = b.dataset.filter || 'all';
+                document.querySelectorAll('.hist-filter').forEach(x => x.classList.toggle('soma-pill-active', x === b));
+                renderHistoryList();
+            });
+        });
+    }
+
+    document.getElementById('reason-toggle')?.addEventListener('click', () => {
+        const body = document.getElementById('reason-panel-body');
+        const t = document.getElementById('reason-toggle');
+        if (!body || !t) return;
+        body.classList.toggle('is-collapsed');
+        t.textContent = body.classList.contains('is-collapsed') ? 'Show' : 'Hide';
+    });
+
+    document.getElementById('end-session-btn')?.addEventListener('click', () => {
+        const act = getActive();
+        if (act && (act.status === 'playing' || act.status === 'generating')) openFeedbackModal();
+    });
+
+    initFeedbackDom();
+    initHistoryDom();
+    refreshDraft();
+    updateSessionStrip();
+
+    window.somaGetActive = getActive;
+    window.somaSessionBeginForSuno = beginSessionFromUi;
+    window.somaSessionMarkPlaying = function (track) {
+        const act = getActive();
+        if (!act) return;
+        act.status = 'playing';
+        act.track = track;
+        act.updatedAt = isoNow();
+        setActive(act);
+        updateSessionStrip();
+    };
+    window.somaSessionMarkFailed = function () {
+        setActive(null);
+        updateSessionStrip();
+    };
 })();
 </script>
 
@@ -2464,6 +3271,7 @@
         generationActive = false;
         hideOverlay();
         resetTuneBtn();
+        if (window.somaSessionMarkFailed) window.somaSessionMarkFailed();
         window.showToast('Generation cancelled');
     });
 
@@ -2476,14 +3284,17 @@
         } else {
             tuneBtn.classList.remove('loading');
             tuneBtnIcon.setAttribute('icon', 'lucide:sparkles');
-            tuneBtnLabel.textContent = 'Tune';
+            tuneBtnLabel.textContent = 'Start Session';
         }
     }
     function resetTuneBtn() { setTuneBtnLoading(false); }
 
     // ── Build Suno prompt ─────────────────────────────────────────────────
     function buildPrompt() {
-        // Read current mode & vibes from the DOM state
+        if (window.somaGetActive) {
+            const a = window.somaGetActive();
+            if (a && a.recommendation && a.recommendation.prompt) return a.recommendation.prompt;
+        }
         const modeKey   = document.querySelector('.mode-chip.text-white')?.dataset?.mode || 'focus';
         const vibeKeys  = [...document.querySelectorAll('.vibe-chip.text-white')].map(b => b.dataset.vibe);
         const userText  = moodInput.value.trim();
@@ -2669,6 +3480,7 @@
             record.classList.add('record-paused');
             eqBars.classList.add('eq-paused');
             syncProgress();
+            if (window.somaOnAudioEnded) window.somaOnAudioEnded();
         });
 
         // ── stop the fake ticker so it can't fight the real audio ────────
@@ -2705,14 +3517,27 @@
         sunoAudio.paused ? sunoAudio.play() : sunoAudio.pause();
     }, true);
 
-    // ── Main: Tune button click ───────────────────────────────────────────
+    // ── Main: Tune / Start Session click ─────────────────────────────────
     tuneBtn.addEventListener('click', async () => {
-        const apiKey = getKey();
-        if (!apiKey) {
-            openApiKeyModal();
+        const gate = window.somaTuneGate ? window.somaTuneGate() : null;
+        if (gate) {
+            window.showToast(gate);
             return;
         }
+
+        const apiKey = getKey();
+        if (!apiKey) {
+            if (playBtn.dataset.sunoWired === '1') {
+                window.showToast('Finish the current audio track before starting a timer-only session.');
+                return;
+            }
+            if (window.somaStartGuidedFallback) window.somaStartGuidedFallback();
+            return;
+        }
+
         if (generationActive) return;
+
+        if (window.somaSessionBeginForSuno) window.somaSessionBeginForSuno();
 
         const prompt = buildPrompt();
         generationActive  = true;
@@ -2722,31 +3547,38 @@
         showOverlay('Sending request to Suno…', 'Connecting to API');
 
         try {
-            // Step 1: Submit
             updateOverlay('Submitting composition request…', 'Building your soundscape');
             const taskId = await apiGenerate(prompt, apiKey);
 
-            // Step 2: Poll
             updateOverlay('Composing your soundscape…', 'This may take 30–120 seconds');
             const result = await pollTask(taskId, apiKey);
 
             if (cancelGeneration) return;
 
-            // Step 3: Load track
-            // Poll response wraps tracks in result.response.sunoData (camelCase)
-            // Fallback to result.data (matches callback format from docs)
             const tracks = result.response?.sunoData || result.data || [];
             if (tracks.length === 0) throw new Error('No tracks returned');
 
             updateOverlay('Loading your track…', 'Almost there');
-            loadTrackIntoPlayer(tracks[0]);
+            const t0 = tracks[0];
+            loadTrackIntoPlayer(t0);
+
+            if (window.somaSessionMarkPlaying) {
+                window.somaSessionMarkPlaying({
+                    source: 'suno',
+                    title: t0.title || 'AI Generated Track',
+                    audioUrl: t0.audioUrl || t0.audio_url || t0.sourceAudioUrl || t0.source_audio_url || '',
+                    streamUrl: t0.streamAudioUrl || t0.stream_audio_url || '',
+                    taskId: String(taskId),
+                });
+            }
 
             hideOverlay();
-            window.showToast(`Generated: ${tracks[0].title || 'Track ready'}`);
+            window.showToast(`Generated: ${t0.title || 'Track ready'}`);
 
         } catch (err) {
             if (cancelGeneration) return;
             hideOverlay();
+            if (window.somaSessionMarkFailed) window.somaSessionMarkFailed();
             const msg = err.message || 'Unknown error';
             if (msg.includes('401') || msg.toLowerCase().includes('unauthorized')) {
                 window.showToast('Invalid API key — please update it');
@@ -2762,9 +3594,15 @@
         }
     });
 
+    window.somaLoadTrackIntoPlayer = loadTrackIntoPlayer;
+    window.somaDetachSunoPlayer = function () {
+        audioWired = false;
+        const pb = document.getElementById('play-btn');
+        if (pb) delete pb.dataset.sunoWired;
+    };
+
     // ── Init ──────────────────────────────────────────────────────────────
     syncKeyIndicator();
-    // Pre-fill input if key exists
     if (getKey()) apikeyInput.value = getKey();
 
 })();
@@ -3132,6 +3970,7 @@
 
         closeModal();
         showToast('Profile saved');
+        if (typeof window.somaRefreshDraft === 'function') window.somaRefreshDraft();
     }
 
     // ── Toast notification ────────────────────────────────────────────
@@ -3713,6 +4552,7 @@
                     if (record) record.classList.add('record-paused');
                     if (eqBarsEl) eqBarsEl.classList.add('eq-paused');
                     syncProg();
+                    if (window.somaOnAudioEnded) window.somaOnAudioEnded();
                 });
 
                 // Stop the fake ticker
@@ -3758,6 +4598,8 @@
 
         // 6. Update vitals monitor (silently — modal stays closed)
         if (c.vitals) window.loadVitals(c.profile.name, c.vitals);
+
+        if (window.somaStartDemoSession) window.somaStartDemoSession(caseId, c);
 
         // 7. Toast
         if (window.showToast) window.showToast(`Loaded: ${c.profile.name} — ${caseId.replace('_','')}`);
@@ -3982,6 +4824,8 @@
 
         // Activate live dot on header button
         liveDot.classList.remove('hidden');
+
+        window.__somaLastVitals = Object.assign({}, v, { subjectName: name });
     }
 
     // ── Expose globally so loadCase can call it ───────────────────────────
@@ -3991,6 +4835,7 @@
 
     // ── Init ──────────────────────────────────────────────────────────────
     // modal starts hidden — opened via button or case load
+    window.somaComputeMiddleware = computeMiddleware;
 
 })();
 </script>
