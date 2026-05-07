@@ -46,6 +46,13 @@
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
         }
+        /* Above #suno-overlay (z-90); modals stay higher so they still cover the shell */
+        header.glass-nav {
+            z-index: 95;
+        }
+        header iconify-icon {
+            pointer-events: none;
+        }
         
         ::-webkit-scrollbar {
             width: 0px;
@@ -927,7 +934,7 @@
     </div>
 
     <!-- Header -->
-    <header class="w-full z-50 glass-nav transition-all duration-300 flex-shrink-0 absolute top-0">
+    <header class="w-full glass-nav transition-all duration-300 flex-shrink-0 absolute top-0">
         <div class="max-w-6xl mx-auto px-8 h-20 flex items-center justify-between">
             <a href="#" class="flex items-center gap-3 group">
                 <div class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-md group-hover:bg-white/10 transition-all duration-500">
@@ -2875,6 +2882,7 @@
         renderReasonPanel(rec);
     };
 
+    function openFeedbackModal() {
         const act = getActive();
         const modal = document.getElementById('feedback-modal');
         const card = document.getElementById('feedback-card');
@@ -3122,6 +3130,7 @@
     refreshDraft();
     updateSessionStrip();
 
+    window.somaOpenHistoryModal = openHistoryModal;
     window.somaGetActive = getActive;
     window.somaSessionBeginForSuno = beginSessionFromUi;
     window.somaSessionMarkPlaying = function (track) {
