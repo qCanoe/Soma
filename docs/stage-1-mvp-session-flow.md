@@ -21,7 +21,16 @@ Users complete one **therapy session**: check-in → recommendation → play (Su
 | `soma-active-session-v1` | Current unfinished session or `null` |
 | `soma-sessions-v1` | Last 50 completed sessions (with feedback) |
 
-## Fallback behaviour
+## Demo history (showcase)
+
+For UI walkthroughs, open `apps/web/index.html`, then in the browser console run:
+
+```js
+somaSeedDemoHistory()
+```
+
+This appends five **completed** sessions (one per **Demo Case** Xiao Wang → Prof. Zhang) into `soma-sessions-v1` with realistic feedback, then opens **History**. Safe to run again (same ids are skipped). To refresh those rows: `somaSeedDemoHistory({ resetDemo: true })`.
+
 
 - **No API key**: timer-only `guided_fallback`; user can still submit feedback.
 - **Suno error**: toast + optional switch to timer session (manual End still works).

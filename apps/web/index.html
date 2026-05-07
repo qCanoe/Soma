@@ -4307,6 +4307,126 @@
         },
     };
 
+    const DEMO_HISTORY_CASE_ORDER = ['case_001', 'case_002', 'case_003', 'case_004', 'case_005'];
+
+    function profileSnapshotFromDemoCase(p) {
+        return {
+            name: p.name || '',
+            sleep: p.sleep,
+            goals: p.goals || [],
+            styles: p.styles || [],
+            sensitive: (p.sensitive || '').trim(),
+            rhythm: p.rhythm,
+            volume: p.volume || '',
+        };
+    }
+
+    function vitalsSnapshotFromDemoCase(v) {
+        if (!v) return null;
+        return {
+            heartRate: v.heartRate,
+            hrv: v.hrv,
+            respiratoryRate: v.respiratoryRate,
+            bloodOxygen: v.bloodOxygen,
+            wristTemperature: v.wristTemperature,
+            ambientNoise: v.ambientNoise,
+            sleepStage: v.sleepStage,
+            stressScore: v.stressScore,
+            baselineHR: v.baselineHR,
+        };
+    }
+
+    function recommendationFromDemoCase(c) {
+        const modeNice = {
+            focus: 'focus and concentration', calm: 'calm regulation', sleep: 'sleep support',
+            anxious: 'anxiety relief', ground: 'grounding', energy: 'gentle activation', trauma: 'gentle nervous-system support',
+        };
+        const name = (c.profile && c.profile.name) || 'Demo';
+        return {
+            title: 'Soma recommends a session shaped for ' + (modeNice[c.mode] || 'your check-in') + '.',
+            reasonBullets: [
+                'Demo case — ' + name + ' · vitals snapshot from case file.',
+                (c.moodInput || '').length > 90 ? (c.moodInput.slice(0, 90) + '…') : (c.moodInput || ''),
+            ],
+            strategyPills: [c.mode, 'demo playback'],
+            prompt: (c.sunoPrompt || '').slice(0, 500),
+        };
+    }
+
+    function buildDemoHistorySessions() {
+        const feedbackRows = [
+            { calmAfter: 4, helpfulness: 'helped', soundFit: 'good', notes: '下班後腦袋终于安静下来，会再用。' },
+            { calmAfter: 5, helpfulness: 'helped', soundFit: 'good', notes: '比平时容易入睡，音色很柔和。' },
+            { calmAfter: 3, helpfulness: 'neutral', soundFit: 'good', notes: '专注力有提升，中间还是会想刷手机。' },
+            { calmAfter: 4, helpfulness: 'helped', soundFit: 'too_busy', notes: '焦虑缓解明显，偶尔觉得层次略满。' },
+            { calmAfter: 5, helpfulness: 'helped', soundFit: 'good', notes: '很适合反思沉淀，情绪有被接住的感觉。' },
+        ];
+        const now = Date.now();
+        return DEMO_HISTORY_CASE_ORDER.map((caseId, i) => {
+            const c = DEMO_CASES[caseId];
+            const fp = feedbackRows[i];
+            const created = new Date(now - (5 - i) * 86400000 - i * 7200000).toISOString();
+            const submitted = new Date(now - (5 - i) * 86400000 - i * 3600000).toISOString();
+            const ct = c.cachedTrack || {};
+            const url = ct.audioUrl || '';
+            return {
+                id: 'sess_seed_' + caseId,
+                createdAt: created,
+                updatedAt: submitted,
+                status: 'completed',
+                input: {
+                    freeText: c.moodInput || '',
+                    mode: c.mode,
+                    vibes: c.vibes || [],
+                    durationMin: 45,
+                    intensity: 3,
+                    environment: 'None',
+                },
+                profileSnapshot: profileSnapshotFromDemoCase(c.profile),
+                vitalsSnapshot: vitalsSnapshotFromDemoCase(c.vitals),
+                demoCaseId: caseId,
+                recommendation: recommendationFromDemoCase(c),
+                track: {
+                    source: 'cached_demo',
+                    title: ct.title || 'Demo',
+                    audioUrl: url,
+                    streamUrl: url,
+                    taskId: '',
+                },
+                feedback: {
+                    calmAfter: fp.calmAfter,
+                    helpfulness: fp.helpfulness,
+                    soundFit: fp.soundFit,
+                    notes: fp.notes,
+                    submittedAt: submitted,
+                },
+            };
+        });
+    }
+
+    window.somaSeedDemoHistory = function (opts) {
+        opts = opts || {};
+        const LS = 'soma-sessions-v1';
+        let existing = [];
+        try {
+            const raw = localStorage.getItem(LS);
+            existing = raw ? JSON.parse(raw) : [];
+            if (!Array.isArray(existing)) existing = [];
+        } catch (_) { existing = []; }
+        if (opts.resetDemo) {
+            existing = existing.filter(s => !String(s.id || '').startsWith('sess_seed_'));
+        }
+        const seed = buildDemoHistorySessions();
+        const have = new Set(existing.map(s => s.id));
+        seed.forEach(s => { if (!have.has(s.id)) existing.push(s); });
+        existing = existing.slice(-50);
+        try { localStorage.setItem(LS, JSON.stringify(existing)); } catch (_) {}
+        if (typeof window.showToast === 'function') {
+            window.showToast('已载入 ' + seed.length + ' 条演示历史（对应五个 Demo Case）');
+        }
+        if (typeof window.somaOpenHistoryModal === 'function') window.somaOpenHistoryModal();
+    };
+
     // ── Helpers ───────────────────────────────────────────────────────────
     let activeCaseId = null;
 
