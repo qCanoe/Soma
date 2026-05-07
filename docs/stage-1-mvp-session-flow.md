@@ -23,14 +23,16 @@ Users complete one **therapy session**: check-in → recommendation → play (Su
 
 ## Demo history (showcase)
 
-For UI walkthroughs, open `apps/web/index.html`, then in the browser console run:
+On each load of `apps/web/index.html`, the **Demo Cases** script **silently merges** five sample **completed** sessions (one per case, ids `sess_seed_case_001` … `sess_seed_case_005`) into `soma-sessions-v1` if they are not already present. Open **History** to see them (filters, Replay, template, Delete work as usual).
+
+To **re-apply** the seed after editing or deleting those rows, use the browser console:
 
 ```js
-somaSeedDemoHistory()
+somaSeedDemoHistory({ resetDemo: true })  // removes sess_seed_* then re-adds; opens History + toast
+somaSeedDemoHistory()                     // append missing seed ids only; opens History + toast
 ```
 
-This appends five **completed** sessions (one per **Demo Case** Xiao Wang → Prof. Zhang) into `soma-sessions-v1` with realistic feedback, then opens **History**. Safe to run again (same ids are skipped). To refresh those rows: `somaSeedDemoHistory({ resetDemo: true })`.
-
+## Fallback behaviour
 
 - **No API key**: timer-only `guided_fallback`; user can still submit feedback.
 - **Suno error**: toast + optional switch to timer session (manual End still works).
@@ -51,5 +53,6 @@ Copy treats Soma as **wellness support**, not diagnosis or treatment. See produc
 - [ ] With Suno key: generation → play → audio end → feedback modal.
 - [ ] Without Suno key: Start Session → timer runs → End Session → feedback.
 - [ ] History: filter All / Calm / Focus / Sleep / Helped; Replay; Use as template; Delete.
+- [ ] Fresh load: **History** includes five `sess_seed_*` demo rows (unless user cleared store).
 - [ ] Reload mid-session: active session restored when appropriate (draft/generating/playing).
 - [ ] Reset Aura: does not corrupt session store (optional: clear active — current product choice documented in code).

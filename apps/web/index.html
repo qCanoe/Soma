@@ -1015,10 +1015,10 @@
                 How are you feeling <i class="text-white/50">today?</i>
             </h1>
             
-            <div class="relative flex items-center group w-full ethereal-input rounded-full border border-white/10 transition-all duration-500 animate-stagger-2">
+            <div class="flex items-center group w-full min-w-0 ethereal-input rounded-full border border-white/10 transition-all duration-500 animate-stagger-2">
                 <input id="mood-input" type="text" placeholder="e.g., anxious, need focus, can't sleep..." 
-                       class="w-full bg-transparent py-5 pl-8 pr-32 text-white/90 placeholder:text-white/30 focus:outline-none text-lg font-normal tracking-wide caret-white selection:bg-white/20">
-                <button id="tune-btn" class="absolute right-3 h-10 px-6 rounded-full bg-white/10 text-white text-sm font-medium hover:bg-white/20 transition-all flex items-center gap-2 backdrop-blur-md border border-white/5 hover:scale-105">
+                       class="min-w-0 flex-1 bg-transparent py-5 pl-8 pr-3 text-white/90 placeholder:text-white/30 focus:outline-none text-lg font-normal tracking-wide caret-white selection:bg-white/20">
+                <button id="tune-btn" type="button" class="mr-3 flex h-10 flex-shrink-0 items-center gap-2 rounded-full border border-white/5 bg-white/10 px-6 text-sm font-medium text-white backdrop-blur-md transition-all hover:scale-105 hover:bg-white/20">
                     <iconify-icon id="tune-icon" icon="lucide:sparkles" width="16"></iconify-icon>
                     <span id="tune-label">Start Session</span>
                 </button>
@@ -4404,7 +4404,7 @@
         });
     }
 
-    window.somaSeedDemoHistory = function (opts) {
+    function mergeDemoHistorySessionsIntoStore(opts) {
         opts = opts || {};
         const LS = 'soma-sessions-v1';
         let existing = [];
@@ -4418,14 +4418,37 @@
         }
         const seed = buildDemoHistorySessions();
         const have = new Set(existing.map(s => s.id));
-        seed.forEach(s => { if (!have.has(s.id)) existing.push(s); });
+        let added = 0;
+        seed.forEach(s => {
+            if (!have.has(s.id)) {
+                existing.push(s);
+                added++;
+            }
+        });
         existing = existing.slice(-50);
         try { localStorage.setItem(LS, JSON.stringify(existing)); } catch (_) {}
-        if (typeof window.showToast === 'function') {
-            window.showToast('已载入 ' + seed.length + ' 条演示历史（对应五个 Demo Case）');
+        if (opts.showToast && typeof window.showToast === 'function') {
+            const msg = added > 0
+                ? ('已载入 ' + added + ' 条演示历史（共 ' + seed.length + ' 个 Demo Case）')
+                : ('演示历史已在库中（' + seed.length + ' 条）');
+            window.showToast(msg);
         }
-        if (typeof window.somaOpenHistoryModal === 'function') window.somaOpenHistoryModal();
+        if (opts.openHistory && typeof window.somaOpenHistoryModal === 'function') {
+            window.somaOpenHistoryModal();
+        }
+        return added;
+    }
+
+    window.somaSeedDemoHistory = function (opts) {
+        opts = opts || {};
+        mergeDemoHistorySessionsIntoStore({
+            resetDemo: !!opts.resetDemo,
+            showToast: true,
+            openHistory: true,
+        });
     };
+
+    mergeDemoHistorySessionsIntoStore({});
 
     // ── Helpers ───────────────────────────────────────────────────────────
     let activeCaseId = null;
