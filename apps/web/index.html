@@ -1296,6 +1296,14 @@
             </div>
         </div>
 
+        <!-- Mock HealthKit prototype (web only; maps to /api/healthkit/mock/run when API available) -->
+        <div class="px-9 pb-3 flex-shrink-0 flex flex-wrap gap-2 items-center border-b border-white/[0.06]">
+            <span class="text-[9px] text-white/25 uppercase tracking-widest">Prototype</span>
+            <button type="button" id="mock-hk-connect" class="text-[11px] font-light px-3 py-1.5 rounded-full border border-white/15 bg-white/[0.04] text-white/70 hover:bg-white/10 hover:text-white transition-all">Connect mock HealthKit</button>
+            <button type="button" id="mock-hk-next" disabled class="text-[11px] font-light px-3 py-1.5 rounded-full border border-white/10 bg-transparent text-white/35 transition-all">Next sample</button>
+            <span id="mock-hk-status" class="text-[10px] text-white/30 font-light tracking-wide ml-1 min-w-0 flex-1">Disconnected · local demo; run uvicorn to sync pipeline</span>
+        </div>
+
         <!-- Scrollable content -->
         <div id="vitals-scroll" class="flex-1 overflow-y-auto px-9 pb-8" style="-webkit-overflow-scrolling:touch;">
 
@@ -4989,6 +4997,185 @@
     // modal starts hidden — opened via button or case load
     window.somaComputeMiddleware = computeMiddleware;
 
+})();
+</script>
+<!-- Mock HealthKit prototype connector -->
+<script>
+(function () {
+    'use strict';
+
+    /** @type {{ label: string, vitals: Record<string, unknown> }[]} */
+    var MOCK_HEALTHKIT_SAMPLES = [
+        {
+            label: 'Calm office',
+            vitals: {
+                heartRate: 85,
+                hrv: 38,
+                respiratoryRate: 18,
+                bloodOxygen: 97.5,
+                wristTemperature: 36.6,
+                ambientNoise: 62,
+                bodyMotion: { x: 0.28, y: 0.22, z: 0.14 },
+                sleepStage: 'awake',
+                stressScore: 8,
+                baselineHR: 65,
+            },
+        },
+        {
+            label: 'Sleep wind-down',
+            vitals: {
+                heartRate: 72,
+                hrv: 35,
+                respiratoryRate: 14,
+                bloodOxygen: 96.8,
+                wristTemperature: 36.2,
+                ambientNoise: 38,
+                bodyMotion: { x: 0.05, y: 0.04, z: 0.03 },
+                sleepStage: 'core',
+                stressScore: 5,
+                baselineHR: 68,
+            },
+        },
+        {
+            label: 'Study focus',
+            vitals: {
+                heartRate: 78,
+                hrv: 42,
+                respiratoryRate: 16,
+                bloodOxygen: 98.2,
+                wristTemperature: 36.4,
+                ambientNoise: 55,
+                bodyMotion: { x: 0.18, y: 0.14, z: 0.2 },
+                sleepStage: 'awake',
+                stressScore: 7,
+                baselineHR: 62,
+            },
+        },
+        {
+            label: 'Noisy environment',
+            vitals: {
+                heartRate: 92,
+                hrv: 32,
+                respiratoryRate: 19,
+                bloodOxygen: 97.0,
+                wristTemperature: 36.7,
+                ambientNoise: 78,
+                bodyMotion: { x: 0.12, y: 0.09, z: 0.08 },
+                sleepStage: 'awake',
+                stressScore: 9,
+                baselineHR: 64,
+            },
+        },
+    ];
+
+    var mockConnected = false;
+    var mockIdx = 0;
+
+    function getMockSubjectName() {
+        try {
+            var raw = localStorage.getItem('moodtune-profile');
+            if (raw) {
+                var p = JSON.parse(raw);
+                if (p.name && String(p.name).trim()) return String(p.name).trim();
+            }
+        } catch (e) { /* ignore */ }
+        return 'You';
+    }
+
+    /** Web session vitalsSnapshot → API expects same keys; maps UI mode to therapy_goal. */
+    function buildMockProfilePayload() {
+        var modeEl = document.querySelector('.mode-chip.text-white');
+        var mode = modeEl && modeEl.dataset ? modeEl.dataset.mode : 'focus';
+        var map = {
+            focus: 'focus',
+            calm: 'calm',
+            sleep: 'sleep',
+            anxious: 'calm',
+            ground: 'grounding',
+            energy: 'focus',
+            trauma: 'grounding',
+        };
+        var therapy_goal = map[mode] || 'calm';
+        var out = { therapy_goal: therapy_goal };
+        try {
+            var raw = localStorage.getItem('moodtune-profile');
+            if (raw) {
+                var p = JSON.parse(raw);
+                if (p.age != null && p.age !== '') {
+                    var n = parseInt(String(p.age), 10);
+                    if (!isNaN(n)) out.age = n;
+                }
+            }
+        } catch (e2) { /* ignore */ }
+        return out;
+    }
+
+    function setMockStatus(text) {
+        var el = document.getElementById('mock-hk-status');
+        if (el) el.textContent = text;
+    }
+
+    function syncMockPipeline(webVitals) {
+        return fetch('/api/healthkit/mock/run', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                vitals: webVitals,
+                profile: buildMockProfilePayload(),
+            }),
+        }).then(function (res) {
+            if (!res.ok) return null;
+            return res.json();
+        }).catch(function () {
+            return null;
+        });
+    }
+
+    function applyMockSample(atIdx) {
+        var s = MOCK_HEALTHKIT_SAMPLES[atIdx % MOCK_HEALTHKIT_SAMPLES.length];
+        var name = getMockSubjectName();
+        if (window.loadVitals) window.loadVitals(name, s.vitals);
+        if (window.somaRefreshDraft) window.somaRefreshDraft();
+        syncMockPipeline(s.vitals).then(function (data) {
+            window.__somaLastPipelineResult = data || null;
+            if (data) {
+                setMockStatus('Connected · ' + s.label + ' · pipeline synced (local API)');
+            } else {
+                setMockStatus('Connected · ' + s.label + ' · local demo (API unreachable)');
+            }
+        });
+    }
+
+    var connectBtn = document.getElementById('mock-hk-connect');
+    var nextBtn = document.getElementById('mock-hk-next');
+    if (!connectBtn || !nextBtn) return;
+
+    connectBtn.addEventListener('click', function () {
+        mockConnected = !mockConnected;
+        if (mockConnected) {
+            nextBtn.disabled = false;
+            nextBtn.classList.remove('opacity-40', 'cursor-not-allowed');
+            mockIdx = 0;
+            connectBtn.textContent = 'Disconnect mock HealthKit';
+            applyMockSample(0);
+        } else {
+            nextBtn.disabled = true;
+            nextBtn.classList.add('opacity-40', 'cursor-not-allowed');
+            connectBtn.textContent = 'Connect mock HealthKit';
+            setMockStatus('Disconnected · local demo; run uvicorn to sync pipeline');
+            window.__somaLastPipelineResult = null;
+        }
+    });
+
+    nextBtn.addEventListener('click', function () {
+        if (!mockConnected) return;
+        mockIdx = (mockIdx + 1) % MOCK_HEALTHKIT_SAMPLES.length;
+        applyMockSample(mockIdx);
+    });
+
+    nextBtn.classList.add('opacity-40', 'cursor-not-allowed');
+
+    window.__somaMockHealthKit = { samples: MOCK_HEALTHKIT_SAMPLES };
 })();
 </script>
 </body>
