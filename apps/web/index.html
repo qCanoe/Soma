@@ -48,11 +48,11 @@
             font-family: 'Cormorant Garamond', serif;
         }
 
-        /* Top bar + sidebar: shared Cormorant wordmark, tightened for italic + circular mark */
+        /* Top bar + sidebar: shared Cormorant wordmark, light tracking for italic + circular mark */
         .soma-wordmark {
             font-family: 'Cormorant Garamond', serif;
             font-feature-settings: "liga" 1, "kern" 1;
-            letter-spacing: -0.02em;
+            letter-spacing: 0.02em;
             color: rgb(255 255 255 / 0.88);
         }
         
@@ -1166,7 +1166,7 @@
             outline-offset: 2px;
         }
 
-        #history-insights.w-full .history-insights-prose > section > p {
+        #history-insights .history-insights-prose > section > p {
             max-width: 52ch;
         }
 
@@ -1281,7 +1281,7 @@
                 <div class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-md">
                     <iconify-icon icon="solar:soundwave-linear" width="16" class="text-white/80"></iconify-icon>
                 </div>
-                <span class="soma-wordmark text-lg font-semibold leading-none italic">Soma</span>
+                <span class="soma-wordmark text-xl font-semibold leading-none italic">Soma</span>
             </div>
         </header>
 
@@ -1292,7 +1292,7 @@
                         <div class="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center bg-white/5">
                             <iconify-icon icon="solar:soundwave-linear" width="17" class="text-white/80"></iconify-icon>
                         </div>
-                        <span class="soma-wordmark text-xl font-semibold leading-none italic">Soma</span>
+                        <span class="soma-wordmark text-[1.5rem] font-semibold leading-none italic">Soma</span>
                     </div>
                     <p class="text-[0.65rem] text-white/25 uppercase tracking-[0.28em] font-medium mb-2">Workspace</p>
                     <nav class="flex flex-col gap-1.5" aria-label="Primary">
@@ -1398,12 +1398,12 @@
                         <button data-mode="calm"    class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Calm Down</button>
                         <button data-mode="sleep"   class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Drift to Sleep</button>
                         <button data-mode="anxious" class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Anxiety Relief</button>
-                        <button data-mode="ground"  class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Grounding</button>
                         <button type="button" data-more-toggle="mode" aria-expanded="false" aria-controls="mode-more-panel" class="px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/10 bg-white/[0.035] text-white/45 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">
                             <span data-more-label>More</span>
                         </button>
                     </div>
                     <div id="mode-more-panel" data-more-panel="mode" class="hidden flex flex-wrap items-center gap-2">
+                        <button data-mode="ground"  class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Grounding</button>
                         <button data-mode="energy"  class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Energy Boost</button>
                         <button data-mode="trauma"  class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Trauma Gentle</button>
                         <button data-mode="clarity" class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Morning Clarity</button>
@@ -2702,11 +2702,39 @@
     let currentEnv       = 'Rain';
     let ticker           = null;
 
-    const INTENSITY_LABELS = { 1: 'Light', 2: 'Gentle', 3: 'Medium', 4: 'Strong' };
-
     function triggerSomaDraftRefresh() {
         if (typeof window.somaRefreshDraft === 'function') window.somaRefreshDraft();
     }
+
+    /** Session parameter defaults without UI panel (formerly: Medium ~ intensity 3, 45 min, Rain). */
+    window.somaGetUiSessionParams = function () {
+        return {
+            intensity: currentIntensity,
+            durationMin: currentDuration,
+            environment: currentEnv,
+        };
+    };
+    window.somaSetUiSessionParams = function (patch) {
+        if (!patch || typeof patch !== 'object') return;
+        if (patch.intensity != null) {
+            const v = Math.min(4, Math.max(1, +patch.intensity));
+            if (Number.isFinite(v)) currentIntensity = v;
+        }
+        if (patch.durationMin != null) {
+            const mins = Math.max(1, +patch.durationMin);
+            if (!Number.isFinite(mins)) return;
+            currentDuration = mins;
+            totalSec = mins * 60;
+            if (elapsedSec > totalSec) elapsedSec = totalSec;
+            updateProgressVisuals(elapsedSec);
+            timeTotal.textContent = `${String(mins).padStart(2, '0')}:00`;
+        }
+        const ENV_OPTS = ['None', 'Rain', 'Noise'];
+        if (patch.environment != null && ENV_OPTS.includes(patch.environment)) {
+            currentEnv = patch.environment;
+        }
+        triggerSomaDraftRefresh();
+    };
 
     // ── DOM refs ──────────────────────────────────────────────────────────
     const gramophoneContainer = document.getElementById('gramophone-container');
@@ -2721,9 +2749,6 @@
     const regenBtn         = document.getElementById('regen-btn');
     const regenIcon        = document.getElementById('regen-icon');
     const timeTotal        = document.getElementById('time-total');
-    const summaryIntensity = document.getElementById('summary-intensity');
-    const summaryDuration  = document.getElementById('summary-duration');
-    const summaryEnv       = document.getElementById('summary-env');
     const playBtn       = document.getElementById('play-btn');
     const playIcon      = document.getElementById('play-icon');
     const interpLabel   = document.getElementById('interpreting-label');
@@ -3043,68 +3068,6 @@
         progressTooltip.style.opacity = '0';
     });
 
-    // ── Drawer helpers ────────────────────────────────────────────────────
-    function setDrawerActive(btn, on) {
-        if (on) {
-            D_OFF.forEach(c => btn.classList.remove(c));
-            D_ON.forEach(c  => btn.classList.add(c));
-        } else {
-            D_ON.forEach(c  => btn.classList.remove(c));
-            D_OFF.forEach(c => btn.classList.add(c));
-        }
-    }
-
-    // ── Intensity ─────────────────────────────────────────────────────────
-    document.querySelectorAll('.intensity-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const val = +btn.dataset.intensity;
-            if (currentIntensity === val) return;
-            document.querySelectorAll('.intensity-btn').forEach(b => setDrawerActive(b, false));
-            setDrawerActive(btn, true);
-            currentIntensity = val;
-            summaryIntensity.textContent = INTENSITY_LABELS[val];
-            triggerSomaDraftRefresh();
-        });
-    });
-
-    // ── Duration ──────────────────────────────────────────────────────────
-    document.querySelectorAll('.duration-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const mins = +btn.dataset.duration;
-            if (currentDuration === mins) return;
-            document.querySelectorAll('.duration-btn').forEach(b => setDrawerActive(b, false));
-            setDrawerActive(btn, true);
-            currentDuration = mins;
-            totalSec = mins * 60;
-
-            // Clamp elapsed if it now exceeds the new total
-            if (elapsedSec > totalSec) {
-                elapsedSec = totalSec;
-                updateProgressVisuals(elapsedSec);
-            } else {
-                // Re-render fill/thumb ratio for new total
-                updateProgressVisuals(elapsedSec);
-            }
-
-            timeTotal.textContent        = `${String(mins).padStart(2,'0')}:00`;
-            summaryDuration.textContent  = `${mins} min`;
-            triggerSomaDraftRefresh();
-        });
-    });
-
-    // ── Environment ───────────────────────────────────────────────────────
-    document.querySelectorAll('.env-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const env = btn.dataset.env;
-            if (currentEnv === env) return;
-            document.querySelectorAll('.env-btn').forEach(b => setDrawerActive(b, false));
-            setDrawerActive(btn, true);
-            currentEnv = env;
-            summaryEnv.textContent = env;
-            triggerSomaDraftRefresh();
-        });
-    });
-
     // ── Restart (skip-back) — reset to 00:00 and resume ──────────────────
     restartBtn.addEventListener('click', () => {
         elapsedSec = 0;
@@ -3169,18 +3132,12 @@
         document.querySelectorAll('.vibe-chip').forEach(b => setChipActive(b, false));
         setMoreExpanded('mode', false);
         setMoreExpanded('vibe', false);
-        // Reset drawer controls
+        // Reset session timing/timbre (former panel defaults: 3, 45m, Rain)
         currentIntensity = 3;
         currentDuration  = 45;
         currentEnv       = 'Rain';
         totalSec         = 45 * 60;
-        summaryIntensity.textContent = INTENSITY_LABELS[3];
-        summaryDuration.textContent  = '45 min';
-        summaryEnv.textContent       = 'Rain';
         timeTotal.textContent        = '45:00';
-        document.querySelectorAll('.intensity-btn').forEach(b => setDrawerActive(b, +b.dataset.intensity === 3));
-        document.querySelectorAll('.duration-btn').forEach(b  => setDrawerActive(b, +b.dataset.duration  === 45));
-        document.querySelectorAll('.env-btn').forEach(b       => setDrawerActive(b, b.dataset.env === 'Rain'));
         // Clear input
         document.querySelector('input[type="text"]').value = '';
         // Apply mode & reset progress
@@ -3235,14 +3192,6 @@
 
     // Sync initial progress visuals (fill + thumb + time label)
     updateProgressVisuals(elapsedSec);
-
-    // Sync drawer initial state with JS state
-    document.querySelectorAll('.intensity-btn').forEach(b =>
-        setDrawerActive(b, +b.dataset.intensity === currentIntensity));
-    document.querySelectorAll('.duration-btn').forEach(b =>
-        setDrawerActive(b, +b.dataset.duration === currentDuration));
-    document.querySelectorAll('.env-btn').forEach(b =>
-        setDrawerActive(b, b.dataset.env === currentEnv));
 
     // Kick off auto-play
     record.style.animationDuration = MODES[currentMode].recordSpeed;
@@ -3427,16 +3376,118 @@
         };
     }
 
-    function computeMw(v) {
-        if (typeof window.somaComputeMiddleware === 'function') return window.somaComputeMiddleware(v);
+    /** Partial profile for POST /api/healthkit/mock/run — must match server _merge_mock_profile defaults. */
+    function buildTherapyProfilePayload() {
+        const modeEl = document.querySelector('.mode-chip.text-white');
+        const mode = modeEl?.dataset?.mode || 'focus';
+        const map = {
+            focus: 'focus', calm: 'calm', sleep: 'sleep', anxious: 'calm', ground: 'grounding',
+            energy: 'focus', trauma: 'grounding', clarity: 'focus', release: 'calm', breath: 'calm',
+            body: 'grounding', study: 'focus', restore: 'sleep', still: 'calm', warm: 'calm',
+        };
+        const out = { therapy_goal: map[mode] || 'calm' };
+        try {
+            const raw = localStorage.getItem('moodtune-profile');
+            if (raw) {
+                const p = JSON.parse(raw);
+                if (p.age != null && p.age !== '') {
+                    const n = parseInt(String(p.age), 10);
+                    if (!isNaN(n)) out.age = n;
+                }
+            }
+        } catch (_) { /* ignore */ }
+        return out;
+    }
+
+    /** Map pipeline JSON → vitals-card “middleware” row (Layer 2 fields only; no browser heuristics). */
+    function vitalsMiddlewareFromApiResult(data) {
+        if (!data || !data.processed_params) return null;
+        const pp = data.processed_params;
+        const rhythm = pp.rhythm || {};
+        const tex = pp.texture || {};
+        const ms = pp.music_strategy || {};
+        const sg = pp.safeguards || {};
+        const tb = rhythm.target_bpm != null ? rhythm.target_bpm : ms.tempo_bpm;
+        if (tb == null) return null;
+        let textureLine = 'open_pad';
+        if (tex.apply_pink_noise && tex.apply_pad_texture) textureLine = 'pink_noise + continuous_pad';
+        else if (tex.apply_pad_texture) textureLine = 'continuous_pad';
+        else if (tex.apply_pink_noise) textureLine = 'pink_noise undertone';
+        const inst = Array.isArray(ms.instrument_set) && ms.instrument_set.length
+            ? ms.instrument_set.slice(0, 8).join(', ')
+            : '—';
+        const sym = rhythm.sympathetic_load;
+        const sympatheticDisplay = sym != null ? ((sym >= 0 ? '+' : '') + sym + ' BPM') : '—';
+        const safeguard = (sg.noise_environment === 'harsh_noisy' || sg.forbid_sharp_transients)
+            ? 'transients blocked'
+            : 'all_clear';
         return {
-            targetBpm: Math.max(45, Math.round(v.heartRate * 0.85)),
-            hrvStatus: v.hrv < 40 ? 'stressed_rigid' : 'flexible_resilient',
-            texture: v.hrv < 40 ? 'pink_noise + continuous_pad' : 'open_pad',
-            instruments: v.respiratoryRate > 18 ? 'cello_legato, sustained_synth' : 'piano, ambient_strings',
-            safeguard: v.ambientNoise > 70 ? 'transients blocked' : 'all_clear',
+            targetBpm: tb,
+            sympatheticDisplay,
+            hrvStatus: tex.hrv_status || '—',
+            texture: textureLine,
+            instruments: inst,
+            safeguard,
         };
     }
+
+    function somaApplyVitalsMiddlewareFromPipeline() {
+        const vm = vitalsMiddlewareFromApiResult(window.__somaLastPipelineResult);
+        const setTxt = (id, text) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = text;
+        };
+        if (vm) {
+            setTxt('v-target-bpm', vm.targetBpm + ' BPM');
+            setTxt('v-sympathetic', vm.sympatheticDisplay);
+            setTxt('v-hrv-analysis', vm.hrvStatus);
+            setTxt('v-texture', vm.texture);
+            setTxt('v-instruments', vm.instruments);
+            setTxt('v-safeguard', vm.safeguard);
+            return;
+        }
+        setTxt('v-target-bpm', '—');
+        setTxt('v-sympathetic', '—');
+        setTxt('v-hrv-analysis', 'MindWave API offline');
+        setTxt('v-texture', '—');
+        setTxt('v-instruments', '—');
+        setTxt('v-safeguard', '—');
+    }
+
+    async function fetchMindWavePipeline(vitalsSnapshot) {
+        if (!vitalsSnapshot || vitalsSnapshot.heartRate == null) {
+            window.__somaLastPipelineResult = null;
+            somaApplyVitalsMiddlewareFromPipeline();
+            return null;
+        }
+        try {
+            const res = await fetch('/api/healthkit/mock/run', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    vitals: vitalsSnapshot,
+                    profile: buildTherapyProfilePayload(),
+                }),
+            });
+            if (!res.ok) {
+                window.__somaLastPipelineResult = null;
+                somaApplyVitalsMiddlewareFromPipeline();
+                return null;
+            }
+            const data = await res.json();
+            window.__somaLastPipelineResult = data;
+            somaApplyVitalsMiddlewareFromPipeline();
+            return data;
+        } catch (_) {
+            window.__somaLastPipelineResult = null;
+            somaApplyVitalsMiddlewareFromPipeline();
+            return null;
+        }
+    }
+
+    window.somaFetchMindWavePipeline = fetchMindWavePipeline;
+    window.somaApplyVitalsMiddlewareFromPipeline = somaApplyVitalsMiddlewareFromPipeline;
+    window.somaBuildTherapyProfilePayload = buildTherapyProfilePayload;
 
     function formatSafeguardPills(pipe) {
         const out = [];
@@ -3493,11 +3544,10 @@
             const inst = Array.isArray(pipe.instrumentSet) ? pipe.instrumentSet : [];
             if (inst.length) mindwaveOutput.push('Instrument emphasis (trimmed): ' + inst.slice(0, 10).join(', ') + '.');
         } else {
-            const mw = computeMw(vitals);
-            mindwaveOutput.push('Heuristic BPM: ~' + mw.targetBpm + ' (until local pipeline returns processed_params).');
-            if (mw.hrvStatus) mindwaveOutput.push('HRV read (preview): ' + mw.hrvStatus + '.');
-            if (mw.texture) mindwaveOutput.push('Texture bias (preview): ' + mw.texture + '.');
-            mindwaveOutput.push('Run mock HealthKit → /api pipeline to swap this block for live MindWave output.');
+            mindwaveOutput.push(
+                'MindWave biometric strategy unavailable — serve the app via local FastAPI and POST vitals to /api/healthkit/mock/run.'
+            );
+            mindwaveOutput.push('HR is shown for context only; tempo, texture, and safeguards require the Python pipeline.');
         }
 
 
@@ -3507,17 +3557,14 @@
             sg.forEach(s => safetyConstraints.push('MindWave safeguard: avoid ' + s + '.'));
             if (!sg.length) safetyConstraints.push('MindWave safeguards: baseline only (no extra transient / HF / percussion bans flagged).');
         } else if (vitals && vitals.heartRate != null && !pipe) {
-            const mw = computeMw(vitals);
-            if (mw.safeguard && mw.safeguard !== 'all_clear') {
-                safetyConstraints.push('Preview safeguard: ' + mw.safeguard + '.');
-            } else safetyConstraints.push('Preview safeguards: all clear.');
+            safetyConstraints.push('MindWave safeguards — start `python -m uvicorn apps.api.main:app` to evaluate transient / spectral rules from Layer 2.');
         } else safetyConstraints.push('Biometric safeguards idle — add vitals to evaluate transient / spectral rules.');
         if (profile.sensitive && String(profile.sensitive).trim()) {
             safetyConstraints.push('Profile sound sensitivity: favor softer attacks and forgiving spectral balance.');
         }
-        if (vitals && vitals.ambientNoise != null && vitals.ambientNoise > 70) {
+        if (!pipe && vitals && vitals.ambientNoise != null && vitals.ambientNoise > 70) {
             safetyConstraints.push('Ambient noise elevated — damp sharp attacks and piercing highs.');
-        } else if (vitals && vitals.ambientNoise != null) {
+        } else if (!pipe && vitals && vitals.ambientNoise != null) {
             safetyConstraints.push('Ambient noise moderate (' + vitals.ambientNoise + ' dBA).');
         }
 
@@ -3577,22 +3624,22 @@
                 );
                 engineLine = 'Synced with MindWave pipeline (Python Layer 2–3) via local API — same rules as apps/api.';
             } else {
-                const mw = computeMw(vitals);
-                pills.push(mw.targetBpm + ' BPM (preview)');
-                const tex = (mw.texture || '').split('+')[0].trim();
-                if (tex) pills.push(tex);
-                if (mw.safeguard && mw.safeguard !== 'all_clear') pills.push('safeguards on');
-                bullets.push('Start uvicorn + connect mock vitals or load a Demo Case to sync full MindWave output.');
-                engineLine = 'Preview mode · run local FastAPI (/api/healthkit/mock/run) for full biometric strategy.';
+                pills.push('MindWave pending API');
+                bullets.push(
+                    'Biometric music strategy runs in Python — start uvicorn, open this page from the same origin, then use mock HealthKit or a Demo Case.'
+                );
+                engineLine = 'MindWave offline — run local FastAPI (`/api/healthkit/mock/run`) for the authoritative physiological → prompt path.';
             }
 
-            if (vitals.hrv != null && vitals.hrv < 40) {
-                bullets.push('HRV reads below our calm threshold — continuous pad / softer motion reduces perceived threat.');
-            } else if (vitals.hrv != null) {
-                bullets.push('HRV looks resilient — textures can stay a little more open.');
-            }
-            if (vitals.ambientNoise != null && vitals.ambientNoise > 70) {
-                bullets.push('Ambient noise is elevated — extra safeguards against sharp transients.');
+            if (!pipe) {
+                if (vitals.hrv != null && vitals.hrv < 40) {
+                    bullets.push('HRV reads below our calm threshold — continuous pad / softer motion reduces perceived threat.');
+                } else if (vitals.hrv != null) {
+                    bullets.push('HRV looks resilient — textures can stay a little more open.');
+                }
+                if (vitals.ambientNoise != null && vitals.ambientNoise > 70) {
+                    bullets.push('Ambient noise is elevated — extra safeguards against sharp transients.');
+                }
             }
         } else {
             bullets.push('No wrist snapshot yet — reasoning uses your check-in, mode, and profile only.');
@@ -3806,6 +3853,7 @@
             window.somaPlayerApi.setTotalFromMinutes(act.input.durationMin);
             window.somaPlayerApi.startFakePlayback();
         }
+        if (typeof window.showSessionStep === 'function') window.showSessionStep('playback');
         if (window.showToast) window.showToast('Guided timer session — waveform + countdown, no AI audio. Demo Cases give instant curated tracks; add API Key for optional live Suno.');
     };
 
@@ -4025,7 +4073,7 @@
         return m.charAt(0).toUpperCase() + m.slice(1);
     }
 
-    function computeHistoryStats(rawSessions) {
+    /** Aggregates from completed sessions in localStorage only; no fabricated KPIs. */\n    function computeHistoryStats(rawSessions) {
         const all = rawSessions.filter(s => s.status === 'completed' && s.feedback);
         if (!all.length) return null;
 
@@ -5996,6 +6044,7 @@
 
     // Load cached track audio into the player and start playback
     function showCachedTrack(track) {
+        if (typeof window.showSessionStep === 'function') window.showSessionStep('playback');
         const sunoAudio   = document.getElementById('suno-audio');
         const playerTitle = document.getElementById('player-title');
         const trackBadge  = document.getElementById('suno-track-badge');
@@ -6251,23 +6300,7 @@
         if (e.key === 'Escape' && vv && !vv.hidden) closeModal();
     });
 
-    // ── Middleware Layer 2 calculations (mirroring Python logic) ──────────
-    function computeMiddleware(v) {
-        const targetBpm       = Math.max(45, Math.round(v.heartRate * 0.85));
-        const sympatheticLoad = v.heartRate - v.baselineHR;
-        const hrvStressed     = v.hrv < 40;
-        const respElevated    = v.respiratoryRate > 18;
-        const noiseThreat     = v.ambientNoise > 70;
-
-        return {
-            targetBpm,
-            sympatheticLoad,
-            hrvStatus:    hrvStressed  ? 'stressed_rigid'   : 'flexible_resilient',
-            texture:      hrvStressed  ? 'pink_noise + continuous_pad' : 'open_pad',
-            instruments:  respElevated ? 'cello_legato, sustained_synth' : 'piano, ambient_strings',
-            safeguard:    noiseThreat  ? 'transients blocked' : 'all_clear',
-        };
-    }
+    // Layer 2 row: Python pipeline → somaApplyVitalsMiddlewareFromPipeline.
 
     // ── Status helpers ────────────────────────────────────────────────────
     function statusEl(cls, text, icon) {
@@ -6416,14 +6449,10 @@
         document.getElementById('v-sleep-sub').textContent =
             v.sleepStage !== 'awake' ? 'HealthKit sleep mode active' : '';
 
-        // Middleware analysis
-        const mw = computeMiddleware(v);
-        document.getElementById('v-target-bpm').textContent    = mw.targetBpm + ' BPM';
-        document.getElementById('v-sympathetic').textContent   = (mw.sympatheticLoad >= 0 ? '+' : '') + mw.sympatheticLoad + ' BPM';
-        document.getElementById('v-hrv-analysis').textContent  = mw.hrvStatus;
-        document.getElementById('v-texture').textContent       = mw.texture;
-        document.getElementById('v-instruments').textContent   = mw.instruments;
-        document.getElementById('v-safeguard').textContent     = mw.safeguard;
+        // Middleware analysis (authoritative: Python pipeline via /api only)
+        if (window.somaApplyVitalsMiddlewareFromPipeline) {
+            window.somaApplyVitalsMiddlewareFromPipeline();
+        }
 
         // Activate live dot on header button
         liveDot.classList.remove('hidden');
@@ -6436,9 +6465,7 @@
         renderVitals(name, vitalsData);
     };
 
-    // ── Init ──────────────────────────────────────────────────────────────
-    // modal starts hidden — opened via button or case load
-    window.somaComputeMiddleware = computeMiddleware;
+    window.somaComputeMiddleware = null;
 
 })();
 </script>
