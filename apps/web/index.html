@@ -168,35 +168,14 @@
             margin-bottom: 1rem;
         }
 
-        /* Session parameters: keyboard + touch friendly (no hover-only expand) */
-        .session-params-details {
+        /* Session parameters panel (always visible in scroll region) */
+        .session-params-panel {
             border-radius: 1.5rem;
             background: rgba(12, 12, 16, 0.35);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
             border: 1px solid rgba(255, 255, 255, 0.09);
             box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
-        }
-        .session-params-details[open] {
-            border-color: rgba(255, 255, 255, 0.14);
-        }
-        .session-params-details > summary {
-            list-style: none;
-            min-height: 3rem;
-        }
-        .session-params-details > summary::-webkit-details-marker {
-            display: none;
-        }
-        @media (min-width: 640px) {
-            .session-params-details > summary {
-                min-height: 3.25rem;
-            }
-        }
-        .session-params-chevron {
-            transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-        }
-        .session-params-details[open] .session-params-chevron {
-            transform: rotate(180deg);
         }
         
         ::-webkit-scrollbar {
@@ -1209,6 +1188,9 @@
             .soma-view {
                 scroll-padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
             }
+            .session-station__scroll {
+                scroll-padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
+            }
         }
         @media (max-width: 26rem) {
             .intent-chip-matrix {
@@ -1224,11 +1206,6 @@
         .session-params-expanded button:focus-visible {
             outline: 2px solid rgba(180, 198, 218, 0.45);
             outline-offset: 2px;
-        }
-        .session-params-details > summary:focus-visible {
-            outline: 2px solid rgba(180, 198, 218, 0.4);
-            outline-offset: 2px;
-            border-radius: 0.35rem;
         }
         .player-ctrl-hit {
             display: inline-flex;
@@ -1290,7 +1267,7 @@
         <header class="soma-mobile-brand md:hidden glass-nav border-b border-white/[0.06] h-14 px-4 flex items-center flex-shrink-0" role="banner">
             <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-md">
-                    <iconify-icon icon="lucide:waves" width="16" class="text-white/80"></iconify-icon>
+                    <iconify-icon icon="solar:soundwave-linear" width="16" class="text-white/80"></iconify-icon>
                 </div>
                 <span class="text-lg font-medium tracking-wide text-white/90 font-display italic">Soma</span>
             </div>
@@ -1335,12 +1312,125 @@
             </aside>
 
             <div id="soma-workspace" role="main" aria-label="Soma workspace" class="soma-workspace flex flex-1 min-w-0 min-h-0 flex-col overflow-hidden pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
-                <div id="session-view" class="soma-view soma-view-active flex flex-col flex-1 min-h-0 overflow-y-auto overscroll-y-contain px-4 sm:px-6 py-6 md:py-7" role="region" aria-labelledby="session-heading">
+                <div id="session-view" class="soma-view soma-view-active flex flex-col flex-1 min-h-0 px-4 sm:px-6 py-6 md:py-7" role="region" aria-labelledby="session-heading">
                     <h2 id="session-heading" class="sr-only">Session workspace</h2>
-                    <!-- Single-column session: check-in flows into player (classic vertical scroll, no split sidebar). -->
-                    <div class="session-station w-full max-w-3xl mx-auto flex flex-col gap-12 md:gap-14 lg:gap-16">
-                        <div class="session-station__inputs flex flex-col w-full min-w-0">
+                    <!-- Session: player fixed on top; check-in and session params scroll below. -->
+                    <div class="session-station w-full max-w-3xl mx-auto flex flex-col flex-1 min-h-0 gap-8 md:gap-10 lg:gap-12">
+                        <div class="session-station__playback flex flex-col w-full min-w-0 items-center gap-8 flex-shrink-0">
+        <!-- Player Card -->
+        <div class="w-full max-w-lg relative group animate-stagger-4 mx-auto">
+            <div class="relative glass-panel rounded-[2.5rem] p-10 flex flex-col items-center">
+                <!-- Top Bar -->
+                <div class="w-full flex justify-between items-start mb-8">
+                    <div class="flex flex-col">
+                        <span class="text-xs text-white/40 uppercase tracking-[0.3em] font-medium mb-2">Now Resonating</span>
+                        <h2 id="player-title" class="text-3xl text-white flex items-center gap-3 font-display italic tracking-wide">
+                            Deep Focus
+                        </h2>
+                        <!-- Suno generated track badge -->
+                        <div id="suno-track-badge" class="mt-1.5 flex items-center gap-1.5 opacity-0 translate-y-1 pointer-events-none">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400/80 flex-shrink-0"></span>
+                            <span id="suno-track-title" class="text-xs text-white/40 font-light tracking-wide truncate max-w-[180px]">AI Generated</span>
+                        </div>
+                        <div id="session-strip" class="mt-3 w-full max-w-[280px] soma-panel-soft px-3 py-2.5 flex flex-wrap items-center gap-2 opacity-90">
+                            <span id="session-status-label" class="text-xs text-white/35 uppercase tracking-widest">Session · idle</span>
+                            <button type="button" id="end-session-btn" class="soma-action-ghost hidden">End Session</button>
+                        </div>
+                    </div>
+                    <button type="button" id="regen-btn" class="touch-manipulation w-10 h-10 min-w-[2.75rem] min-h-[2.75rem] rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors duration-300">
+                        <iconify-icon id="regen-icon" icon="lucide:refresh-cw" width="16"></iconify-icon>
+                    </button>
+                </div>
+                <!-- Hidden audio element for Suno playback -->
+                <audio id="suno-audio" preload="auto" crossorigin="anonymous" style="display:none"></audio>
 
+                <!-- Minimalist Gramophone Visualizer -->
+                <div id="gramophone-container" class="gramophone-container">
+                    <!-- Glows -->
+                    <div id="gramophone-glow" class="gramophone-glow"></div>
+                    <div class="gramophone-aura"></div>
+                    
+                    <!-- Vinyl Record -->
+                    <div id="gramophone-record" class="gramophone-record">
+                        <div class="record-label">
+                            <div class="record-hole"></div>
+                        </div>
+                    </div>
+
+                    <!-- Floating Notes -->
+                    <div class="music-note note-1"><iconify-icon icon="lucide:music"></iconify-icon></div>
+                    <div class="music-note note-2"><iconify-icon icon="lucide:music-2"></iconify-icon></div>
+                    <div class="music-note note-3"><iconify-icon icon="lucide:music"></iconify-icon></div>
+
+                    <!-- Tonearm Structure -->
+                    <div class="tonearm-container">
+                        <div class="tonearm-base"></div>
+                        <div class="tonearm-arm">
+                            <div class="stylus-head"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex items-center justify-center gap-10 mb-10 w-full">
+                    <button type="button" id="restart-btn" class="player-ctrl-hit hover:scale-110 duration-300 transition-transform">
+                        <iconify-icon icon="lucide:skip-back" width="24"></iconify-icon>
+                    </button>
+                    <button type="button" id="play-btn" class="w-20 h-20 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-colors duration-300 shadow-[0_0_30px_rgba(255,255,255,0.05)] hover:shadow-[0_0_40px_rgba(255,255,255,0.15)] backdrop-blur-md group touch-manipulation">
+                        <iconify-icon id="play-icon" icon="lucide:pause" width="28" class="group-hover:scale-95 transition-transform"></iconify-icon>
+                    </button>
+                    <button type="button" id="skip-forward-btn" class="player-ctrl-hit hover:scale-110 duration-300 transition-transform">
+                        <iconify-icon icon="lucide:skip-forward" width="24"></iconify-icon>
+                    </button>
+                </div>
+
+                <!-- Progress — waveform bars span the full track width -->
+                <div class="w-full flex flex-col gap-3">
+                    <div id="progress-track" class="relative w-full cursor-pointer select-none group/progress" style="height:44px">
+                        <!-- Bars injected by JS; they ARE the progress indicator -->
+                        <div id="eq-bars" class="absolute inset-0 flex items-end" style="gap:2px"></div>
+                        <!-- Vertical playhead cursor -->
+                        <div id="progress-thumb" class="absolute top-0 bottom-0 w-px bg-white/55 shadow-[0_0_8px_rgba(255,255,255,0.75)] opacity-0 group-hover/progress:opacity-100 pointer-events-none -translate-x-1/2" style="left:33.3%"></div>
+                        <!-- Hover time tooltip -->
+                        <div id="progress-tooltip" class="absolute bottom-full mb-2.5 -translate-x-1/2 pointer-events-none whitespace-nowrap" style="left:0;opacity:0;transition:opacity 0.15s ease;">
+                            <div class="px-2.5 py-1 rounded-lg border border-white/10" style="background:rgba(8,8,12,0.80);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
+                                <span id="progress-tooltip-time" class="font-mono text-xs text-white/72 tracking-widest">00:00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span id="time-elapsed" class="text-xs font-mono text-white/30">15:00</span>
+                        <button type="button" id="freq-toggle" class="touch-manipulation min-h-[2.35rem] min-w-[2.35rem] px-2 -mx-2 flex items-center justify-center gap-1.5 group/freq cursor-pointer rounded-lg border border-transparent hover:border-white/8 hover:bg-white/[0.03] transition-colors duration-300">
+                            <span id="player-subtext" class="text-xs text-white/40 font-light tracking-widest uppercase group-hover/freq:text-white/65 transition-colors duration-300">Binaural · 40Hz</span>
+                            <iconify-icon icon="lucide:info" width="10" class="text-white/18 group-hover/freq:text-white/45 transition-colors duration-300 flex-shrink-0"></iconify-icon>
+                        </button>
+                        <span id="time-total" class="text-xs font-mono text-white/30">45:00</span>
+                    </div>
+
+                    <!-- Frequency Info Card -->
+                    <div id="freq-card" class="w-full overflow-hidden" style="max-height:0;opacity:0;">
+                        <div class="freq-inner flex items-start gap-4">
+                            <div class="flex-shrink-0 w-9 h-9 rounded-full border border-white/8 bg-white/[0.04] flex items-center justify-center mt-0.5">
+                                <iconify-icon id="freq-icon" icon="lucide:brain" width="15" class="text-white/40"></iconify-icon>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <span id="freq-wave" class="text-xs text-white/32 uppercase tracking-[0.18em] font-medium">Gamma Wave</span>
+                                    <span class="text-white/15 text-xs select-none">·</span>
+                                    <span id="freq-hz" class="text-xs font-mono text-white/28 tracking-wider">40 Hz</span>
+                                </div>
+                                <p id="freq-desc" class="text-sm text-white/42 font-light leading-relaxed"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+                        </div><!-- /.session-station__playback -->
+
+                        <div class="session-station__scroll flex-1 min-h-0 overflow-y-auto overscroll-y-contain min-w-0">
+                        <div class="session-station__inputs flex flex-col w-full min-w-0">
         <!-- Demo Cases Bar -->
         <div id="demo-cases-bar" class="w-full max-w-2xl mb-8 flex flex-col gap-2">
             <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 mb-1">
@@ -1483,136 +1573,11 @@
         </div>
                         </div><!-- /.session-station__inputs -->
 
-                        <div class="session-station__playback flex flex-col w-full min-w-0 items-center gap-8">
-        <!-- Player Card -->
-        <div class="w-full max-w-lg relative group animate-stagger-4 mx-auto">
-            <div class="relative glass-panel rounded-[2.5rem] p-10 flex flex-col items-center">
-                <!-- Top Bar -->
-                <div class="w-full flex justify-between items-start mb-8">
-                    <div class="flex flex-col">
-                        <span class="text-xs text-white/40 uppercase tracking-[0.3em] font-medium mb-2">Now Resonating</span>
-                        <h2 id="player-title" class="text-3xl text-white flex items-center gap-3 font-display italic tracking-wide">
-                            Deep Focus
-                        </h2>
-                        <!-- Suno generated track badge -->
-                        <div id="suno-track-badge" class="mt-1.5 flex items-center gap-1.5 opacity-0 translate-y-1 pointer-events-none">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400/80 flex-shrink-0"></span>
-                            <span id="suno-track-title" class="text-xs text-white/40 font-light tracking-wide truncate max-w-[180px]">AI Generated</span>
-                        </div>
-                        <div id="session-strip" class="mt-3 w-full max-w-[280px] soma-panel-soft px-3 py-2.5 flex flex-wrap items-center gap-2 opacity-90">
-                            <span id="session-status-label" class="text-xs text-white/35 uppercase tracking-widest">Session · idle</span>
-                            <button type="button" id="end-session-btn" class="soma-action-ghost hidden">End Session</button>
-                        </div>
-                    </div>
-                    <button type="button" id="regen-btn" class="touch-manipulation w-10 h-10 min-w-[2.75rem] min-h-[2.75rem] rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors duration-300">
-                        <iconify-icon id="regen-icon" icon="lucide:refresh-cw" width="16"></iconify-icon>
-                    </button>
-                </div>
-                <!-- Hidden audio element for Suno playback -->
-                <audio id="suno-audio" preload="auto" crossorigin="anonymous" style="display:none"></audio>
-
-                <!-- Minimalist Gramophone Visualizer -->
-                <div id="gramophone-container" class="gramophone-container">
-                    <!-- Glows -->
-                    <div id="gramophone-glow" class="gramophone-glow"></div>
-                    <div class="gramophone-aura"></div>
-                    
-                    <!-- Vinyl Record -->
-                    <div id="gramophone-record" class="gramophone-record">
-                        <div class="record-label">
-                            <div class="record-hole"></div>
-                        </div>
-                    </div>
-
-                    <!-- Floating Notes -->
-                    <div class="music-note note-1"><iconify-icon icon="lucide:music"></iconify-icon></div>
-                    <div class="music-note note-2"><iconify-icon icon="lucide:music-2"></iconify-icon></div>
-                    <div class="music-note note-3"><iconify-icon icon="lucide:music"></iconify-icon></div>
-
-                    <!-- Tonearm Structure -->
-                    <div class="tonearm-container">
-                        <div class="tonearm-base"></div>
-                        <div class="tonearm-arm">
-                            <div class="stylus-head"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Controls -->
-                <div class="flex items-center justify-center gap-10 mb-10 w-full">
-                    <button type="button" id="restart-btn" class="player-ctrl-hit hover:scale-110 duration-300 transition-transform">
-                        <iconify-icon icon="lucide:skip-back" width="24"></iconify-icon>
-                    </button>
-                    <button type="button" id="play-btn" class="w-20 h-20 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-colors duration-300 shadow-[0_0_30px_rgba(255,255,255,0.05)] hover:shadow-[0_0_40px_rgba(255,255,255,0.15)] backdrop-blur-md group touch-manipulation">
-                        <iconify-icon id="play-icon" icon="lucide:pause" width="28" class="group-hover:scale-95 transition-transform"></iconify-icon>
-                    </button>
-                    <button type="button" id="skip-forward-btn" class="player-ctrl-hit hover:scale-110 duration-300 transition-transform">
-                        <iconify-icon icon="lucide:skip-forward" width="24"></iconify-icon>
-                    </button>
-                </div>
-
-                <!-- Progress — waveform bars span the full track width -->
-                <div class="w-full flex flex-col gap-3">
-                    <div id="progress-track" class="relative w-full cursor-pointer select-none group/progress" style="height:44px">
-                        <!-- Bars injected by JS; they ARE the progress indicator -->
-                        <div id="eq-bars" class="absolute inset-0 flex items-end" style="gap:2px"></div>
-                        <!-- Vertical playhead cursor -->
-                        <div id="progress-thumb" class="absolute top-0 bottom-0 w-px bg-white/55 shadow-[0_0_8px_rgba(255,255,255,0.75)] opacity-0 group-hover/progress:opacity-100 pointer-events-none -translate-x-1/2" style="left:33.3%"></div>
-                        <!-- Hover time tooltip -->
-                        <div id="progress-tooltip" class="absolute bottom-full mb-2.5 -translate-x-1/2 pointer-events-none whitespace-nowrap" style="left:0;opacity:0;transition:opacity 0.15s ease;">
-                            <div class="px-2.5 py-1 rounded-lg border border-white/10" style="background:rgba(8,8,12,0.80);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
-                                <span id="progress-tooltip-time" class="font-mono text-xs text-white/72 tracking-widest">00:00</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span id="time-elapsed" class="text-xs font-mono text-white/30">15:00</span>
-                        <button type="button" id="freq-toggle" class="touch-manipulation min-h-[2.35rem] min-w-[2.35rem] px-2 -mx-2 flex items-center justify-center gap-1.5 group/freq cursor-pointer rounded-lg border border-transparent hover:border-white/8 hover:bg-white/[0.03] transition-colors duration-300">
-                            <span id="player-subtext" class="text-xs text-white/40 font-light tracking-widest uppercase group-hover/freq:text-white/65 transition-colors duration-300">Binaural · 40Hz</span>
-                            <iconify-icon icon="lucide:info" width="10" class="text-white/18 group-hover/freq:text-white/45 transition-colors duration-300 flex-shrink-0"></iconify-icon>
-                        </button>
-                        <span id="time-total" class="text-xs font-mono text-white/30">45:00</span>
-                    </div>
-
-                    <!-- Frequency Info Card -->
-                    <div id="freq-card" class="w-full overflow-hidden" style="max-height:0;opacity:0;">
-                        <div class="freq-inner flex items-start gap-4">
-                            <div class="flex-shrink-0 w-9 h-9 rounded-full border border-white/8 bg-white/[0.04] flex items-center justify-center mt-0.5">
-                                <iconify-icon id="freq-icon" icon="lucide:brain" width="15" class="text-white/40"></iconify-icon>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2 mb-1.5">
-                                    <span id="freq-wave" class="text-xs text-white/32 uppercase tracking-[0.18em] font-medium">Gamma Wave</span>
-                                    <span class="text-white/15 text-xs select-none">·</span>
-                                    <span id="freq-hz" class="text-xs font-mono text-white/28 tracking-wider">40 Hz</span>
-                                </div>
-                                <p id="freq-desc" class="text-sm text-white/42 font-light leading-relaxed"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Session parameters: details so touch devices can expand without hover -->
-        <div id="session-controls-panel" class="w-full max-w-lg mx-auto">
-        <details class="session-params-details group/params w-full overflow-hidden transition-[border-color,box-shadow] duration-300">
-            <summary class="px-5 sm:px-8 py-5 flex items-center justify-between cursor-pointer gap-3 select-none text-left">
-                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-light text-white/60">
-                    <iconify-icon icon="lucide:sliders-horizontal" width="18" class="text-white/40 flex-shrink-0"></iconify-icon>
-                    <span class="flex items-center gap-2">Intensity <span id="summary-intensity" class="text-white font-medium">Medium</span></span>
-                    <span class="w-1 h-1 rounded-full bg-white/20 hidden sm:inline-block flex-shrink-0"></span>
-                    <span id="summary-duration" class="text-white font-medium">45 min</span>
-                    <span class="w-1 h-1 rounded-full bg-white/20 hidden sm:inline-block flex-shrink-0"></span>
-                    <span id="summary-env" class="text-white font-medium">Rain</span>
-                </div>
-                <iconify-icon icon="lucide:chevron-up" width="20" class="session-params-chevron text-white/40 flex-shrink-0"></iconify-icon>
-            </summary>
-            <div class="session-params-expanded px-5 sm:px-8 pb-8 pt-2 border-t border-white/5 flex flex-col md:flex-row gap-10 mt-2">
-                    
-                    <!-- Intensity -->
+        <div id="session-controls-panel" class="w-full max-w-lg mx-auto mt-8 md:mt-10 shrink-0 pb-2">
+        <div class="session-params-panel w-full overflow-hidden transition-[border-color,box-shadow] duration-300" role="group" aria-label="Session adjustments">
+            <div class="session-params-expanded px-5 sm:px-8 pb-8 pt-6 sm:pt-7 flex flex-col md:flex-row gap-10">
                     <div class="flex-1">
-                        <div class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium mb-5">Intensity</div>
+                        <div class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium mb-5 flex flex-wrap items-center gap-x-2 gap-y-1"><span>Intensity</span> <span id="summary-intensity" class="text-white/80 font-medium normal-case tracking-normal">Medium</span></div>
                         <div class="flex justify-between items-center gap-2">
                             <button data-intensity="1" class="intensity-btn w-8 h-8 rounded-full border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">1</button>
                             <div class="h-px flex-1 bg-white/5"></div>
@@ -1623,31 +1588,27 @@
                             <button data-intensity="4" class="intensity-btn w-8 h-8 rounded-full border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">4</button>
                         </div>
                     </div>
-                    
-                    <!-- Duration -->
                     <div class="flex-1">
-                        <div class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium mb-5">Duration</div>
+                        <div class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium mb-5 flex flex-wrap items-center gap-x-2 gap-y-1"><span>Duration</span> <span id="summary-duration" class="text-white/80 font-medium normal-case tracking-normal">45 min</span></div>
                         <div class="flex gap-2">
                             <button data-duration="15"  class="duration-btn flex-1 py-2 rounded-xl border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">15m</button>
                             <button data-duration="30"  class="duration-btn flex-1 py-2 rounded-xl border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">30m</button>
                             <button data-duration="45"  class="duration-btn flex-1 py-2 rounded-xl border border-white/20 bg-white/10 text-white text-xs shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-all cursor-pointer select-none">45m</button>
                         </div>
                     </div>
-
-                    <!-- Environment -->
                     <div class="flex-1">
-                        <div class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium mb-5">Environment</div>
+                        <div class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium mb-5 flex flex-wrap items-center gap-x-2 gap-y-1"><span>Environment</span> <span id="summary-env" class="text-white/80 font-medium normal-case tracking-normal">Rain</span></div>
                         <div class="flex gap-2">
                             <button data-env="None"  class="env-btn flex-1 py-2 rounded-xl border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">None</button>
                             <button data-env="Rain"  class="env-btn flex-1 py-2 rounded-xl border border-white/20 bg-white/10 text-white text-xs shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-all cursor-pointer select-none">Rain</button>
                             <button data-env="Noise" class="env-btn flex-1 py-2 rounded-xl border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Noise</button>
                         </div>
                     </div>
-                </div>
-        </details>
+            </div>
+        </div>
         </div>
 
-                        </div><!-- /.session-station__playback -->
+                        </div><!-- /.session-station__scroll -->
                     </div><!-- /.session-station -->
                 </div><!-- /#session-view -->
 
@@ -3944,6 +3905,50 @@
         return isNaN(d) ? 0 : d;
     }
 
+    function feedbackLocalDayKey(s) {
+        const ms = sessionSubmittedAtMs(s);
+        if (!ms) return null;
+        const d = new Date(ms);
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function prevLocalDayKey(key) {
+        const parts = key.split('-').map(Number);
+        const d = new Date(parts[0], parts[1] - 1, parts[2]);
+        d.setDate(d.getDate() - 1);
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    function calendarStreakEndingOn(daySet, endKey) {
+        if (!endKey || !daySet.has(endKey)) return 0;
+        let streak = 0;
+        let cursor = endKey;
+        while (cursor && daySet.has(cursor)) {
+            streak++;
+            cursor = prevLocalDayKey(cursor);
+            if (streak > 5000) break;
+        }
+        return streak;
+    }
+
+    /** Readable labels for stored sound-fit keys (English tokens in data). */
+    function formatSoundFitLabel(key) {
+        const k = key || '';
+        if (k === 'good') return 'Good fit';
+        if (k === 'too_fast') return 'Felt too fast';
+        if (k === 'too_busy') return 'Felt too full';
+        if (k === 'too_sharp') return 'Felt too sharp';
+        if (k === 'disliked') return 'Not my style';
+        if (k === 'unknown' || !k) return 'Not recorded';
+        return k.replace(/_/g, ' ');
+    }
+
+    function formatModeLabel(mode) {
+        const m = mode || '';
+        if (!m || m === 'unknown') return 'Not set';
+        return m.charAt(0).toUpperCase() + m.slice(1);
+    }
+
     function computeHistoryStats(rawSessions) {
         const all = rawSessions.filter(s => s.status === 'completed' && s.feedback);
         if (!all.length) return null;
@@ -3998,12 +4003,38 @@
             }
         });
 
+        const modeCountsSorted = modeHelpedRates.slice().sort((a, b) => b.n - a.n);
+
+        const daySet = new Set();
+        all.forEach(s => {
+            const dk = feedbackLocalDayKey(s);
+            if (dk) daySet.add(dk);
+        });
+        const sortedDayKeysAsc = [...daySet].sort((a, b) => a.localeCompare(b));
+        const latestDayKey = sortedDayKeysAsc.length ? sortedDayKeysAsc[sortedDayKeysAsc.length - 1] : null;
+        const consecutiveFeedbackDays = latestDayKey ? calendarStreakEndingOn(daySet, latestDayKey) : 0;
+        const distinctFeedbackDays = daySet.size;
+        let trackingWindowDays = null;
+        if (sortedDayKeysAsc.length >= 2) {
+            const early = sortedDayKeysAsc[0].split('-').map(Number);
+            const late = sortedDayKeysAsc[sortedDayKeysAsc.length - 1].split('-').map(Number);
+            const spanMs = new Date(late[0], late[1] - 1, late[2]) - new Date(early[0], early[1] - 1, early[2]);
+            trackingWindowDays = Math.max(distinctFeedbackDays, Math.round(spanMs / 86400000) + 1);
+        } else if (sortedDayKeysAsc.length === 1) {
+            trackingWindowDays = 1;
+        }
+
         let lastComparedToAvg = null;
         if (lastCalm != null && avgCalmAfter != null) {
             if (lastCalm > avgCalmAfter) lastComparedToAvg = 'above';
             else if (lastCalm < avgCalmAfter) lastComparedToAvg = 'below';
             else lastComparedToAvg = 'at';
         }
+
+        const lastSubmittedMs = lastSession ? sessionSubmittedAtMs(lastSession) : 0;
+        const lastSubmittedLabel = lastSubmittedMs
+            ? new Date(lastSubmittedMs).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
+            : null;
 
         return {
             n,
@@ -4013,9 +4044,16 @@
             lastCalm,
             topSoundFit,
             soundFitCounts: counts,
+            soundFitSorted: sortedFit,
             modeHelpedRates,
+            modeCountsSorted,
             bestMode,
             lastComparedToAvg,
+            lastSubmittedMs,
+            lastSubmittedLabel,
+            consecutiveFeedbackDays,
+            distinctFeedbackDays,
+            trackingWindowDays,
         };
     }
 
@@ -4025,23 +4063,23 @@
         const top = stats.topSoundFit;
         if (top) {
             if (top.key === 'too_fast') {
-                parts.push('Try Calm or Sleep next, or lower Intensity — “too fast” is the top sound-fit flag.');
+                parts.push('Try Calm or Sleep next, or lower Intensity. “Too fast” is the most common sound note.');
             } else if (top.key === 'too_busy') {
-                parts.push('Bias Calm, simplify vibes, or drop Intensity — “too busy” leads your notes.');
+                parts.push('Bias Calm, simplify vibes, or drop Intensity. “Too busy” leads your notes.');
             } else if (top.key === 'too_sharp') {
-                parts.push('Update Profile “sounds to avoid” + softer timbre prefs — “too sharp” keeps appearing.');
+                parts.push('Update Profile “sounds to avoid” and softer timbre prefs. “Too sharp” keeps appearing.');
             } else if (top.key === 'disliked') {
-                parts.push('Rotate Mode/Vibes or widen preferred styles — “disliked” suggests a style mismatch.');
+                parts.push('Rotate Mode or Vibes, or widen preferred styles. “Not my style” suggests a mismatch.');
             } else if (top.key === 'good') {
-                parts.push('Sound-fit mostly “good” — keep the current template family and fine-tune Intensity only.');
+                parts.push('Sound notes are mostly “good fit.” Keep the same template family and fine-tune Intensity only.');
             } else {
-                parts.push('Review sound-fit “' + top.key + '” when it repeats — pair with Mode/Profile tweaks.');
+                parts.push('When “' + top.key + '” repeats, pair it with small Mode or Profile tweaks.');
             }
         } else {
             parts.push('Keep submitting sound-fit chips so Soma can spot recurring friction.');
         }
         if (stats.bestMode && stats.bestMode.n >= 2 && stats.bestMode.rate >= 50) {
-            parts.push('Mode “' + stats.bestMode.mode + '” shows ~' + stats.bestMode.rate + '% helped over ' + stats.bestMode.n + ' runs — reuse when your state matches.');
+            parts.push('Mode “' + stats.bestMode.mode + '” lands helped about ' + stats.bestMode.rate + '% of the time over ' + stats.bestMode.n + ' runs. Reuse it when the mood matches.');
         }
         return parts.join(' ');
     }
