@@ -83,6 +83,11 @@
         .soma-workspace {
             position: relative;
             z-index: 10;
+            min-height: 0;
+        }
+        /* Each workspace view fills the column and scrolls internally */
+        #soma-workspace > .soma-view {
+            min-height: 0;
         }
         aside.soma-sidebar iconify-icon,
         .soma-mobile-brand iconify-icon,
@@ -111,7 +116,11 @@
             color: rgba(255, 255, 255, 0.45);
             border: 1px solid transparent;
             background: transparent;
-            transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+            transition: color 0.28s cubic-bezier(0.22, 1, 0.36, 1), background 0.28s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.28s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .soma-nav-btn iconify-icon:first-of-type {
+            flex-shrink: 0;
+            opacity: 0.88;
         }
         .soma-nav-btn:hover {
             color: rgba(255, 255, 255, 0.88);
@@ -133,7 +142,7 @@
             border: 1px solid transparent;
             background: transparent;
             color: rgba(255, 255, 255, 0.45);
-            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+            transition: color 0.24s cubic-bezier(0.22, 1, 0.36, 1), background 0.24s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.24s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .soma-mobile-nav-btn.soma-nav-active {
             color: rgba(255, 255, 255, 0.92);
@@ -153,6 +162,31 @@
         .session-station__playback .gramophone-container {
             margin-top: 0.5rem;
             margin-bottom: 1rem;
+        }
+
+        /* Session parameters: keyboard + touch friendly (no hover-only expand) */
+        .session-params-details {
+            border-radius: 1.5rem;
+            background: rgba(12, 12, 16, 0.35);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(255, 255, 255, 0.09);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
+        }
+        .session-params-details[open] {
+            border-color: rgba(255, 255, 255, 0.14);
+        }
+        .session-params-details > summary {
+            list-style: none;
+        }
+        .session-params-details > summary::-webkit-details-marker {
+            display: none;
+        }
+        .session-params-chevron {
+            transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        .session-params-details[open] .session-params-chevron {
+            transform: rotate(180deg);
         }
         
         ::-webkit-scrollbar {
@@ -1099,9 +1133,11 @@
         }
         #history-list-scroll::-webkit-scrollbar { width: 0; }
 
-        /* Demo */
+        /* Demo (no side-stripe accent: use inset ring + tint) */
         .soma-demo-hint {
-            border-left: 2px solid rgba(251, 191, 36, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.1);
+            background: rgba(255, 247, 237, 0.02);
         }
 
         /* Inline workspace panels (former full-screen modals) */
@@ -1118,8 +1154,8 @@
         @media (min-width: 768px) {
             .soma-inline-panel-host {
                 padding: 1.5rem 1.5rem 2rem;
-                align-items: center;
-                justify-content: center;
+                align-items: stretch;
+                justify-content: flex-start;
             }
         }
     </style>
@@ -1185,17 +1221,17 @@
                 </div>
             </aside>
 
-            <div id="soma-workspace" class="soma-workspace flex flex-1 min-w-0 min-h-0 flex-col overflow-hidden pb-[4.25rem] md:pb-0">
+            <div id="soma-workspace" class="soma-workspace flex flex-1 min-w-0 min-h-0 flex-col overflow-hidden pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
                 <div id="session-view" class="soma-view soma-view-active flex flex-col flex-1 min-h-0 overflow-y-auto overscroll-y-contain px-4 sm:px-6 py-6 md:py-7" role="region" aria-labelledby="session-heading">
                     <h2 id="session-heading" class="sr-only">Session workspace</h2>
-                    <div class="session-station w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 lg:items-start">
-                        <div class="session-station__inputs flex flex-col w-full min-w-0">
+                    <div class="session-station w-full max-w-[min(100%,72rem)] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(280px,26rem)] gap-8 lg:gap-12 lg:items-start">
+                        <div class="session-station__inputs flex flex-col w-full min-w-0 lg:max-w-[42rem] xl:max-w-none">
 
         <!-- Demo Cases Bar -->
         <div id="demo-cases-bar" class="w-full max-w-2xl mb-8 flex flex-col gap-2">
-            <div class="flex items-center gap-3 mb-1">
-                <span class="text-xs text-white/25 uppercase tracking-[0.28em] font-medium">Demo Cases</span>
-                <div class="flex-1 h-px bg-white/[0.04]"></div>
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3 mb-1">
+                <span class="text-xs text-white/25 uppercase tracking-[0.28em] font-medium shrink-0">Demo Cases</span>
+                <div class="flex-1 h-px bg-white/[0.04] min-w-[2rem] hidden sm:block"></div>
                 <span class="text-xs text-white/18 font-light tracking-wide">Click to load a patient profile</span>
             </div>
             <div id="demo-cases-scroll">
@@ -1233,8 +1269,8 @@
         </div>
 
         <!-- Intent Input Area -->
-        <div class="w-full max-w-3xl mb-16 flex flex-col gap-6">
-            <h1 class="font-display text-4xl md:text-5xl text-center mb-4 font-medium text-white/90 tracking-wide animate-stagger-1">
+        <div class="w-full max-w-3xl mb-10 lg:mb-12 flex flex-col gap-6">
+            <h1 class="font-display text-4xl md:text-[2.65rem] text-center lg:text-left mb-4 font-medium text-white/90 tracking-wide animate-stagger-1 leading-tight">
                 How are you feeling <i class="text-white/50">today?</i>
             </h1>
             
@@ -1302,7 +1338,7 @@
             </div>
 
             <!-- Interpreting Label -->
-            <div id="interpreting-label" class="flex items-center justify-center gap-2 mt-1 overflow-hidden" style="opacity:0">
+            <div id="interpreting-label" class="flex items-center justify-center lg:justify-start gap-2 mt-1 overflow-hidden" style="opacity:0">
                 <span class="text-xs text-white/25 uppercase tracking-[0.3em] font-medium flex-shrink-0">Interpreting as</span>
                 <span id="interpreting-text" class="text-sm text-white/60 font-light tracking-wide"></span>
             </div>
@@ -1444,26 +1480,21 @@
             </div>
         </div>
 
-        <!-- Session parameters (in-column; was floating island) -->
+        <!-- Session parameters: details so touch devices can expand without hover -->
         <div id="session-controls-panel" class="w-full max-w-lg mx-auto lg:max-w-none">
-        <div class="pointer-events-auto glass-panel rounded-3xl w-full overflow-hidden transition-all duration-500 group hover:bg-white/[0.05] border border-white/10 hover:border-white/20 shadow-2xl">
-            
-            <!-- Collapsed View -->
-            <div class="px-5 sm:px-8 py-5 flex items-center justify-between cursor-pointer">
+        <details class="session-params-details group/params w-full overflow-hidden transition-[border-color,box-shadow] duration-300">
+            <summary class="px-5 sm:px-8 py-5 flex items-center justify-between cursor-pointer gap-3 select-none text-left">
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-light text-white/60">
-                    <iconify-icon icon="lucide:sliders-horizontal" width="18" class="text-white/40"></iconify-icon>
+                    <iconify-icon icon="lucide:sliders-horizontal" width="18" class="text-white/40 flex-shrink-0"></iconify-icon>
                     <span class="flex items-center gap-2">Intensity <span id="summary-intensity" class="text-white font-medium">Medium</span></span>
-                    <span class="w-1 h-1 rounded-full bg-white/20 hidden sm:inline-block"></span>
+                    <span class="w-1 h-1 rounded-full bg-white/20 hidden sm:inline-block flex-shrink-0"></span>
                     <span id="summary-duration" class="text-white font-medium">45 min</span>
-                    <span class="w-1 h-1 rounded-full bg-white/20 hidden sm:inline-block"></span>
+                    <span class="w-1 h-1 rounded-full bg-white/20 hidden sm:inline-block flex-shrink-0"></span>
                     <span id="summary-env" class="text-white font-medium">Rain</span>
                 </div>
-                <iconify-icon icon="lucide:chevron-up" width="20" class="text-white/40 group-hover:text-white transition-all group-hover:rotate-180 duration-500 flex-shrink-0"></iconify-icon>
-            </div>
-            
-            <!-- Expanded View -->
-            <div class="max-h-0 group-hover:max-h-64 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-in-out">
-                <div class="px-5 sm:px-8 pb-8 pt-2 border-t border-white/5 flex flex-col md:flex-row gap-10 mt-2">
+                <iconify-icon icon="lucide:chevron-up" width="20" class="session-params-chevron text-white/40 flex-shrink-0"></iconify-icon>
+            </summary>
+            <div class="session-params-expanded px-5 sm:px-8 pb-8 pt-2 border-t border-white/5 flex flex-col md:flex-row gap-10 mt-2">
                     
                     <!-- Intensity -->
                     <div class="flex-1">
@@ -1499,8 +1530,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
+        </details>
         </div>
 
                         </div><!-- /.session-station__playback -->
@@ -2076,7 +2106,7 @@
                             <p class="text-sm text-white/35 font-light mt-3 leading-relaxed">Optional API key for live generation. Key is stored in localStorage only (demo).</p>
                         </div>
                         <div id="apikey-modal" class="w-full flex flex-col">
-                            <div id="apikey-card" class="relative z-10 w-full max-w-md mx-6 glass-panel rounded-3xl p-8 flex flex-col gap-6">
+                            <div id="apikey-card" class="relative z-10 w-full max-w-none glass-panel rounded-3xl p-8 flex flex-col gap-6">
                                     <!-- Header -->
                                     <div class="flex items-start justify-between">
                                         <div class="flex flex-col gap-1">
@@ -2117,7 +2147,7 @@
             </div><!-- /#soma-workspace -->
         </div><!-- /sidebar + workspace row -->
 
-        <nav class="soma-mobile-nav md:hidden fixed bottom-0 left-0 right-0 glass-nav border-t border-white/[0.06] px-1 py-2 flex justify-between items-stretch gap-0.5" aria-label="Workspace">
+        <nav class="soma-mobile-nav md:hidden fixed bottom-0 left-0 right-0 glass-nav border-t border-white/[0.06] px-1 pt-2 flex justify-between items-stretch gap-0.5 pb-[max(0.35rem,env(safe-area-inset-bottom))]" aria-label="Workspace">
             <button type="button" class="soma-mobile-nav-btn soma-nav-active flex flex-1 flex-col items-center gap-1 py-2 rounded-xl text-[0.65rem]" data-soma-view="session" aria-current="page">
                 <iconify-icon icon="lucide:orbit" width="20" class="opacity-80"></iconify-icon>
                 <span>Session</span>
