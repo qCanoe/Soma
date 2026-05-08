@@ -175,17 +175,6 @@
             margin-top: 0.5rem;
             margin-bottom: 1rem;
         }
-
-        /* Session parameters panel (always visible in scroll region) */
-        .session-params-panel {
-            border-radius: 1.5rem;
-            background: rgba(12, 12, 16, 0.35);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 1px solid rgba(255, 255, 255, 0.09);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.28);
-        }
-        
         ::-webkit-scrollbar {
             width: 0px;
             background: transparent;
@@ -1215,10 +1204,6 @@
             outline: 2px solid rgba(180, 198, 218, 0.45);
             outline-offset: 2px;
         }
-        .session-params-expanded button:focus-visible {
-            outline: 2px solid rgba(180, 198, 218, 0.45);
-            outline-offset: 2px;
-        }
         .player-ctrl-hit {
             display: inline-flex;
             align-items: center;
@@ -1249,16 +1234,6 @@
         #play-btn:focus-visible {
             outline: 2px solid rgba(255, 255, 255, 0.42);
             outline-offset: 3px;
-        }
-        @media (max-width: 767px) {
-            .session-params-expanded .intensity-btn {
-                width: 2.25rem;
-                height: 2.25rem;
-            }
-            .session-params-expanded .duration-btn,
-            .session-params-expanded .env-btn {
-                min-height: 2.5rem;
-            }
         }
     </style>
 </head>
@@ -1473,40 +1448,6 @@
         </div>
                         </div><!-- /.session-station__inputs -->
 
-        <div id="session-controls-panel" class="w-full max-w-lg mx-auto mt-8 md:mt-10 shrink-0 pb-2">
-        <div class="session-params-panel w-full overflow-hidden transition-[border-color,box-shadow] duration-300" role="group" aria-label="Session adjustments">
-            <div class="session-params-expanded px-5 sm:px-8 pb-8 pt-6 sm:pt-7 flex flex-col md:flex-row gap-10">
-                    <div class="flex-1">
-                        <div class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium mb-5 flex flex-wrap items-center gap-x-2 gap-y-1"><span>Intensity</span> <span id="summary-intensity" class="text-white/80 font-medium normal-case tracking-normal">Medium</span></div>
-                        <div class="flex justify-between items-center gap-2">
-                            <button data-intensity="1" class="intensity-btn w-8 h-8 rounded-full border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">1</button>
-                            <div class="h-px flex-1 bg-white/5"></div>
-                            <button data-intensity="2" class="intensity-btn w-8 h-8 rounded-full border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">2</button>
-                            <div class="h-px flex-1 bg-white/5"></div>
-                            <button data-intensity="3" class="intensity-btn w-8 h-8 rounded-full border border-white/20 bg-white/10 text-white text-xs shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-all cursor-pointer select-none">3</button>
-                            <div class="h-px flex-1 bg-white/5"></div>
-                            <button data-intensity="4" class="intensity-btn w-8 h-8 rounded-full border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">4</button>
-                        </div>
-                    </div>
-                    <div class="flex-1">
-                        <div class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium mb-5 flex flex-wrap items-center gap-x-2 gap-y-1"><span>Duration</span> <span id="summary-duration" class="text-white/80 font-medium normal-case tracking-normal">45 min</span></div>
-                        <div class="flex gap-2">
-                            <button data-duration="15"  class="duration-btn flex-1 py-2 rounded-xl border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">15m</button>
-                            <button data-duration="30"  class="duration-btn flex-1 py-2 rounded-xl border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">30m</button>
-                            <button data-duration="45"  class="duration-btn flex-1 py-2 rounded-xl border border-white/20 bg-white/10 text-white text-xs shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-all cursor-pointer select-none">45m</button>
-                        </div>
-                    </div>
-                    <div class="flex-1">
-                        <div class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium mb-5 flex flex-wrap items-center gap-x-2 gap-y-1"><span>Environment</span> <span id="summary-env" class="text-white/80 font-medium normal-case tracking-normal">Rain</span></div>
-                        <div class="flex gap-2">
-                            <button data-env="None"  class="env-btn flex-1 py-2 rounded-xl border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">None</button>
-                            <button data-env="Rain"  class="env-btn flex-1 py-2 rounded-xl border border-white/20 bg-white/10 text-white text-xs shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-all cursor-pointer select-none">Rain</button>
-                            <button data-env="Noise" class="env-btn flex-1 py-2 rounded-xl border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Noise</button>
-                        </div>
-                    </div>
-            </div>
-        </div>
-        </div>
 
                         </div><!-- /#session-checkin-scroll -->
                         </div><!-- /#session-checkin-screen -->
@@ -2687,16 +2628,12 @@
     const ON  = ['border-white/20', 'bg-white/10', 'text-white', 'shadow-[0_0_15px_rgba(255,255,255,0.05)]'];
     const OFF = ['border-white/5',  'bg-transparent', 'text-white/50', 'hover:border-white/20', 'hover:text-white'];
 
-    // Drawer button active/inactive (same visual logic, slightly different shadow value)
-    const D_ON  = ['border-white/20', 'bg-white/10', 'text-white', 'shadow-[0_0_10px_rgba(255,255,255,0.1)]'];
-    const D_OFF = ['border-white/5',  'bg-transparent', 'text-white/40', 'hover:border-white/20', 'hover:text-white'];
-
     // ── State ─────────────────────────────────────────────────────────────
     let currentMode      = 'focus';
     let selectedVibes    = new Set(['creative']);
     let isPlaying        = true;
     let elapsedSec       = 15 * 60;   // start at 15 min
-    let totalSec         = 45 * 60;   // mutable — updated by Duration picker
+    let totalSec         = 45 * 60;   // mutable — somaSetUiSessionParams / guided sessions
     let currentIntensity = 3;
     let currentDuration  = 45;        // minutes
     let currentEnv       = 'Rain';
@@ -2722,12 +2659,13 @@
         }
         if (patch.durationMin != null) {
             const mins = Math.max(1, +patch.durationMin);
-            if (!Number.isFinite(mins)) return;
-            currentDuration = mins;
-            totalSec = mins * 60;
-            if (elapsedSec > totalSec) elapsedSec = totalSec;
-            updateProgressVisuals(elapsedSec);
-            timeTotal.textContent = `${String(mins).padStart(2, '0')}:00`;
+            if (Number.isFinite(mins)) {
+                currentDuration = mins;
+                totalSec = mins * 60;
+                if (elapsedSec > totalSec) elapsedSec = totalSec;
+                updateProgressVisuals(elapsedSec);
+                timeTotal.textContent = `${String(mins).padStart(2, '0')}:00`;
+            }
         }
         const ENV_OPTS = ['None', 'Rain', 'Noise'];
         if (patch.environment != null && ENV_OPTS.includes(patch.environment)) {
@@ -3317,18 +3255,16 @@
         const modeEl = document.querySelector('.mode-chip.text-white');
         const mode = modeEl?.dataset?.mode || 'focus';
         const vibes = [...document.querySelectorAll('.vibe-chip.text-white')].map(b => b.dataset.vibe);
-        const durEl = document.getElementById('summary-duration');
         let durationMin = 45;
-        if (durEl) {
-            const m = /(\d+)\s*min/.exec(durEl.textContent || '');
-            if (m) durationMin = +m[1];
-        }
-        const intEl = document.getElementById('summary-intensity');
-        const labelToInt = { Light: 1, Gentle: 2, Medium: 3, Strong: 4 };
         let intensity = 3;
-        if (intEl && labelToInt[intEl.textContent.trim()]) intensity = labelToInt[intEl.textContent.trim()];
-        const envEl = document.getElementById('summary-env');
-        const environment = envEl ? envEl.textContent.trim() : 'None';
+        let environment = 'Rain';
+        if (typeof window.somaGetUiSessionParams === 'function') {
+            const p = window.somaGetUiSessionParams();
+            if (p && Number.isFinite(+p.durationMin)) durationMin = +p.durationMin;
+            if (p && Number.isFinite(+p.intensity)) intensity = +p.intensity;
+            const ENV_OPTS = ['None', 'Rain', 'Noise'];
+            if (p && ENV_OPTS.includes(p.environment)) environment = p.environment;
+        }
         return {
             freeText: (moodInput?.value || '').trim(),
             mode, vibes, durationMin, intensity, environment,
@@ -3351,6 +3287,8 @@
             baselineHR: o.baselineHR,
         };
     }
+
+    window.somaSnapshotVitals = snapshotVitals;
 
     /** JSON from POST /api/healthkit/mock/run or /api/pipeline/run — matches music_ai_module output. */
     function getPipelineInsights() {
@@ -3454,20 +3392,20 @@
         setTxt('v-safeguard', '—');
     }
 
-    async function fetchMindWavePipeline(vitalsSnapshot) {
+    async function fetchMindWavePipeline(vitalsSnapshot, profileOverride) {
         if (!vitalsSnapshot || vitalsSnapshot.heartRate == null) {
             window.__somaLastPipelineResult = null;
             somaApplyVitalsMiddlewareFromPipeline();
             return null;
         }
+        const profile = profileOverride
+            ? Object.assign({}, buildTherapyProfilePayload(), profileOverride)
+            : buildTherapyProfilePayload();
         try {
             const res = await fetch('/api/healthkit/mock/run', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    vitals: vitalsSnapshot,
-                    profile: buildTherapyProfilePayload(),
-                }),
+                body: JSON.stringify({ vitals: vitalsSnapshot, profile }),
             });
             if (!res.ok) {
                 window.__somaLastPipelineResult = null;
@@ -4073,7 +4011,8 @@
         return m.charAt(0).toUpperCase() + m.slice(1);
     }
 
-    /** Aggregates from completed sessions in localStorage only; no fabricated KPIs. */\n    function computeHistoryStats(rawSessions) {
+    /** Aggregates from completed sessions in localStorage only; no fabricated KPIs. */
+    function computeHistoryStats(rawSessions) {
         const all = rawSessions.filter(s => s.status === 'completed' && s.feedback);
         if (!all.length) return null;
 
@@ -4416,16 +4355,24 @@
         window.__somaDemoCaseId = null;
         window.__somaDemoNarrative = '';
 
+        if (typeof window.somaSetUiSessionParams === 'function') {
+            window.somaSetUiSessionParams({
+                intensity: row.input.intensity,
+                durationMin: row.input.durationMin,
+                environment: row.input.environment,
+            });
+        }
+
         let adjustNote = '';
         const fb = row.feedback;
         if (fb && fb.soundFit) {
             if (fb.soundFit === 'too_fast' || fb.soundFit === 'too_busy') {
-                if (fb.soundFit === 'too_busy') {
-                    const light = document.querySelector('.intensity-btn[data-intensity="1"]');
-                    if (light) light.click();
-                } else {
-                    const gentle = document.querySelector('.intensity-btn[data-intensity="2"]');
-                    if (gentle) gentle.click();
+                if (typeof window.somaSetUiSessionParams === 'function') {
+                    if (fb.soundFit === 'too_busy') {
+                        window.somaSetUiSessionParams({ intensity: 1 });
+                    } else {
+                        window.somaSetUiSessionParams({ intensity: 2 });
+                    }
                 }
                 adjustNote = fb.soundFit === 'too_fast'
                     ? 'Template applied · auto: Intensity eased one step for “too fast”. Consider Calm/Sleep mode next.'
@@ -4978,6 +4925,12 @@
         }
 
         if (generationActive) return;
+
+        const snapFn = window.somaSnapshotVitals;
+        const vSnap = typeof snapFn === 'function' ? snapFn() : null;
+        if (vSnap && window.somaFetchMindWavePipeline) {
+            await window.somaFetchMindWavePipeline(vSnap);
+        }
 
         if (window.somaSessionBeginForSuno) window.somaSessionBeginForSuno();
 
@@ -6188,37 +6141,27 @@
     function syncPipelineForCase(c) {
         if (!c || !c.vitals) {
             window.__somaLastPipelineResult = null;
+            if (window.somaApplyVitalsMiddlewareFromPipeline) window.somaApplyVitalsMiddlewareFromPipeline();
             return Promise.resolve(null);
         }
         const v = c.vitals;
-        return fetch('/api/healthkit/mock/run', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                vitals: {
-                    heartRate: v.heartRate,
-                    hrv: v.hrv,
-                    respiratoryRate: v.respiratoryRate,
-                    ambientNoise: v.ambientNoise,
-                    bodyMotion: v.bodyMotion || { x: 0, y: 0, z: 0 },
-                    bloodOxygen: v.bloodOxygen,
-                    wristTemperature: v.wristTemperature,
-                    sleepStage: v.sleepStage,
-                    stressScore: v.stressScore,
-                    baselineHR: v.baselineHR,
-                },
-                profile: buildProfilePayloadForCase(c),
-            }),
-        })
-            .then(res => (res.ok ? res.json() : null))
-            .then(data => {
-                window.__somaLastPipelineResult = data || null;
-                return data;
-            })
-            .catch(() => {
-                window.__somaLastPipelineResult = null;
-                return null;
-            });
+        const vitalsPayload = {
+            heartRate: v.heartRate,
+            hrv: v.hrv,
+            respiratoryRate: v.respiratoryRate,
+            ambientNoise: v.ambientNoise,
+            bodyMotion: v.bodyMotion || { x: 0, y: 0, z: 0 },
+            bloodOxygen: v.bloodOxygen,
+            wristTemperature: v.wristTemperature,
+            sleepStage: v.sleepStage,
+            stressScore: v.stressScore,
+            baselineHR: v.baselineHR,
+        };
+        if (window.somaFetchMindWavePipeline) {
+            return window.somaFetchMindWavePipeline(vitalsPayload, buildProfilePayloadForCase(c));
+        }
+        window.__somaLastPipelineResult = null;
+        return Promise.resolve(null);
     }
 
     function loadCase(caseId) {
@@ -6246,12 +6189,10 @@
         // 5. Show cached track in player
         showCachedTrack(c.cachedTrack);
 
-        // 6. Update vitals monitor (silently — modal stays closed)
-        if (c.vitals) window.loadVitals(c.profile.name, c.vitals);
-
         window.__somaDemoNarrative = c.demoNarrative || '';
 
         syncPipelineForCase(c).finally(() => {
+            if (c.vitals && window.loadVitals) window.loadVitals(c.profile.name, c.vitals);
             if (window.somaStartDemoSession) window.somaStartDemoSession(caseId, c);
             if (window.somaRefreshDraft) window.somaRefreshDraft();
             if (window.showToast) window.showToast(`Loaded: ${c.profile.name} · ${caseId.replace('_',' ')}`);
