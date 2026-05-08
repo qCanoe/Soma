@@ -47,6 +47,12 @@ class StaticUserProfile:
     preferred_density: str = "medium"  # low | medium | high
     avoid_instruments: List[str] = field(default_factory=list)
     therapy_goal: str = "calm"  # focus | calm | sleep | grounding
+    preferred_styles: List[str] = field(default_factory=list)
+    sounds_to_avoid: List[str] = field(default_factory=list)
+    rhythm_preference: str = "medium"  # low | medium | high
+    volume_sensitivity: str = "moderate"  # soft | moderate | immersive (UI volume chips)
+    sensitive_text: str = ""
+    session_feedback_summary: Dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -64,6 +70,10 @@ class AppleWatchBiometrics:
     wrist_temperature: Optional[float] = None
     blood_oxygen: Optional[float] = None
     sleep_stage: Optional[str] = None
+    activity_state: Optional[str] = None
+    sensor_confidence: Optional[float] = None
+    measurement_window_s: Optional[float] = None
+    resting_context: Optional[bool] = None
 
     def validate(self) -> List[str]:
         errors: List[str] = []
@@ -109,6 +119,12 @@ class BiometricFeatures:
     respiratory_load_score: float
     noise_risk_score: float
     motion_intensity_score: float
+    smoothed_hrv_ms: float = 0.0
+    smoothed_respiratory_rate: float = 0.0
+    smoothed_ambient_noise_db: float = 0.0
+    smoothed_motion_magnitude_g: float = 0.0
+    sensor_quality_score: float = 1.0
+    exercise_context: bool = False
 
 
 @dataclass

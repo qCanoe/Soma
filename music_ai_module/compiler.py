@@ -10,7 +10,7 @@ only when verify=True.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from openai import OpenAI
 
@@ -64,12 +64,20 @@ class MusicPromptCompiler:
         strategy = self._strategy_from_processed(processed_params)
 
         segments = self._build_segments(strategy)
-        prompt = self._join_segments(segments)
+        segments_compact, truncated = self._apply_prompt_budget(
+            segments, self.config.suno_max_prompt_chars
+        )
+        prompt = self._join_segments(segments_compact)
         metadata = self._build_metadata(prompt, processed_params)
-
+        metadata["prompt_compacted"] = truncated
+        metadata["prompt_budget_chars"] = self.config.suno_max_prompt_chars
+        if len(prompt) > self.config.suno_max_prompt_chars:
+            prompt = prompt[: self.config.suno_max_prompt_chars]
+            metadata["prompt_hard_clipped"] = True
+            metadata["prompt_length_chars"] = len(prompt)
         result: Dict[str, Any] = {
             "prompt": prompt,
-            "segments": segments,
+            "segments": segments_compact,
             "metadata": metadata,
         }
 
@@ -146,6 +154,74 @@ class MusicPromptCompiler:
             "(harmonic threat detection)",
         ]
         return "Strict negative constraints: " + "; ".join(items)
+
+    def _apply_prompt_budget(
+        self, segments: Dict[str, str], max_chars: int
+    ) -> Tuple[Dict[str, str], bool]:
+        """Shorten segments so joined prompt fits Suno-style character limits."""
+        order = [
+            "music_type",
+            "genre",
+            "tempo",
+            "instruments",
+            "texture",
+            "emotional_anchor",
+            "constraints",
+        ]
+        out: Dict[str, str] = {
+            k: segments[k] for k in order if segments.get(k)
+        }
+
+        def joined() -> str:
+            return " | ".join(out[k] for k in order if out.get(k))
+
+        if len(joined()) <= max_chars:
+            return out, False
+
+        def trim_key(key: str, limit: int) -> None:
+            v = out.get(key) or ""
+            if len(v) <= limit:
+                return
+            out[key] = v[: max(1, limit - 3)].rstrip() + "..."
+
+        rounds = 0
+        while len(joined()) > max_chars and rounds < 28:
+            rounds += 1
+            if len(out.get("emotional_anchor", "")) > 52:
+                trim_key("emotional_anchor", 50)
+            elif len(out.get("texture", "")) > 62:
+                trim_key("texture", 58)
+            elif len(out.get("genre", "")) > 95:
+                trim_key("genre", 88)
+            elif out.get("instruments", "").count(",") > 1:
+                ins = out["instruments"]
+                prefix = "Instruments: "
+                if ins.startswith(prefix):
+                    parts = [
+                        p.strip()
+                        for p in ins[len(prefix) :].split(",")
+                        if p.strip()
+                    ]
+                    if len(parts) > 2:
+                        out["instruments"] = prefix + ", ".join(parts[:2])
+            elif len(out.get("music_type", "")) > 42:
+                out["music_type"] = "Pure instrumental, continuous"
+            else:
+                trim_key("constraints", min(220, max_chars // 2))
+                if len(joined()) > max_chars:
+                    trim_key("constraints", 160)
+                break
+
+        if len(joined()) > max_chars:
+            for lim in (200, 160, 120, 90, 70):
+                trim_key("constraints", lim)
+                if len(joined()) <= max_chars:
+                    break
+            if len(joined()) > max_chars:
+                trim_key("genre", 60)
+                trim_key("texture", 44)
+                trim_key("emotional_anchor", 40)
+        return out, True
 
     # ------------------------------------------------------------------
     # Assembly helpers

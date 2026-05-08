@@ -34,6 +34,14 @@ def test_run_returns_strategy_bundle(profile: StaticUserProfile, biometrics: App
     assert len(result["prompt"]) > 40
 
 
+def test_pipeline_metadata_includes_strategy_explanation(
+    profile: StaticUserProfile, biometrics: AppleWatchBiometrics
+) -> None:
+    result = MusicAIPipeline().run(profile, biometrics)
+    assert "strategy_explanation" in result["metadata"]
+    assert isinstance(result["metadata"]["strategy_explanation"], dict)
+
+
 def test_pipeline_with_knowledge_graph(
     profile: StaticUserProfile, biometrics: AppleWatchBiometrics
 ) -> None:

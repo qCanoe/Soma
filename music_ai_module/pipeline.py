@@ -37,6 +37,7 @@ Usage (minimal)
 from __future__ import annotations
 
 import warnings
+from dataclasses import replace
 from typing import Any, Dict, Optional
 
 from .compiler import MusicPromptCompiler
@@ -71,6 +72,7 @@ class MusicAIPipeline:
         strict_validation: bool = False,
         use_knowledge_graph: bool = False,
         user_intent: Optional[str] = None,
+        session_feedback_summary: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """
         Execute the full pipeline.
@@ -82,6 +84,20 @@ class MusicAIPipeline:
         """
         errors = biometrics.validate()
 
+        profile_eff = profile
+        if session_feedback_summary:
+            merged_fb = dict(profile.session_feedback_summary or {})
+            merged_fb.update(
+                {
+                    k: v
+                    for k, v in session_feedback_summary.items()
+                    if v is not None
+                }
+            )
+            profile_eff = replace(
+                profile, session_feedback_summary=merged_fb
+            )
+
         if errors:
             for err in errors:
                 warnings.warn(f"Biometric validation: {err}", UserWarning, stacklevel=2)
@@ -90,7 +106,9 @@ class MusicAIPipeline:
                     "Biometric validation failed: " + "; ".join(errors)
                 )
 
-        processed = self.processor.process(profile, biometrics, validation_errors=errors)
+        processed = self.processor.process(
+            profile_eff, biometrics, validation_errors=errors
+        )
 
         use_kg = use_knowledge_graph or self.config.knowledge_enabled_default
         if use_kg:
@@ -100,10 +118,14 @@ class MusicAIPipeline:
             )
 
             auditor = ClinicalMusicAuditor(self.config)
-            audit = auditor.audit(profile, processed, user_intent=user_intent)
+            audit = auditor.audit(profile_eff, processed, user_intent=user_intent)
             processed = apply_audit_to_processed(processed, audit, self.config)
 
-        compiled = self.compiler.compile(profile, processed, verify=verify)
+        compiled = self.compiler.compile(profile_eff, processed, verify=verify)
+
+        expl = processed.get("strategy_explanation")
+        if isinstance(expl, dict):
+            compiled["metadata"]["strategy_explanation"] = expl
 
         return {
             **compiled,

@@ -23,6 +23,7 @@ from .models import (
     StaticUserProfile,
     dataclass_to_dict,
 )
+from .personalization import PersonalizationHints, resolve_personalization_strategy
 from .style_maps import DEFAULT_GENRE_PROMPT, OCCUPATION_AESTHETIC_TAGS, OCCUPATION_GENRE_PROMPTS
 
 
@@ -45,9 +46,18 @@ class BiometricProcessor:
     def __init__(self, config: SystemConfig = default_config) -> None:
         self.config = config
         self._hr_history: List[float] = []
+        self._hrv_history: List[float] = []
+        self._resp_history: List[float] = []
+        self._noise_history: List[float] = []
+        self._motion_history: List[float] = []
         self._arousal_history: Deque[float] = deque(
             maxlen=max(4, config.temporal_history_maxlen)
         )
+
+        self._prev_smoothed_hr: float | None = None
+        self._latched_stress_band: str | None = None
+        self._stress_up_streak: int = 0
+        self._stress_down_streak: int = 0
 
         self._strong_masking_latched: bool = False
         self._mask_enter_streak: int = 0
@@ -67,6 +77,13 @@ class BiometricProcessor:
         if len(self._hr_history) > self.config.hr_smoothing_window:
             self._hr_history.pop(0)
         return float(np.mean(self._hr_history))
+
+    def _smooth_series(self, buf: List[float], value: float) -> float:
+        buf.append(float(value))
+        w = max(1, self.config.hr_smoothing_window)
+        if len(buf) > w:
+            buf.pop(0)
+        return float(np.mean(buf))
 
     # ------------------------------------------------------------------
     # Scoring
@@ -97,12 +114,14 @@ class BiometricProcessor:
         resp_rate: float,
         noise_db: float,
         motion_mag: float,
+        hr_load_scale: float = 1.0,
     ) -> tuple[float, float, float, float, float, float, float, float]:
         safe_base = max(float(baseline_hr), 1.0)
         hr_delta = smoothed_hr - float(baseline_hr)
         hr_delta_pct = 100.0 * hr_delta / safe_base
 
         hr_load = _linear_score(hr_delta, 0.0, self.config.hr_load_ref_delta_bpm)
+        hr_load = _clamp(hr_load * hr_load_scale, 0.0, 100.0)
 
         # Lower HRV ⇒ higher risk (smooth ramp between low HRV and calm reference)
         hrv_risk = 100.0 - _linear_score(
@@ -158,13 +177,20 @@ class BiometricProcessor:
     # Temporal & hysteresis
     # ------------------------------------------------------------------
 
-    def _update_arousal_trend(self, arousal: float) -> str:
+    def _update_arousal_trend(self, arousal: float, sensor_q: float) -> str:
         self._arousal_history.append(arousal)
+        if sensor_q < 0.55:
+            return "low_confidence"
+        hist = list(self._arousal_history)
+        if len(hist) >= 4:
+            tail = hist[-6:]
+            if float(np.std(tail)) >= self.config.arousal_unstable_stdev_threshold:
+                return "unstable"
         if len(self._arousal_history) < 4:
             return "stable"
-        hist = list(self._arousal_history)
-        older = float(np.mean(hist[-4:-2]))
-        recent = float(np.mean(hist[-2:]))
+        hlist = list(self._arousal_history)
+        older = float(np.mean(hlist[-4:-2]))
+        recent = float(np.mean(hlist[-2:]))
         if recent < older - 3.0:
             return "improving"
         if recent > older + 3.0:
@@ -217,6 +243,73 @@ class BiometricProcessor:
         ):
             self._noise_forbid_latched = False
 
+    def _exercise_context(
+        self, bio: AppleWatchBiometrics, motion_smoothed: float
+    ) -> bool:
+        act = (bio.activity_state or "").lower().strip()
+        if act in (
+            "walking",
+            "running",
+            "exercise",
+            "workout",
+            "active",
+            "cycling",
+            "training",
+        ):
+            return True
+        if bio.resting_context is True:
+            return False
+        if motion_smoothed >= self.config.motion_exercise_hint_g:
+            return True
+        return False
+
+    def _sensor_quality_score(
+        self,
+        bio: AppleWatchBiometrics,
+        validation_errors: List[str],
+        smoothed_hr: float,
+    ) -> float:
+        q = 1.0 - 0.12 * len(validation_errors)
+        if bio.sensor_confidence is not None:
+            try:
+                sc = float(bio.sensor_confidence)
+                q = min(q, max(0.0, min(1.0, sc)))
+            except (TypeError, ValueError):
+                pass
+        if self._prev_smoothed_hr is not None and self._prev_smoothed_hr > 0:
+            if abs(smoothed_hr - self._prev_smoothed_hr) > 25.0:
+                q *= 0.78
+        return float(_clamp(q, 0.35, 1.0))
+
+    def _stress_band_ord(self, band: str) -> int:
+        return {"low": 0, "moderate": 1, "high": 2}.get(band, 1)
+
+    def _update_stress_band_latched(self, raw_band: str) -> str:
+        if self._latched_stress_band is None:
+            self._latched_stress_band = raw_band
+            self._stress_up_streak = 0
+            self._stress_down_streak = 0
+            return raw_band
+        ro = self._stress_band_ord(raw_band)
+        lo = self._stress_band_ord(self._latched_stress_band)
+        if ro > lo:
+            self._stress_down_streak = 0
+            self._stress_up_streak += 1
+            if self._stress_up_streak >= self.config.stress_band_enter_consecutive:
+                self._latched_stress_band = raw_band
+                self._stress_up_streak = 0
+        elif ro < lo:
+            self._stress_up_streak = 0
+            self._stress_down_streak += 1
+            if self._stress_down_streak >= self.config.stress_band_exit_consecutive:
+                self._latched_stress_band = raw_band
+                self._stress_down_streak = 0
+        else:
+            self._stress_up_streak = 0
+            self._stress_down_streak = 0
+        assert self._latched_stress_band is not None
+        return self._latched_stress_band
+
     # ------------------------------------------------------------------
     # Strategy helpers
     # ------------------------------------------------------------------
@@ -243,9 +336,10 @@ class BiometricProcessor:
             return "focus"
         return "calm"
 
-    def _confidence(self, validation_errors: List[str]) -> float:
+    def _confidence(self, validation_errors: List[str], sensor_q: float) -> float:
         base = 1.0 - 0.06 * len(validation_errors)
-        return float(_clamp(base, 0.5, 1.0))
+        base = min(base, sensor_q)
+        return float(_clamp(base, 0.45, 1.0))
 
     def _resolve_genre_style(self, profile: StaticUserProfile) -> str:
         base = OCCUPATION_GENRE_PROMPTS.get(profile.occupation, DEFAULT_GENRE_PROMPT)
@@ -286,13 +380,25 @@ class BiometricProcessor:
             return base + "; " + "; ".join(extras)
         return base
 
-    def _select_instruments(self, resp_load_score: float, avoid: List[str]) -> List[str]:
-        if resp_load_score >= 58.0:
+    def _select_instruments(
+        self,
+        resp_load_score: float,
+        avoid: List[str],
+        *,
+        cap: int | None = None,
+        rhythm_preference_low: bool = False,
+    ) -> List[str]:
+        if rhythm_preference_low and resp_load_score < 40.0:
+            chosen = ["soft_synth_pad", "ambient_strings"]
+        elif resp_load_score >= 58.0:
             chosen = ["cello_legato", "sustained_synth"]
         elif resp_load_score >= 32.0:
             chosen = ["piano", "ambient_strings", "soft_synth_pad"]
         else:
             chosen = ["piano", "ambient_strings"]
+
+        if cap is not None and cap > 0:
+            chosen = chosen[:cap]
 
         if not avoid:
             return chosen
@@ -376,6 +482,49 @@ class BiometricProcessor:
 
         return text
 
+    def _apply_personalization_hints(
+        self,
+        strategy: MusicStrategy,
+        hints: PersonalizationHints,
+        profile: StaticUserProfile,
+        resp_load: float,
+    ) -> MusicStrategy:
+        ms = MusicStrategy(**dataclass_to_dict(strategy))
+        ms.tempo_bpm = int(
+            round(
+                _clamp(
+                    float(ms.tempo_bpm + hints.tempo_offset_bpm),
+                    float(self.config.min_bpm),
+                    float(self.config.max_bpm),
+                )
+            )
+        )
+        if hints.forbid_sharp_extra:
+            ms.forbid_sharp_transients = True
+        if hints.forbid_high_freq_extra:
+            ms.forbid_high_freq_peaks = True
+        if hints.forbid_perc_extra:
+            ms.forbid_percussive_hits = True
+        avoid_extended = list(profile.avoid_instruments)
+        for t in hints.avoid_material_tokens:
+            t2 = str(t).strip()
+            if t2:
+                avoid_extended.append(t2)
+        low_rhythm = hints.rhythm_drive_scale < 0.88
+        ms.instrument_set = self._select_instruments(
+            resp_load,
+            avoid_extended,
+            cap=hints.instrument_cap,
+            rhythm_preference_low=low_rhythm,
+        )
+        if hints.genre_extras:
+            ms.genre_style = ms.genre_style + "; " + "; ".join(hints.genre_extras[:6])
+        if hints.texture_soften:
+            ms.acoustic_texture_description = (
+                "softened spectral balance; " + ms.acoustic_texture_description
+            )
+        return ms
+
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
@@ -390,9 +539,25 @@ class BiometricProcessor:
         Returns Layer-2 bundle including legacy keys, features, state, music_strategy.
         """
         val_errs = validation_errors or []
+        hints = resolve_personalization_strategy(profile)
 
         smoothed_hr = self.smooth_heart_rate(biometrics.heart_rate)
-        motion_mag = self._motion_magnitude(biometrics.body_motion)
+        smoothed_hrv = self._smooth_series(
+            self._hrv_history, float(biometrics.heart_rate_variability)
+        )
+        smoothed_resp = self._smooth_series(
+            self._resp_history, float(biometrics.respiratory_rate)
+        )
+        smoothed_noise = self._smooth_series(
+            self._noise_history, float(biometrics.environmental_audio_exposure)
+        )
+        motion_mag_raw = self._motion_magnitude(biometrics.body_motion)
+        smoothed_motion = self._smooth_series(self._motion_history, motion_mag_raw)
+
+        exercise_ctx = self._exercise_context(biometrics, smoothed_motion)
+        hr_scale = (
+            self.config.activity_hr_load_scale if exercise_ctx else 1.0
+        )
 
         (
             hr_delta,
@@ -406,11 +571,17 @@ class BiometricProcessor:
         ) = self._compute_component_scores(
             smoothed_hr=smoothed_hr,
             baseline_hr=profile.baseline_heart_rate,
-            hrv_ms=biometrics.heart_rate_variability,
-            resp_rate=float(biometrics.respiratory_rate),
-            noise_db=biometrics.environmental_audio_exposure,
-            motion_mag=motion_mag,
+            hrv_ms=smoothed_hrv,
+            resp_rate=smoothed_resp,
+            noise_db=smoothed_noise,
+            motion_mag=smoothed_motion,
+            hr_load_scale=hr_scale,
         )
+
+        sensor_q = self._sensor_quality_score(
+            biometrics, val_errs, smoothed_hr
+        )
+        arousal_adj = arousal_raw * (0.55 + 0.45 * sensor_q)
 
         features = BiometricFeatures(
             raw_hr=biometrics.heart_rate,
@@ -418,41 +589,51 @@ class BiometricProcessor:
             baseline_hr=profile.baseline_heart_rate,
             hr_delta_bpm=hr_delta,
             hr_delta_pct=hr_delta_pct,
-            hrv_ms=biometrics.heart_rate_variability,
-            respiratory_rate=float(biometrics.respiratory_rate),
-            ambient_noise_db=biometrics.environmental_audio_exposure,
-            motion_magnitude_g=motion_mag,
+            hrv_ms=smoothed_hrv,
+            respiratory_rate=smoothed_resp,
+            ambient_noise_db=smoothed_noise,
+            motion_magnitude_g=smoothed_motion,
             hr_load_score=hr_load,
             hrv_risk_score=hrv_risk,
             respiratory_load_score=resp_load,
             noise_risk_score=noise_risk,
             motion_intensity_score=motion_score,
+            smoothed_hrv_ms=smoothed_hrv,
+            smoothed_respiratory_rate=smoothed_resp,
+            smoothed_ambient_noise_db=smoothed_noise,
+            smoothed_motion_magnitude_g=smoothed_motion,
+            sensor_quality_score=sensor_q,
+            exercise_context=exercise_ctx,
         )
 
-        trend = self._update_arousal_trend(arousal_raw)
-        self._update_masking_latch(arousal_raw)
-        self._update_noise_forbid_latch(biometrics.environmental_audio_exposure)
+        trend = self._update_arousal_trend(arousal_adj, sensor_q)
+        self._update_masking_latch(arousal_adj)
+        self._update_noise_forbid_latch(smoothed_noise)
 
-        stress_state = self._stress_band(arousal_raw, self.config)
-        recovery_pri = self._recovery_priority(profile, arousal_raw, stress_state)
+        stress_raw = self._stress_band(arousal_adj, self.config)
+        stress_state = self._update_stress_band_latched(stress_raw)
+        recovery_pri = self._recovery_priority(
+            profile, arousal_adj, stress_state
+        )
         sympathetic_load_bpm = smoothed_hr - float(profile.baseline_heart_rate)
 
         state = PhysiologicalState(
-            arousal_score=arousal_raw,
+            arousal_score=arousal_adj,
             stress_state=stress_state,
             recovery_priority=recovery_pri,
-            confidence=self._confidence(val_errs),
+            confidence=self._confidence(val_errs, sensor_q),
             trend=trend,
             sympathetic_load_bpm=sympathetic_load_bpm,
         )
 
-        # Continuous masking strength + hysteresis latch boost
         texture_need = _clamp(
             0.55 * (features.hrv_risk_score / 100.0)
-            + 0.45 * (arousal_raw / 100.0),
+            + 0.45 * (arousal_adj / 100.0),
             0.0,
             1.0,
         )
+        texture_need *= _clamp(0.82 + 0.18 * float(hints.density_scale), 0.65, 1.15)
+        texture_need = _clamp(texture_need, 0.0, 1.0)
         if self._strong_masking_latched:
             texture_need = max(texture_need, 0.68)
 
@@ -460,7 +641,7 @@ class BiometricProcessor:
         texture_legacy["hrv_score"] = features.hrv_ms
 
         base_raw_bpm = smoothed_hr * (1.0 - self.config.rhythm_reduction_pct / 100.0)
-        extra_drop = (arousal_raw / 100.0) * self.config.arousal_extra_bpm_reduction_max
+        extra_drop = (arousal_adj / 100.0) * self.config.arousal_extra_bpm_reduction_max
         target_bpm = int(round(base_raw_bpm - extra_drop))
         target_bpm = int(
             _clamp(
@@ -496,8 +677,36 @@ class BiometricProcessor:
             forbid_percussive_hits=forbid_noise,
         )
 
+        strategy = self._apply_personalization_hints(
+            strategy, hints, profile, features.respiratory_load_score
+        )
+
+        downweighted: List[str] = []
+        if exercise_ctx:
+            downweighted.append("hr_load_scaled_for_activity")
+        if sensor_q < 0.85:
+            downweighted.append("arousal_damped_by_sensor_quality")
+        phys_notes: List[str] = []
+        if exercise_ctx:
+            phys_notes.append("Elevated motion or activity context — HR load down-weighted.")
+        if sensor_q < 0.7:
+            phys_notes.append("Sensor quality marginal — interpret arousal cautiously.")
+        if trend == "unstable":
+            phys_notes.append("Arousal fluctuating recently — prefer gentle, stable textures.")
+
+        explanation = {
+            "personalization_applied": hints.explain_applied(),
+            "physiology_notes": phys_notes,
+            "downweighted_signals": downweighted,
+            "stress_band_raw": stress_raw,
+            "sensor_quality_score": sensor_q,
+            "exercise_context": exercise_ctx,
+        }
+
+        self._prev_smoothed_hr = smoothed_hr
+
         rhythm_params = {
-            "target_bpm": target_bpm,
+            "target_bpm": strategy.tempo_bpm,
             "current_hr": biometrics.heart_rate,
             "smoothed_hr": smoothed_hr,
             "baseline_hr": profile.baseline_heart_rate,
@@ -518,15 +727,15 @@ class BiometricProcessor:
         breathing_params = {
             "respiratory_status": resp_label,
             "trigger_legato": legato,
-            "instrument_set": instruments,
+            "instrument_set": strategy.instrument_set,
             "resp_rate": biometrics.respiratory_rate,
         }
 
         safeguards_params = {
             "noise_environment": "harsh_noisy" if forbid_noise else "quiet_safe",
-            "forbid_sharp_transients": forbid_noise,
-            "forbid_high_freq_peaks": forbid_noise,
-            "forbid_percussive_hits": forbid_noise,
+            "forbid_sharp_transients": strategy.forbid_sharp_transients,
+            "forbid_high_freq_peaks": strategy.forbid_high_freq_peaks,
+            "forbid_percussive_hits": strategy.forbid_percussive_hits,
             "ambient_db": biometrics.environmental_audio_exposure,
         }
 
@@ -542,4 +751,5 @@ class BiometricProcessor:
             "features": dataclass_to_dict(features),
             "state": dataclass_to_dict(state),
             "music_strategy": dataclass_to_dict(strategy),
+            "strategy_explanation": explanation,
         }

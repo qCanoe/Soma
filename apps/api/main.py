@@ -58,6 +58,12 @@ class ProfileIn(BaseModel):
     preferred_density: str = "medium"
     avoid_instruments: List[str] = Field(default_factory=list)
     therapy_goal: str = "calm"
+    preferred_styles: List[str] = Field(default_factory=list)
+    sounds_to_avoid: List[str] = Field(default_factory=list)
+    rhythm_preference: str = "medium"
+    volume_sensitivity: str = "moderate"
+    sensitive_text: str = ""
+    session_feedback_summary: Dict[str, Any] = Field(default_factory=dict)
 
 
 class BiometricsIn(BaseModel):
@@ -70,6 +76,10 @@ class BiometricsIn(BaseModel):
     wrist_temperature: Optional[float] = None
     blood_oxygen: Optional[float] = None
     sleep_stage: Optional[str] = None
+    activity_state: Optional[str] = None
+    sensor_confidence: Optional[float] = None
+    measurement_window_s: Optional[float] = None
+    resting_context: Optional[bool] = None
 
 
 class PipelineRunIn(BaseModel):
@@ -79,6 +89,7 @@ class PipelineRunIn(BaseModel):
     strict_validation: bool = False
     use_knowledge_graph: bool = False
     user_intent: Optional[str] = None
+    session_feedback_summary: Optional[Dict[str, Any]] = None
 
 
 # --- Mock HealthKit (camelCase vitals from web prototype) ---
@@ -99,6 +110,10 @@ class MockVitalsCamel(BaseModel):
     sleepStage: Optional[str] = None
     stressScore: Optional[int] = None
     baselineHR: Optional[int] = None
+    activityState: Optional[str] = None
+    sensorConfidence: Optional[float] = None
+    measurementWindowS: Optional[float] = None
+    restingContext: Optional[bool] = None
 
 
 class MockProfilePartial(BaseModel):
@@ -114,6 +129,12 @@ class MockProfilePartial(BaseModel):
     preferred_density: Optional[str] = None
     avoid_instruments: Optional[List[str]] = None
     therapy_goal: Optional[str] = None
+    preferred_styles: Optional[List[str]] = None
+    sounds_to_avoid: Optional[List[str]] = None
+    rhythm_preference: Optional[str] = None
+    volume_sensitivity: Optional[str] = None
+    sensitive_text: Optional[str] = None
+    session_feedback_summary: Optional[Dict[str, Any]] = None
 
 
 class MockHealthKitRunIn(BaseModel):
@@ -124,6 +145,7 @@ class MockHealthKitRunIn(BaseModel):
     strict_validation: bool = False
     use_knowledge_graph: bool = False
     user_intent: Optional[str] = None
+    session_feedback_summary: Optional[Dict[str, Any]] = None
 
 
 def _merge_mock_profile(
@@ -146,6 +168,12 @@ def _merge_mock_profile(
         preferred_density=p.preferred_density or "medium",
         avoid_instruments=list(p.avoid_instruments or []),
         therapy_goal=p.therapy_goal or "calm",
+        preferred_styles=list(p.preferred_styles or []),
+        sounds_to_avoid=list(p.sounds_to_avoid or []),
+        rhythm_preference=p.rhythm_preference or "medium",
+        volume_sensitivity=p.volume_sensitivity or "moderate",
+        sensitive_text=(p.sensitive_text or "").strip(),
+        session_feedback_summary=dict(p.session_feedback_summary or {}),
     )
 
 
@@ -164,6 +192,10 @@ def _vitals_camel_to_biometrics(
         wrist_temperature=vitals.wristTemperature,
         blood_oxygen=vitals.bloodOxygen,
         sleep_stage=vitals.sleepStage,
+        activity_state=vitals.activityState,
+        sensor_confidence=vitals.sensorConfidence,
+        measurement_window_s=vitals.measurementWindowS,
+        resting_context=vitals.restingContext,
     )
 
 
@@ -201,6 +233,12 @@ def create_app(*, serve_web: bool = True) -> FastAPI:
             preferred_density=body.profile.preferred_density,
             avoid_instruments=list(body.profile.avoid_instruments),
             therapy_goal=body.profile.therapy_goal,
+            preferred_styles=list(body.profile.preferred_styles),
+            sounds_to_avoid=list(body.profile.sounds_to_avoid),
+            rhythm_preference=body.profile.rhythm_preference,
+            volume_sensitivity=body.profile.volume_sensitivity,
+            sensitive_text=body.profile.sensitive_text,
+            session_feedback_summary=dict(body.profile.session_feedback_summary or {}),
         )
         bio = body.biometrics
         biometrics = AppleWatchBiometrics(
@@ -213,6 +251,10 @@ def create_app(*, serve_web: bool = True) -> FastAPI:
             wrist_temperature=bio.wrist_temperature,
             blood_oxygen=bio.blood_oxygen,
             sleep_stage=bio.sleep_stage,
+            activity_state=bio.activity_state,
+            sensor_confidence=bio.sensor_confidence,
+            measurement_window_s=bio.measurement_window_s,
+            resting_context=bio.resting_context,
         )
         result = pipeline.run(
             profile,
@@ -221,6 +263,7 @@ def create_app(*, serve_web: bool = True) -> FastAPI:
             strict_validation=body.strict_validation,
             use_knowledge_graph=body.use_knowledge_graph,
             user_intent=body.user_intent,
+            session_feedback_summary=body.session_feedback_summary,
         )
         safe = _json_safe(result)
         return JSONResponse(content=safe)
@@ -242,6 +285,7 @@ def create_app(*, serve_web: bool = True) -> FastAPI:
             strict_validation=body.strict_validation,
             use_knowledge_graph=body.use_knowledge_graph,
             user_intent=body.user_intent,
+            session_feedback_summary=body.session_feedback_summary,
         )
         safe = _json_safe(result)
         return JSONResponse(content=safe)

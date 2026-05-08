@@ -1304,6 +1304,11 @@
                             <iconify-icon icon="lucide:history" width="16"></iconify-icon>
                             <span id="history-btn-label">History</span>
                         </button>
+                        <button type="button" id="report-btn" class="soma-nav-btn" data-soma-view="report" aria-current="false">
+                            <iconify-icon icon="lucide:file-heart" width="16"></iconify-icon>
+                            <span id="report-btn-label">Report</span>
+                            <span id="report-fresh-dot" class="hidden w-1.5 h-1.5 rounded-full bg-white/55 transition-all ml-auto flex-shrink-0"></span>
+                        </button>
                         <button type="button" id="vitals-btn" class="soma-nav-btn" data-soma-view="vitals" aria-current="false">
                             <iconify-icon icon="lucide:activity" width="16"></iconify-icon>
                             <span id="vitals-btn-label">Vitals</span>
@@ -1646,6 +1651,47 @@
                                     <span>Back to history</span>
                                 </button>
                                 <div id="history-insights" class="flex-1 min-h-0 min-w-0 w-full py-6 px-5 sm:px-7 sm:py-7 rounded-3xl border border-white/[0.08] bg-white/[0.03] text-left overflow-y-auto overscroll-y-contain"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="report-view" class="soma-view hidden flex flex-col flex-1 min-h-0 overflow-hidden" role="region" aria-labelledby="report-view-title" hidden>
+                    <h2 id="report-view-title" class="sr-only">Diagnostic Report</h2>
+                    <div id="report-modal" class="soma-inline-panel-host flex flex-1 flex-col min-h-0 w-full max-w-3xl mx-auto">
+                        <div id="report-card" class="relative glass-panel rounded-[2.5rem] w-full flex flex-col shadow-[0_40px_80px_rgba(0,0,0,0.65)] flex-1 min-h-0" style="min-height:min(88vh,640px);border:1px solid rgba(255,255,255,0.1);">
+                            <div class="px-5 sm:px-8 pt-7 sm:pt-8 pb-4 flex-shrink-0 border-b border-white/[0.06]">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="min-w-0 flex-1">
+                                        <span class="soma-section-label block mb-1.5">Your wellbeing</span>
+                                        <h2 class="soma-text-on-aura font-display text-2xl md:text-[1.75rem] leading-tight text-white/90 italic tracking-wide">Diagnostic Report</h2>
+                                        <p id="report-summary-line" class="text-sm text-white/35 font-light mt-2.5 leading-relaxed">A living read of your sessions, in plain language.</p>
+                                    </div>
+                                    <button type="button" id="report-regen" class="touch-manipulation w-11 h-11 min-w-[2.75rem] min-h-[2.75rem] shrink-0 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/55 hover:text-white hover:bg-white/10 transition-colors duration-300" title="Regenerate report" aria-label="Regenerate report">
+                                        <iconify-icon id="report-regen-icon" icon="lucide:refresh-cw" width="15"></iconify-icon>
+                                    </button>
+                                </div>
+                                <div class="mt-4 flex flex-wrap items-center gap-2">
+                                    <span id="report-mode-pill" class="soma-pill text-[0.65rem]" aria-live="polite">Template</span>
+                                    <button type="button" class="soma-pill report-window-pill soma-pill-active" data-window="7">Weekly view</button>
+                                    <button type="button" class="soma-pill report-window-pill" data-window="30">Monthly view</button>
+                                    <button type="button" class="soma-pill report-window-pill" data-window="all">Full report</button>
+                                    <span id="report-meta" class="text-[0.65rem] text-white/35 ml-auto"></span>
+                                </div>
+                            </div>
+                            <div id="report-scroll" class="flex-1 overflow-y-auto overscroll-y-contain px-5 sm:px-8 pb-8 pt-4 min-h-0 min-w-0">
+                                <div id="report-empty" class="hidden text-center text-sm text-white/30 font-light px-4 py-16 max-w-sm mx-auto leading-relaxed">
+                                    <span class="block text-white/45 font-light mb-4">Your report needs a little more signal.</span>
+                                    Finish <span class="text-white/[0.72] tabular-nums">2</span> sessions and save feedback after each one. Optional: open Vitals so physiology notes reflect your wrist snapshot.
+                                </div>
+                                <div id="report-body" class="hidden flex flex-col gap-4 min-w-0">
+                                    <div id="report-overview" class="min-w-0"></div>
+                                    <div id="report-achievements" class="min-w-0"></div>
+                                    <div id="report-topic-nav" class="flex flex-nowrap gap-2 overflow-x-auto overscroll-x-contain pb-1 min-w-0 scroll-smooth -mx-1 px-1"></div>
+                                    <div id="report-sections" class="flex flex-col gap-3 min-w-0"></div>
+                                </div>
+                                <p id="report-disclaimer" class="hidden mt-6 text-[0.7rem] text-white/30 font-light leading-relaxed text-center max-w-md mx-auto">
+                                    This report is generated by Soma from your local records to help you understand your own state. It is not a medical diagnosis or treatment advice.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -2210,6 +2256,31 @@
                                     </div>
                                 </div>
                         </div>
+                        <div>
+                            <span class="soma-section-label">Diagnostic report</span>
+                            <p class="text-sm text-white/35 font-light mt-3 leading-relaxed">Optional OpenAI key for narrating your report in natural language. Without a key, Soma falls back to a deterministic template generated entirely on this device.</p>
+                        </div>
+                        <div id="openai-key-modal" class="w-full flex flex-col">
+                            <div class="relative z-10 w-full max-w-none glass-panel rounded-3xl p-8 flex flex-col gap-6">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-7 h-7 rounded-full border border-white/15 bg-white/5 flex items-center justify-center">
+                                        <iconify-icon icon="lucide:sparkles" width="13" class="text-white/60"></iconify-icon>
+                                    </div>
+                                    <span class="text-white/90 font-display italic text-xl tracking-wide">OpenAI API Key</span>
+                                </div>
+                                <p class="text-sm text-white/30 font-light leading-relaxed">
+                                    <strong class="text-amber-200/80 font-medium">Optional.</strong> Stored in this browser only and sent directly to OpenAI when generating your diagnostic report. Leave blank to keep everything offline.
+                                </p>
+                                <div class="p-field">
+                                    <label class="p-label" for="openai-key-input">API Key <span class="p-label-note">· sk-…</span></label>
+                                    <input id="openai-key-input" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false">
+                                </div>
+                                <div class="flex gap-3 mt-1">
+                                    <button id="openai-key-clear" class="flex-1 py-3 rounded-2xl border border-white/8 bg-transparent text-white/35 text-xs font-light hover:border-white/18 hover:text-white/65 transition-all">Clear</button>
+                                    <button id="openai-key-save" class="flex-1 py-3 rounded-2xl border border-white/20 bg-white/10 text-white text-xs font-medium hover:bg-white/18 transition-all">Save Key</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -2224,6 +2295,11 @@
             <button type="button" class="soma-mobile-nav-btn flex flex-1 flex-col items-center gap-1 py-2 rounded-xl text-[0.65rem]" data-soma-view="history" aria-current="false">
                 <iconify-icon icon="lucide:history" width="20" class="opacity-80"></iconify-icon>
                 <span>History</span>
+            </button>
+            <button type="button" class="soma-mobile-nav-btn relative flex flex-1 flex-col items-center gap-1 py-2 rounded-xl text-[0.65rem]" data-soma-view="report" aria-current="false">
+                <iconify-icon icon="lucide:file-heart" width="20" class="opacity-80"></iconify-icon>
+                <span>Report</span>
+                <span id="report-fresh-dot-mobile" class="hidden absolute top-1.5 right-1/3 w-1.5 h-1.5 rounded-full bg-white/55"></span>
             </button>
             <button type="button" class="soma-mobile-nav-btn flex flex-1 flex-col items-center gap-1 py-2 rounded-xl text-[0.65rem]" data-soma-view="vitals" aria-current="false">
                 <iconify-icon icon="lucide:activity" width="20" class="opacity-80"></iconify-icon>
@@ -2246,7 +2322,7 @@
     'use strict';
     var LS_VIEW = 'soma-active-view';
     var LS_SESSION_UI = 'soma-session-ui';
-    var VIEW_ORDER = ['session', 'history', 'vitals', 'profile', 'settings'];
+    var VIEW_ORDER = ['session', 'history', 'report', 'vitals', 'profile', 'settings'];
 
     function applySessionStep(step) {
         var checkEl = document.getElementById('session-checkin-screen');
@@ -2310,6 +2386,9 @@
             if (name === 'history' && typeof window.somaOnEnterHistoryView === 'function') {
                 window.somaOnEnterHistoryView();
             }
+            if (name === 'report' && typeof window.somaOnEnterReportView === 'function') {
+                window.somaOnEnterReportView();
+            }
             if (name === 'vitals' && typeof window.somaOnEnterVitalsView === 'function') {
                 window.somaOnEnterVitalsView();
             }
@@ -2349,6 +2428,7 @@
             if (VIEW_ORDER.indexOf(saved) < 0) saved = 'session';
             showSomaView(saved, { skipExtras: true });
             if (saved === 'history' && typeof window.somaOnEnterHistoryView === 'function') window.somaOnEnterHistoryView();
+            if (saved === 'report' && typeof window.somaOnEnterReportView === 'function') window.somaOnEnterReportView();
             if (saved === 'vitals' && typeof window.somaOnEnterVitalsView === 'function') window.somaOnEnterVitalsView();
             if (saved === 'profile' && typeof window.somaOnEnterProfileView === 'function') window.somaOnEnterProfileView();
             if (saved === 'settings' && typeof window.somaOnEnterSettingsView === 'function') window.somaOnEnterSettingsView({});
@@ -3312,6 +3392,26 @@
 
     window.somaSnapshotVitals = snapshotVitals;
 
+    function buildSessionFeedbackSummaryForPipeline() {
+        const arr = listSessions().filter(s => s.status === 'completed' && s.feedback);
+        if (!arr.length) return null;
+        const last = arr[arr.length - 1].feedback;
+        const summary = {
+            sound_fit: last.soundFit,
+            helpfulness: last.helpfulness,
+            calm_after: last.calmAfter,
+        };
+        const issues = [];
+        arr.slice(-5).forEach(s => {
+            const sf = s.feedback.soundFit;
+            if (sf && sf !== 'good') issues.push(sf);
+        });
+        summary.historical_sound_issues = [...new Set(issues)];
+        return summary;
+    }
+
+    window.somaBuildSessionFeedbackSummary = buildSessionFeedbackSummaryForPipeline;
+
     /** JSON from POST /api/healthkit/mock/run or /api/pipeline/run — matches music_ai_module output. */
     function getPipelineInsights() {
         const data = window.__somaLastPipelineResult;
@@ -3354,8 +3454,25 @@
                     const n = parseInt(String(p.age), 10);
                     if (!isNaN(n)) out.age = n;
                 }
+                if (Array.isArray(p.styles) && p.styles.length) {
+                    out.preferred_styles = p.styles.slice(0, 12);
+                }
+                if (typeof p.sensitive === 'string' && p.sensitive.trim()) {
+                    out.sensitive_text = p.sensitive.trim().slice(0, 500);
+                }
+                const rv = +p.rhythm;
+                if (Number.isFinite(rv)) {
+                    if (rv <= 2) out.rhythm_preference = 'low';
+                    else if (rv >= 4) out.rhythm_preference = 'high';
+                    else out.rhythm_preference = 'medium';
+                }
+                if (p.volume === 'soft') out.volume_sensitivity = 'soft';
+                else if (p.volume === 'immersive') out.volume_sensitivity = 'immersive';
+                else if (p.volume === 'moderate') out.volume_sensitivity = 'moderate';
             }
         } catch (_) { /* ignore */ }
+        const fb = buildSessionFeedbackSummaryForPipeline();
+        if (fb) out.session_feedback_summary = fb;
         return out;
     }
 
@@ -3923,6 +4040,9 @@
         updateSessionStrip();
         if (window.showToast) window.showToast('Feedback saved — thank you.');
         renderHistoryList();
+        if (window.SomaReport && typeof window.SomaReport.refresh === 'function') {
+            window.SomaReport.refresh();
+        }
     }
 
     function skipFeedback() {
@@ -3934,6 +4054,9 @@
         setActive(null);
         closeFeedbackModal();
         updateSessionStrip();
+        if (window.SomaReport && typeof window.SomaReport.refresh === 'function') {
+            window.SomaReport.refresh();
+        }
     }
 
     window.somaOnFakeSessionTimerEnd = function () {
@@ -4521,6 +4644,627 @@
         setActive(null);
         updateSessionStrip();
     };
+
+    /* Exposed for the Diagnostic Report module (SomaReport). */
+    window.somaInternal = window.somaInternal || {};
+    Object.assign(window.somaInternal, {
+        listSessions: listSessions,
+        computeHistoryStats: computeHistoryStats,
+        getProfileSnapshot: getProfileSnapshot,
+        getPipelineInsights: getPipelineInsights,
+        formatModeLabel: formatModeLabel,
+        formatSoundFitLabel: formatSoundFitLabel,
+        buildNextAdjustment: buildNextAdjustment,
+        escapeHtml: escapeHtml,
+        sessionSubmittedAtMs: sessionSubmittedAtMs,
+        feedbackLocalDayKey: feedbackLocalDayKey,
+    });
+})();
+</script>
+
+<!-- ── Diagnostic Report ───────────────────────────────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    const LS_REPORT = 'soma-report-v1';
+    const LS_OPENAI_KEY = 'moodtune-openai-key';
+    const LS_WINDOW = 'soma-report-window';
+    const DEBOUNCE_MS = 700;
+
+    const SECTIONS = [
+        { id: 'snapshot',        title: 'Snapshot',         icon: 'lucide:activity',     blurb: 'Where you are right now.' },
+        { id: 'trends',          title: 'Trends',           icon: 'lucide:trending-up',  blurb: 'How your sessions are landing over time.' },
+        { id: 'patterns',        title: 'Patterns',         icon: 'lucide:shapes',       blurb: 'What modes and feelings recur.' },
+        { id: 'physiology',      title: 'Physiology',       icon: 'lucide:heart-pulse',  blurb: 'Signals from your wrist and your wellbeing.' },
+        { id: 'recommendations', title: 'Recommendations',  icon: 'lucide:compass',      blurb: 'Small next steps tailored to you.' },
+    ];
+
+    function api() { return window.somaInternal || {}; }
+    function escHtml(s) {
+        const fn = api().escapeHtml;
+        if (typeof fn === 'function') return fn(String(s == null ? '' : s));
+        return String(s == null ? '' : s)
+            .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function loadJson(k, fb) {
+        try { const x = JSON.parse(localStorage.getItem(k) || ''); return x == null ? fb : x; }
+        catch (_) { return fb; }
+    }
+    function saveJson(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) {} }
+
+    function djb2(s) {
+        let h = 5381;
+        s = String(s || '');
+        for (let i = 0; i < s.length; i++) h = (((h << 5) + h) + s.charCodeAt(i)) | 0;
+        return (h >>> 0).toString(36);
+    }
+
+    function relTime(ms) {
+        if (!ms) return '';
+        const diff = Date.now() - ms;
+        if (diff < 60000) return 'just now';
+        if (diff < 3600000) return Math.round(diff / 60000) + ' min ago';
+        if (diff < 86400000) return Math.round(diff / 3600000) + ' h ago';
+        return Math.round(diff / 86400000) + ' d ago';
+    }
+
+    function getOpenAIKey() {
+        try { return (localStorage.getItem(LS_OPENAI_KEY) || '').trim(); }
+        catch (_) { return ''; }
+    }
+
+    function getWindow() {
+        try { return localStorage.getItem(LS_WINDOW) || '7'; }
+        catch (_) { return '7'; }
+    }
+    function setWindow(w) {
+        try { localStorage.setItem(LS_WINDOW, w); } catch (_) {}
+    }
+
+    function readSessions() {
+        const fn = api().listSessions;
+        let raw = typeof fn === 'function' ? fn() : loadJson('soma-sessions-v1', []);
+        return Array.isArray(raw) ? raw : [];
+    }
+
+    function readProfile() {
+        try { return JSON.parse(localStorage.getItem('moodtune-profile') || '{}') || {}; }
+        catch (_) { return {}; }
+    }
+
+    function summariseStats(sessions) {
+        const fn = api().computeHistoryStats;
+        try { return typeof fn === 'function' ? fn(sessions) : null; }
+        catch (_) { return null; }
+    }
+
+    function filterByWindow(sessions, win) {
+        if (win === 'all') return sessions;
+        const days = win === '30' ? 30 : 7;
+        const cutoff = Date.now() - days * 86400000;
+        const tFn = api().sessionSubmittedAtMs;
+        return sessions.filter(s => {
+            const t = typeof tFn === 'function' ? tFn(s) : 0;
+            return t && t >= cutoff;
+        });
+    }
+
+    function summariseSession(s) {
+        const input = s.input || {};
+        const fb = s.feedback || {};
+        const tr = s.track || {};
+        return {
+            id: s.id,
+            mode: input.mode || 'unknown',
+            vibes: Array.isArray(input.vibes) ? input.vibes : [],
+            moodWords: (input.freeText || '').slice(0, 140),
+            durationMin: input.durationMin,
+            intensity: input.intensity,
+            track: tr.title || null,
+            feedback: {
+                calmAfter: typeof fb.calmAfter === 'number' ? fb.calmAfter : null,
+                helpfulness: fb.helpfulness || null,
+                soundFit: fb.soundFit || null,
+                notes: (fb.notes || '').slice(0, 160),
+            },
+            submittedAt: fb.submittedAt || null,
+            vitals: s.vitalsSnapshot || null,
+            pipeline: s.pipelineSnapshot || null,
+        };
+    }
+
+    function buildReportContext() {
+        const profile = readProfile();
+        const allSessions = readSessions();
+        const win = getWindow();
+        const windowedSessions = filterByWindow(allSessions, win);
+        const fullStats = summariseStats(allSessions);
+        const windowStats = summariseStats(windowedSessions);
+
+        const recent = windowedSessions
+            .slice()
+            .sort((a, b) => {
+                const tFn = api().sessionSubmittedAtMs;
+                return (typeof tFn === 'function' ? tFn(b) : 0) - (typeof tFn === 'function' ? tFn(a) : 0);
+            })
+            .slice(0, 5)
+            .map(summariseSession);
+
+        const pipe = (typeof api().getPipelineInsights === 'function')
+            ? api().getPipelineInsights()
+            : null;
+        const lastVitals = (typeof window.somaSnapshotVitals === 'function')
+            ? window.somaSnapshotVitals()
+            : (window.__somaLastVitals || null);
+
+        const ctx = {
+            generatedAt: new Date().toISOString(),
+            window: win,
+            identity: {
+                name: profile.name || '',
+                age: profile.age || null,
+                goals: profile.goals || [],
+                emotions: profile.emotions || [],
+                styles: profile.styles || [],
+                sensitive: (profile.sensitive || '').trim(),
+                rhythm: profile.rhythm,
+                volume: profile.volume || '',
+                sleep: profile.sleep,
+                hasProfile: !!profile.savedAt,
+            },
+            counts: {
+                totalSessions: allSessions.length,
+                completedWithFeedback: fullStats ? fullStats.n : 0,
+                inWindow: windowedSessions.length,
+            },
+            fullStats: fullStats,
+            windowStats: windowStats,
+            recentSessions: recent,
+            physiology: lastVitals ? {
+                heartRate: lastVitals.heartRate,
+                hrv: lastVitals.hrv,
+                respiratoryRate: lastVitals.respiratoryRate,
+                bloodOxygen: lastVitals.bloodOxygen,
+                ambientNoise: lastVitals.ambientNoise,
+                stressScore: lastVitals.stressScore,
+                baselineHR: lastVitals.baselineHR,
+                pipeline: pipe ? {
+                    targetBpm: pipe.targetBpm,
+                    arousal: pipe.arousal,
+                    stressState: pipe.stressState,
+                    recoveryPriority: pipe.recoveryPriority,
+                    instrumentSet: (pipe.instrumentSet || []).slice(0, 6),
+                } : null,
+            } : null,
+        };
+        ctx.contextHash = djb2(JSON.stringify({
+            n: ctx.counts.completedWithFeedback,
+            win: ctx.window,
+            last: recent[0] && recent[0].submittedAt,
+            profile: ctx.identity,
+        }));
+        return ctx;
+    }
+
+    /* ─── Template narrator (offline) ──────────────────────────────── */
+
+    function narrateTemplate(ctx) {
+        const out = {};
+        const stats = ctx.windowStats || ctx.fullStats;
+        const id = ctx.identity;
+        const fmtMode = api().formatModeLabel || (m => m);
+        const fmtFit = api().formatSoundFitLabel || (k => k);
+
+        const greet = id.name ? id.name : 'You';
+        const winLabel = ctx.window === 'all' ? 'all your sessions' : ('the last ' + (ctx.window === '30' ? '30' : '7') + ' days');
+        const recentMode = ctx.recentSessions[0] && ctx.recentSessions[0].mode;
+        const physShort = ctx.physiology && ctx.physiology.heartRate != null
+            ? ('Latest wrist read: HR ' + ctx.physiology.heartRate + ' bpm' +
+               (ctx.physiology.hrv != null ? ', HRV ' + ctx.physiology.hrv : '') + '.')
+            : 'No fresh wrist snapshot. Open Vitals to capture one.';
+        out.snapshot = `${greet}, looking at ${winLabel}: ${stats ? stats.n + ' completed sessions with feedback' : 'no completed sessions yet'}` +
+            (recentMode ? `, most recently a ${fmtMode(recentMode)} session.` : '.') +
+            ' ' + physShort;
+        out.snapshotOneLine = stats
+            ? (stats.n + ' notes · ' + (stats.helpedRate != null ? stats.helpedRate + '% helped' : 'no help rate yet'))
+            : 'Add a few sessions to start the picture.';
+
+        if (stats) {
+            const calmLine = stats.avgCalmAfter != null
+                ? ('Average calm after a session is ' + stats.avgCalmAfter + '/5' +
+                   (stats.lastCalm != null && stats.lastComparedToAvg
+                       ? '. Your latest is ' + stats.lastCalm + '/5, ' + (stats.lastComparedToAvg === 'above' ? 'above' : stats.lastComparedToAvg === 'below' ? 'below' : 'matching') + ' that.'
+                       : '.'))
+                : 'We need a few more calm scores to draw a curve.';
+            const continuity = stats.distinctFeedbackDays >= 2
+                ? (' You logged feedback on ' + stats.distinctFeedbackDays + ' different days' +
+                   (stats.consecutiveFeedbackDays >= 2 ? ', currently a ' + stats.consecutiveFeedbackDays + '-day streak.' : '.'))
+                : '';
+            out.trends = stats.helpedRate + '% of sessions felt helped (' + stats.helpedCount + ' of ' + stats.n + '). ' + calmLine + continuity;
+            out.trendsOneLine = (stats.helpedRate >= 60 ? 'Mostly steady relief.' :
+                                 stats.helpedRate >= 40 ? 'Some relief, room to refine.' :
+                                                          'Pattern is mixed — worth tweaking the recipe.');
+        } else {
+            out.trends = 'Once you finish two or three sessions and tap a feedback chip, this section turns into your own little chart.';
+            out.trendsOneLine = 'Trend not ready yet.';
+        }
+
+        if (stats && stats.modeCountsSorted && stats.modeCountsSorted.length) {
+            const tops = stats.modeCountsSorted.slice(0, 3)
+                .map(r => fmtMode(r.mode) + ' · ' + r.n + 'x' + (r.n ? ' (' + r.rate + '% helped)' : ''));
+            const sf = stats.soundFitSorted && stats.soundFitSorted.length
+                ? stats.soundFitSorted.slice(0, 3).map(([k, c]) => fmtFit(k) + ' ' + c + '/' + stats.n).join(' · ')
+                : 'no sound notes yet';
+            out.patterns = 'Most-used modes: ' + tops.join(' · ') + '. Sound notes: ' + sf + '.';
+            out.patternsOneLine = stats.bestMode && stats.bestMode.n >= 2
+                ? (fmtMode(stats.bestMode.mode) + ' has the highest hit rate so far.')
+                : 'Modes still in exploration.';
+        } else {
+            out.patterns = 'Try a couple of different modes (Calm, Focus, Sleep…) so we can see which one fits you.';
+            out.patternsOneLine = 'Patterns still forming.';
+        }
+
+        if (ctx.physiology && ctx.physiology.heartRate != null) {
+            const p = ctx.physiology;
+            const bits = ['Heart rate ' + p.heartRate + ' bpm'];
+            if (p.hrv != null) bits.push('HRV ' + p.hrv + ' ms');
+            if (p.respiratoryRate != null) bits.push(p.respiratoryRate + ' br/min');
+            if (p.bloodOxygen != null) bits.push('SpO₂ ' + p.bloodOxygen + '%');
+            if (p.pipeline) {
+                bits.push('target ~' + p.pipeline.targetBpm + ' bpm');
+                if (p.pipeline.stressState) bits.push(p.pipeline.stressState + ' stress');
+            }
+            out.physiology = bits.join(' · ') + '.';
+            out.physiologyOneLine = p.pipeline && p.pipeline.recoveryPriority
+                ? ('Body asking for ' + p.pipeline.recoveryPriority + ' right now.')
+                : 'Body signals look readable.';
+        } else {
+            out.physiology = 'No biometric snapshot attached. Open Vitals (or pick a Demo Case) to feed Layer 2 of the pipeline.';
+            out.physiologyOneLine = 'Wrist data is optional — the rest of this report still works without it.';
+        }
+
+        const next = (api().buildNextAdjustment && stats) ? api().buildNextAdjustment(stats)
+            : 'Keep saving feedback after each session — the recommendations get sharper as data grows.';
+        out.recommendations = next;
+        out.recommendationsOneLine = 'Tiny tweak beats a big leap.';
+
+        out.recommendationPills = [];
+        if (stats && stats.bestMode && stats.bestMode.n >= 2 && stats.bestMode.rate >= 50) {
+            out.recommendationPills.push({
+                label: 'Reuse ' + fmtMode(stats.bestMode.mode),
+                action: { mode: stats.bestMode.mode },
+            });
+        }
+        if (stats && stats.topSoundFit && stats.topSoundFit.key === 'too_fast') {
+            out.recommendationPills.push({ label: 'Lower intensity', action: { intensity: 2 } });
+        }
+        if (stats && stats.topSoundFit && stats.topSoundFit.key === 'too_busy') {
+            out.recommendationPills.push({ label: 'Try Calm 30 min', action: { mode: 'calm', durationMin: 30 } });
+        }
+        if (!out.recommendationPills.length) {
+            out.recommendationPills.push({ label: 'Start a Calm session', action: { mode: 'calm' } });
+        }
+
+        return out;
+    }
+
+    /* ─── LLM narrator ─────────────────────────────────────────────── */
+
+    let abortCtl = null;
+
+    async function narrateLLM(ctx, key) {
+        if (abortCtl) { try { abortCtl.abort(); } catch (_) {} }
+        abortCtl = new AbortController();
+        const facts = {
+            window: ctx.window,
+            counts: ctx.counts,
+            stats: ctx.windowStats,
+            fullStats: ctx.fullStats,
+            recent: ctx.recentSessions,
+            physiology: ctx.physiology,
+            identity: ctx.identity,
+        };
+        const sys = 'You are Soma, a gentle wellness music guide. Write a diagnostic-style report for the user about their music-therapy sessions. Strict rules: ' +
+            '(1) Use only numbers and facts present in the provided "facts" JSON; never invent values. ' +
+            '(2) Tone: warm, plain-spoken, second person ("you"), no jargon, no medical diagnoses. ' +
+            '(3) Each section must include both a paragraph and a one-line takeaway in plain English. ' +
+            '(4) Output JSON only, matching the requested schema exactly.';
+        const user = 'Generate the report sections from these facts. If a section lacks data, say so kindly and suggest what to do next.\n\n' +
+            'facts =\n' + JSON.stringify(facts).slice(0, 8000) + '\n\n' +
+            'Return JSON with keys: snapshot, snapshotOneLine, trends, trendsOneLine, patterns, patternsOneLine, physiology, physiologyOneLine, recommendations, recommendationsOneLine. Each value is a short string (<= 60 words for paragraphs, <= 18 words for one-liners).';
+        const body = {
+            model: 'gpt-4o-mini',
+            response_format: { type: 'json_object' },
+            temperature: 0.4,
+            messages: [
+                { role: 'system', content: sys },
+                { role: 'user', content: user },
+            ],
+        };
+        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + key,
+            },
+            body: JSON.stringify(body),
+            signal: abortCtl.signal,
+        });
+        if (!res.ok) throw new Error('LLM HTTP ' + res.status);
+        const json = await res.json();
+        const text = json && json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content;
+        if (!text) throw new Error('LLM empty');
+        const parsed = JSON.parse(text);
+        const tmpl = narrateTemplate(ctx);
+        return Object.assign({}, tmpl, parsed, {
+            recommendationPills: tmpl.recommendationPills,
+        });
+    }
+
+    /* ─── Cache + refresh ──────────────────────────────────────────── */
+
+    function getCached() { return loadJson(LS_REPORT, null); }
+    function setCached(rep) { saveJson(LS_REPORT, rep); }
+
+    let pending = false;
+    let debounceHandle = null;
+
+    function refreshReport(opts) {
+        opts = opts || {};
+        if (debounceHandle) clearTimeout(debounceHandle);
+        debounceHandle = setTimeout(() => doRefresh(opts), opts.immediate ? 0 : DEBOUNCE_MS);
+    }
+
+    async function doRefresh(opts) {
+        const ctx = buildReportContext();
+        const cached = getCached();
+        const enoughData = ctx.counts.completedWithFeedback >= 2;
+
+        if (!enoughData) {
+            const rep = {
+                generatedAt: ctx.generatedAt,
+                contextHash: ctx.contextHash,
+                window: ctx.window,
+                mode: 'empty',
+                ctx: ctx,
+                narrative: null,
+            };
+            setCached(rep);
+            renderReport(rep);
+            return;
+        }
+
+        if (!opts.force && cached && cached.contextHash === ctx.contextHash && cached.window === ctx.window && cached.narrative) {
+            renderReport(cached);
+            return;
+        }
+
+        const key = getOpenAIKey();
+        const placeholder = {
+            generatedAt: ctx.generatedAt,
+            contextHash: ctx.contextHash,
+            window: ctx.window,
+            mode: key ? 'llm-loading' : 'template',
+            ctx: ctx,
+            narrative: narrateTemplate(ctx),
+        };
+        renderReport(placeholder);
+
+        if (!key) {
+            const rep = Object.assign({}, placeholder, { mode: 'template' });
+            setCached(rep);
+            renderReport(rep);
+            markFresh(true);
+            return;
+        }
+
+        if (pending) return;
+        pending = true;
+        try {
+            const narrative = await narrateLLM(ctx, key);
+            const rep = {
+                generatedAt: new Date().toISOString(),
+                contextHash: ctx.contextHash,
+                window: ctx.window,
+                mode: 'llm',
+                ctx: ctx,
+                narrative: narrative,
+            };
+            setCached(rep);
+            renderReport(rep);
+            markFresh(true);
+        } catch (err) {
+            if (err && err.name === 'AbortError') return;
+            const rep = Object.assign({}, placeholder, { mode: 'template-fallback' });
+            setCached(rep);
+            renderReport(rep);
+        } finally {
+            pending = false;
+        }
+    }
+
+    /* ─── Render ────────────────────────────────────────────────────── */
+
+    function modeBadgeText(mode) {
+        if (mode === 'llm') return 'LLM';
+        if (mode === 'llm-loading') return 'LLM · generating…';
+        if (mode === 'template-fallback') return 'Template (LLM failed)';
+        if (mode === 'empty') return 'Awaiting data';
+        return 'Template (offline)';
+    }
+
+    function renderReport(rep) {
+        const sectionsEl = document.getElementById('report-sections');
+        const emptyEl = document.getElementById('report-empty');
+        const disclEl = document.getElementById('report-disclaimer');
+        const metaEl = document.getElementById('report-meta');
+        const modePill = document.getElementById('report-mode-pill');
+        const regenIcon = document.getElementById('report-regen-icon');
+        const regenBtn = document.getElementById('report-regen');
+        if (!sectionsEl) return;
+
+        if (modePill) modePill.textContent = modeBadgeText(rep.mode);
+        if (metaEl) {
+            const ts = rep.generatedAt ? new Date(rep.generatedAt).getTime() : 0;
+            metaEl.textContent = ts ? ('Updated ' + relTime(ts)) : '';
+        }
+        if (regenIcon) {
+            regenIcon.setAttribute('icon', rep.mode === 'llm-loading' ? 'lucide:loader-2' : 'lucide:refresh-cw');
+            regenIcon.classList.toggle('animate-spin', rep.mode === 'llm-loading');
+        }
+        if (regenBtn) regenBtn.setAttribute('aria-busy', rep.mode === 'llm-loading' ? 'true' : 'false');
+
+        document.querySelectorAll('.report-window-pill').forEach(b => {
+            const w = b.getAttribute('data-window');
+            b.classList.toggle('soma-pill-active', w === (rep.window || getWindow()));
+        });
+
+        if (rep.mode === 'empty' || !rep.narrative) {
+            sectionsEl.innerHTML = '';
+            if (emptyEl) emptyEl.classList.remove('hidden');
+            if (disclEl) disclEl.classList.add('hidden');
+            if (regenBtn) regenBtn.disabled = true;
+            return;
+        }
+
+        if (emptyEl) emptyEl.classList.add('hidden');
+        if (disclEl) disclEl.classList.remove('hidden');
+        if (regenBtn) regenBtn.disabled = false;
+
+        const n = rep.narrative;
+        const html = SECTIONS.map(sec => {
+            const para = n[sec.id] || sec.blurb;
+            const oneLine = n[sec.id + 'OneLine'] || '';
+            let footer = '';
+            if (sec.id === 'recommendations' && Array.isArray(n.recommendationPills) && n.recommendationPills.length) {
+                const pills = n.recommendationPills.map((p, i) => {
+                    const action = JSON.stringify(p.action || {});
+                    return '<button type="button" class="soma-pill report-rec-pill" data-action=\'' + escHtml(action) + '\'>' +
+                        escHtml(p.label) + '</button>';
+                }).join(' ');
+                footer = '<div class="mt-4 flex flex-wrap gap-2">' + pills + '</div>';
+            }
+            const summary = oneLine
+                ? '<p class="mt-4 pt-3 border-t border-white/[0.05] text-sm text-white/55 font-light italic">' + escHtml(oneLine) + '</p>'
+                : '';
+            return '' +
+                '<section class="rounded-3xl border border-white/[0.08] bg-white/[0.03] px-5 py-5 sm:px-7 sm:py-6" role="region" aria-labelledby="report-h-' + sec.id + '">' +
+                    '<div class="flex items-center gap-3 mb-3">' +
+                        '<span class="w-8 h-8 rounded-full border border-white/10 bg-white/[0.05] flex items-center justify-center" aria-hidden="true">' +
+                            '<iconify-icon icon="' + sec.icon + '" width="14" class="text-white/55"></iconify-icon>' +
+                        '</span>' +
+                        '<div class="min-w-0">' +
+                            '<span class="block text-[0.65rem] text-white/38 uppercase tracking-[0.2em]">' + escHtml(sec.title) + '</span>' +
+                            '<h3 id="report-h-' + sec.id + '" class="text-base text-white/[0.88] font-light tracking-tight mt-0.5">' + escHtml(sec.blurb) + '</h3>' +
+                        '</div>' +
+                    '</div>' +
+                    '<p class="text-sm text-white/72 font-light leading-relaxed">' + escHtml(para) + '</p>' +
+                    footer +
+                    summary +
+                '</section>';
+        }).join('');
+
+        sectionsEl.innerHTML = html;
+    }
+
+    /* ─── Fresh dot ─────────────────────────────────────────────────── */
+
+    function markFresh(on) {
+        const isOnReport = (function () {
+            try { return (localStorage.getItem('soma-active-view') || '') === 'report'; }
+            catch (_) { return false; }
+        })();
+        const dotDesktop = document.getElementById('report-fresh-dot');
+        const dotMobile = document.getElementById('report-fresh-dot-mobile');
+        const show = !!on && !isOnReport;
+        if (dotDesktop) dotDesktop.classList.toggle('hidden', !show);
+        if (dotMobile) dotMobile.classList.toggle('hidden', !show);
+    }
+
+    /* ─── Public bindings ───────────────────────────────────────────── */
+
+    window.SomaReport = {
+        refresh: refreshReport,
+        rebuild: () => buildReportContext(),
+        forceRegenerate: () => refreshReport({ force: true, immediate: true }),
+        clearFresh: () => markFresh(false),
+    };
+
+    window.somaOnEnterReportView = function () {
+        markFresh(false);
+        const cached = getCached();
+        if (cached) renderReport(cached);
+        refreshReport({ immediate: true });
+        const card = document.getElementById('report-card');
+        if (card) {
+            card.style.animation = 'none';
+            void card.offsetWidth;
+            card.style.animation = 'modal-in 0.5s cubic-bezier(0.16,1,0.3,1) both';
+        }
+    };
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const regen = document.getElementById('report-regen');
+        if (regen) regen.addEventListener('click', () => refreshReport({ force: true, immediate: true }));
+
+        document.querySelectorAll('.report-window-pill').forEach(b => {
+            b.addEventListener('click', function () {
+                const w = b.getAttribute('data-window') || '7';
+                setWindow(w);
+                refreshReport({ force: true, immediate: true });
+            });
+        });
+
+        document.body.addEventListener('click', function (e) {
+            const t = e.target && e.target.closest && e.target.closest('.report-rec-pill');
+            if (!t) return;
+            let action = {};
+            try { action = JSON.parse(t.getAttribute('data-action') || '{}'); } catch (_) {}
+            applyRecommendationAction(action);
+        });
+
+        const keyInput = document.getElementById('openai-key-input');
+        const saveBtn = document.getElementById('openai-key-save');
+        const clearBtn = document.getElementById('openai-key-clear');
+        if (keyInput) keyInput.value = getOpenAIKey();
+        if (saveBtn) saveBtn.addEventListener('click', function () {
+            const v = (keyInput && keyInput.value || '').trim();
+            try { localStorage.setItem(LS_OPENAI_KEY, v); } catch (_) {}
+            if (window.showToast) window.showToast(v ? 'OpenAI key saved' : 'OpenAI key cleared');
+            refreshReport({ force: true, immediate: true });
+        });
+        if (clearBtn) clearBtn.addEventListener('click', function () {
+            try { localStorage.removeItem(LS_OPENAI_KEY); } catch (_) {}
+            if (keyInput) keyInput.value = '';
+            if (window.showToast) window.showToast('OpenAI key cleared');
+            refreshReport({ force: true, immediate: true });
+        });
+    });
+
+    function applyRecommendationAction(action) {
+        if (!action) return;
+        if (typeof window.showSomaView === 'function') window.showSomaView('session');
+        try {
+            if (action.mode) {
+                const btn = document.querySelector('.mode-chip[data-mode="' + action.mode + '"]');
+                if (btn) btn.click();
+            }
+            if (action.intensity != null && typeof window.somaSetUiSessionParams === 'function') {
+                window.somaSetUiSessionParams({ intensity: action.intensity });
+            }
+            if (action.durationMin != null && typeof window.somaSetUiSessionParams === 'function') {
+                window.somaSetUiSessionParams({ durationMin: action.durationMin });
+            }
+        } catch (_) {}
+        if (window.showToast) window.showToast('Tuned session — review and start when ready.');
+    }
+
+    window.addEventListener('load', function () {
+        setTimeout(() => refreshReport({ immediate: true }), 250);
+    });
 })();
 </script>
 
@@ -5388,6 +6132,9 @@
         closeModal();
         showToast('Profile saved');
         if (typeof window.somaRefreshDraft === 'function') window.somaRefreshDraft();
+        if (window.SomaReport && typeof window.SomaReport.refresh === 'function') {
+            window.SomaReport.refresh();
+        }
     }
 
     // ── Toast notification ────────────────────────────────────────────
@@ -6015,6 +6762,10 @@
         const savedDot   = document.getElementById('profile-saved-dot');
         if (btnLabel && p.name) btnLabel.textContent = p.name;
         if (savedDot) savedDot.classList.remove('hidden');
+
+        if (window.SomaReport && typeof window.SomaReport.refresh === 'function') {
+            window.SomaReport.refresh();
+        }
     }
 
     // Load cached track audio into the player and start playback

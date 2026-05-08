@@ -43,6 +43,40 @@ def test_compiler_renders_strategy_only() -> None:
     assert compiler._client is None
 
 
+def test_prompt_respects_suno_char_budget() -> None:
+    """Prompt must not exceed SUNO_MAX_PROMPT_CHARS (default 500)."""
+    cfg = SystemConfig()
+    cfg.suno_max_prompt_chars = 120
+    compiler = MusicPromptCompiler(cfg)
+    long_genre = "ambient " * 40
+    processed = {
+        "rhythm": {"target_bpm": 72, "sympathetic_load": 10},
+        "texture": {"hrv_status": "flexible_resilient"},
+        "state": {"arousal_score": 22.0},
+        "music_strategy": dataclass_to_dict(
+            MusicStrategy(
+                tempo_bpm=72,
+                genre_style=long_genre,
+                instrument_set=["piano", "ambient_strings", "soft_synth_pad", "cello"],
+                acoustic_texture_description="clean" * 15,
+                emotional_anchor_description="calm" * 20,
+                forbid_sharp_transients=True,
+                forbid_high_freq_peaks=True,
+                forbid_percussive_hits=True,
+            )
+        ),
+    }
+    profile = StaticUserProfile(
+        occupation="student",
+        age=20,
+        height_cm=170,
+        baseline_heart_rate=60,
+    )
+    result = compiler.compile(profile, processed, verify=False)
+    assert len(result["prompt"]) <= 120
+    assert result["metadata"].get("prompt_compacted") is True
+
+
 def test_metadata_includes_state_fields() -> None:
     compiler = MusicPromptCompiler(SystemConfig())
     processed = {
