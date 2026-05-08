@@ -1056,6 +1056,17 @@
             background: rgba(255,255,255,0.1);
             color: rgba(255,255,255,0.88);
         }
+        /* Secondary chrome vs. report window pills; scrollspy toggles .soma-pill-active */
+        .soma-pill.report-topic-jump:not(.soma-pill-active) {
+            border-color: rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.02);
+            color: rgba(255,255,255,0.4);
+        }
+        .soma-pill.report-topic-jump:not(.soma-pill-active):hover {
+            border-color: rgba(255,255,255,0.11);
+            background: rgba(255,255,255,0.045);
+            color: rgba(255,255,255,0.52);
+        }
         .soma-action-primary {
             display: inline-flex;
             align-items: center;
@@ -1680,9 +1691,11 @@
                                     <span id="report-meta" class="text-[0.65rem] text-white/35 ml-auto"></span>
                                 </div>
                             </div>
-                            <div id="report-topic-nav-host" class="hidden flex-shrink-0 px-5 sm:px-8 py-2.5 border-b border-white/[0.06] bg-[rgba(10,10,12,0.78)] backdrop-blur-md supports-[backdrop-filter]:bg-[rgba(10,10,12,0.52)]">
-                                <span class="block text-[0.6rem] uppercase tracking-[0.22em] text-white/30 mb-2 font-medium">Jump to</span>
-                                <div id="report-topic-nav" class="flex flex-nowrap gap-2 overflow-x-auto overscroll-x-contain pb-0.5 min-w-0 scroll-smooth"></div>
+                            <div id="report-topic-nav-host" class="hidden flex-shrink-0 px-5 sm:px-8 py-3 border-b border-white/[0.06] bg-[rgba(10,10,12,0.78)] backdrop-blur-md supports-[backdrop-filter]:bg-[rgba(10,10,12,0.52)]">
+                                <div class="flex flex-col gap-2 min-w-0">
+                                    <span class="soma-section-label">Jump to</span>
+                                    <div id="report-topic-nav" class="flex flex-wrap gap-1.5 sm:gap-2 sm:flex-nowrap sm:overflow-x-auto sm:overscroll-x-contain sm:pb-0.5 min-w-0 scroll-smooth" role="navigation" aria-label="Report sections"></div>
+                                </div>
                             </div>
                             <div id="report-scroll" class="flex-1 overflow-y-auto overscroll-y-contain px-5 sm:px-8 pb-8 pt-5 min-h-0 min-w-0">
                                 <div id="report-empty" class="hidden text-center text-sm text-white/30 font-light px-4 py-16 max-w-md mx-auto leading-relaxed">
@@ -5549,7 +5562,7 @@
         const detailCls = expanded ? '' : 'hidden';
         const chevCls = expanded ? 'rotate-180' : '';
         return '' +
-            '<section id="report-topic-' + topic.id + '" class="report-topic-anchor rounded-3xl border border-white/[0.08] bg-white/[0.03] px-4 py-3.5 sm:px-6 sm:py-4 scroll-mt-36 transition-colors duration-200 ease-out hover:border-white/[0.11]">' +
+            '<section id="report-topic-' + topic.id + '" class="report-topic-anchor rounded-3xl border border-white/[0.08] bg-white/[0.03] px-4 py-3.5 sm:px-6 sm:py-4 scroll-mt-6 transition-colors duration-200 ease-out hover:border-white/[0.11]">' +
                 '<button type="button" class="report-topic-toggle group w-full flex items-start gap-3 sm:gap-3.5 text-left touch-manipulation rounded-2xl -mx-1 px-1.5 py-1.5 motion-safe:transition-colors motion-safe:duration-200 motion-safe:ease-out hover:bg-white/[0.035] active:bg-white/[0.045] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/22 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-expanded="' + (expanded ? 'true' : 'false') + '" data-topic="' + topic.id + '">' +
                     '<span class="w-9 h-9 rounded-full border border-white/10 bg-white/[0.05] flex items-center justify-center flex-shrink-0 mt-0.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]" aria-hidden="true">' +
                         '<iconify-icon icon="' + topic.icon + '" width="14" class="text-white/55 group-hover:text-white/65 motion-safe:transition-colors motion-safe:duration-200"></iconify-icon>' +
@@ -5596,9 +5609,19 @@
         });
     }
 
+    function teardownReportTopicNavSpy() {
+        const nav = document.getElementById('report-topic-nav');
+        if (nav && nav._topicSpyIo) {
+            nav._topicSpyIo.disconnect();
+            nav._topicSpyIo = null;
+        }
+    }
+
     function wireReportTopicNav() {
         const nav = document.getElementById('report-topic-nav');
+        const scrollRoot = document.getElementById('report-scroll');
         if (!nav) return;
+
         nav.querySelectorAll('.report-topic-jump').forEach(function (btn) {
             btn.addEventListener('click', function () {
                 const id = btn.getAttribute('data-report-jump');
@@ -5611,9 +5634,46 @@
                 el.scrollIntoView({ behavior: behavior, block: 'start' });
             });
         });
+
+        if (!scrollRoot) return;
+        const sections = document.querySelectorAll('#report-sections .report-topic-anchor');
+        if (!sections.length) return;
+
+        function setJumpActive(id) {
+            nav.querySelectorAll('.report-topic-jump').forEach(function (b) {
+                const on = b.getAttribute('data-report-jump') === id;
+                b.classList.toggle('soma-pill-active', on);
+                if (on) b.setAttribute('aria-current', 'location');
+                else b.removeAttribute('aria-current');
+            });
+        }
+
+        if (nav._topicSpyIo) {
+            nav._topicSpyIo.disconnect();
+            nav._topicSpyIo = null;
+        }
+
+        try {
+            const io = new IntersectionObserver(function (entries) {
+                const visible = entries.filter(function (e) {
+                    return e.isIntersecting;
+                });
+                if (!visible.length) return;
+                visible.sort(function (a, b) {
+                    return b.intersectionRatio - a.intersectionRatio;
+                });
+                const id = visible[0].target.id.replace(/^report-topic-/, '');
+                if (id) setJumpActive(id);
+            }, { root: scrollRoot, rootMargin: '-14% 0px -48% 0px', threshold: [0, 0.08, 0.2, 0.35, 0.5, 0.75, 1] });
+            sections.forEach(function (s) {
+                io.observe(s);
+            });
+            nav._topicSpyIo = io;
+        } catch (_) {}
     }
 
     function renderReport(rep) {
+        teardownReportTopicNavSpy();
         const sectionsEl = document.getElementById('report-sections');
         const overviewEl = document.getElementById('report-overview');
         const achEl = document.getElementById('report-achievements');
@@ -5675,8 +5735,10 @@
         overviewEl.innerHTML = renderOverviewHTML(rep);
         if (achEl) achEl.innerHTML = renderAchievementsHTML(rep);
         if (navEl) {
-            navEl.innerHTML = TOPICS.map(function (t) {
-                return '<button type="button" class="soma-pill report-topic-jump shrink-0 text-[0.65rem] touch-manipulation transition-colors duration-200 ease-out hover:bg-white/[0.08] hover:border-white/[0.15] active:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" data-report-jump="' + t.id + '">' + escHtml(t.navLabel) + '</button>';
+            navEl.innerHTML = TOPICS.map(function (t, i) {
+                const act = i === 0 ? ' soma-pill-active' : '';
+                const aria = i === 0 ? ' aria-current="location"' : '';
+                return '<button type="button" class="soma-pill report-topic-jump shrink-0 text-[0.62rem] font-normal tracking-[0.04em] touch-manipulation transition-[color,background-color,border-color,opacity] duration-200 ease-out active:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent' + act + '" data-report-jump="' + t.id + '"' + aria + '>' + escHtml(t.navLabel) + '</button>';
             }).join('');
         }
 
