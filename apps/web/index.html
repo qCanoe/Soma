@@ -129,6 +129,20 @@
             pointer-events: none;
         }
 
+        /* Settings: sidebar tab strip — thin scrollbar on narrow horizontal nav */
+        #settings-view #settings-nav-inner {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+        }
+        #settings-view #settings-nav-inner::-webkit-scrollbar {
+            height: 4px;
+            width: 4px;
+        }
+        #settings-view #settings-nav-inner::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.12);
+            border-radius: 999px;
+        }
+
         .soma-sidebar-inner {
             background: linear-gradient(180deg, rgba(8, 8, 12, 0.55) 0%, rgba(6, 6, 9, 0.35) 100%);
             backdrop-filter: blur(20px);
@@ -2196,79 +2210,105 @@
                             </div><!-- /card -->
                     </div>
                 </div>
-                <div id="settings-view" class="soma-view hidden flex flex-col flex-1 min-h-0 overflow-y-auto overscroll-y-contain" role="region" aria-labelledby="settings-view-title" hidden>
+                <div id="settings-view" class="soma-view hidden flex flex-col flex-1 min-h-0 overflow-hidden" role="region" aria-labelledby="settings-view-title" hidden>
                     <h2 id="settings-view-title" class="sr-only">Settings</h2>
-                    <div class="w-full max-w-xl mx-auto px-4 sm:px-6 py-6 md:py-10 flex flex-col gap-10 flex-1">
-                        <div>
-                            <span class="soma-section-label">Experience</span>
-                            <p class="text-sm text-white/35 font-light mt-3 leading-relaxed">Reset the Unicorn background if it glitches. Session audio and demo data stay in this browser unless you connect live APIs.</p>
-                            <button id="reset-aura-btn" type="button" class="mt-4 text-xs font-light px-5 py-2.5 rounded-full border transition-all duration-300 bg-white/[0.04] border-white/12 text-white/60 hover:border-white/28 hover:text-white inline-flex items-center gap-2">
-                                <iconify-icon icon="lucide:rotate-ccw" width="12"></iconify-icon>
-                                Reset Aura
-                            </button>
-                        </div>
-                        <div>
-                            <span class="soma-section-label">Suno &amp; network</span>
-                            <p class="text-sm text-white/35 font-light mt-3 leading-relaxed">Optional API key for live generation. Key is stored in localStorage only (demo).</p>
-                        </div>
-                        <div id="apikey-modal" class="w-full flex flex-col">
-                            <div id="apikey-card" class="relative z-10 w-full max-w-none glass-panel rounded-3xl p-8 flex flex-col gap-6">
-                                    <!-- Header -->
-                                    <div class="flex items-start justify-between">
-                                        <div class="flex flex-col gap-1">
-                                            <div class="flex items-center gap-2">
-                                                <div class="w-7 h-7 rounded-full border border-white/15 bg-white/5 flex items-center justify-center">
-                                                    <iconify-icon icon="lucide:key-round" width="13" class="text-white/60"></iconify-icon>
-                                                </div>
-                                                <span class="text-white/90 font-display italic text-xl tracking-wide">Suno API Key</span>
-                                            </div>
-                                            <p class="text-sm text-white/30 font-light leading-relaxed mt-1">
-                                                <strong class="text-amber-200/80 font-medium">Demo only.</strong> Key lives in this browser (localStorage) and is sent directly to the Suno-compatible API — not to a first-party Soma backend. Production builds should proxy generation server-side (<span class="text-white/40">session-api-contract § Suno proxy</span>).
-                                            </p>
-                                        </div>
-                                        <button id="apikey-close" class="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all">
-                                            <iconify-icon icon="lucide:x" width="14"></iconify-icon>
+                    <div class="flex flex-1 min-h-0 flex-col md:flex-row">
+                        <nav id="settings-nav" class="shrink-0 md:w-56 lg:w-60 border-b md:border-b-0 md:border-r border-white/[0.06] bg-gradient-to-b from-black/25 to-black/10 md:from-white/[0.03] md:to-white/[0.015] backdrop-blur-md md:backdrop-blur-none" aria-label="Settings sections">
+                            <div id="settings-nav-inner" class="flex flex-row md:flex-col gap-1.5 md:gap-1 px-3 pt-3 pb-2.5 md:p-4 md:max-h-none overflow-x-auto md:overflow-x-visible md:overflow-y-auto overscroll-x-contain touch-pan-x md:touch-auto" role="tablist">
+                                <button type="button" id="settings-tab-experience" role="tab" aria-selected="false" aria-controls="settings-panel-experience" tabindex="-1" class="flex shrink-0 md:w-full items-center gap-2.5 rounded-xl border border-transparent px-3 py-2.5 text-left text-[0.8125rem] font-light tracking-wide text-white/45 transition-colors duration-200 hover:bg-white/[0.05] hover:border-white/[0.08] hover:text-white/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/28 aria-selected:bg-white/[0.08] aria-selected:border-white/[0.12] aria-selected:text-white/92 aria-selected:shadow-[0_0_24px_rgba(180,198,218,0.12)]">
+                                    <iconify-icon icon="lucide:sparkles" width="15" class="opacity-80 shrink-0 text-white/55"></iconify-icon>
+                                    <span class="whitespace-nowrap md:whitespace-normal">Experience</span>
+                                </button>
+                                <button type="button" id="settings-tab-suno" role="tab" aria-selected="true" aria-controls="settings-panel-suno" tabindex="0" class="flex shrink-0 md:w-full items-center gap-2.5 rounded-xl border border-transparent px-3 py-2.5 text-left text-[0.8125rem] font-light tracking-wide text-white/45 transition-colors duration-200 hover:bg-white/[0.05] hover:border-white/[0.08] hover:text-white/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/28 aria-selected:bg-white/[0.08] aria-selected:border-white/[0.12] aria-selected:text-white/92 aria-selected:shadow-[0_0_24px_rgba(180,198,218,0.12)]">
+                                    <iconify-icon icon="lucide:key-round" width="15" class="opacity-80 shrink-0 text-white/55"></iconify-icon>
+                                    <span class="whitespace-nowrap md:whitespace-normal">Suno &amp; network</span>
+                                </button>
+                                <button type="button" id="settings-tab-report" role="tab" aria-selected="false" aria-controls="settings-panel-report" tabindex="-1" class="flex shrink-0 md:w-full items-center gap-2.5 rounded-xl border border-transparent px-3 py-2.5 text-left text-[0.8125rem] font-light tracking-wide text-white/45 transition-colors duration-200 hover:bg-white/[0.05] hover:border-white/[0.08] hover:text-white/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/28 aria-selected:bg-white/[0.08] aria-selected:border-white/[0.12] aria-selected:text-white/92 aria-selected:shadow-[0_0_24px_rgba(180,198,218,0.12)]">
+                                    <iconify-icon icon="lucide:file-heart" width="15" class="opacity-80 shrink-0 text-white/55"></iconify-icon>
+                                    <span class="whitespace-nowrap md:whitespace-normal">Diagnostic report</span>
+                                </button>
+                            </div>
+                        </nav>
+                        <div id="settings-content" class="flex-1 min-h-0 overflow-y-auto overscroll-y-contain">
+                            <div class="w-full max-w-xl mx-auto px-4 sm:px-6 py-5 md:py-8 flex flex-col gap-8 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+                                <div id="settings-panel-experience" role="tabpanel" aria-labelledby="settings-tab-experience" class="hidden flex flex-col gap-6" hidden aria-hidden="true">
+                                    <div>
+                                        <span class="soma-section-label">Experience</span>
+                                        <p class="text-sm text-white/35 font-light mt-3 leading-relaxed">Reset the Unicorn background if it glitches. Session audio and demo data stay in this browser unless you connect live APIs.</p>
+                                        <button id="reset-aura-btn" type="button" class="mt-4 text-xs font-light px-5 py-2.5 rounded-full border transition-all duration-300 bg-white/[0.04] border-white/12 text-white/60 hover:border-white/28 hover:text-white inline-flex items-center gap-2">
+                                            <iconify-icon icon="lucide:rotate-ccw" width="12"></iconify-icon>
+                                            Reset Aura
                                         </button>
                                     </div>
-                                    <!-- Input -->
-                                    <div class="p-field">
-                                        <label class="p-label">API Key <span class="p-label-note">· from sunoapi.org</span></label>
-                                        <input id="apikey-input" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false">
+                                </div>
+                                <div id="settings-panel-suno" role="tabpanel" aria-labelledby="settings-tab-suno" class="flex flex-col gap-6" aria-hidden="false">
+                                    <div>
+                                        <span class="soma-section-label">Suno &amp; network</span>
+                                        <p class="text-sm text-white/35 font-light mt-3 leading-relaxed">Optional API key for live generation. Key is stored in localStorage only (demo).</p>
                                     </div>
-                                    <!-- Info row -->
-                                    <div class="flex items-center gap-2 text-xs text-white/22 font-light">
-                                        <iconify-icon icon="lucide:external-link" width="11" class="flex-shrink-0"></iconify-icon>
-                                        <a href="https://sunoapi.org/api-key" target="_blank" class="hover:text-white/55 transition-colors">Get an API key at sunoapi.org/api-key</a>
-                                    </div>
-                                    <!-- Buttons -->
-                                    <div class="flex gap-3 mt-1">
-                                        <button id="apikey-clear-btn" class="flex-1 py-3 rounded-2xl border border-white/8 bg-transparent text-white/35 text-xs font-light hover:border-white/18 hover:text-white/65 transition-all">Clear</button>
-                                        <button id="apikey-save-btn" class="flex-1 py-3 rounded-2xl border border-white/20 bg-white/10 text-white text-xs font-medium hover:bg-white/18 transition-all">Save Key</button>
+                                    <div id="apikey-modal" class="w-full flex flex-col">
+                                        <div id="apikey-card" class="relative z-10 w-full max-w-none glass-panel rounded-3xl p-8 flex flex-col gap-6">
+                                                <!-- Header -->
+                                                <div class="flex items-start justify-between gap-3">
+                                                    <div class="flex flex-col gap-1 min-w-0">
+                                                        <div class="flex items-center gap-2">
+                                                            <div class="w-7 h-7 rounded-full border border-white/15 bg-white/5 flex items-center justify-center shrink-0">
+                                                                <iconify-icon icon="lucide:key-round" width="13" class="text-white/60"></iconify-icon>
+                                                            </div>
+                                                            <span class="text-white/90 font-display italic text-xl tracking-wide">Suno API Key</span>
+                                                        </div>
+                                                        <p class="text-sm text-white/30 font-light leading-relaxed mt-1">
+                                                            <strong class="text-amber-200/80 font-medium">Demo only.</strong> Key lives in this browser (localStorage) and is sent directly to the Suno-compatible API — not to a first-party Soma backend. Production builds should proxy generation server-side (<span class="text-white/40">session-api-contract § Suno proxy</span>).
+                                                        </p>
+                                                    </div>
+                                                    <button type="button" id="apikey-close" class="w-8 h-8 shrink-0 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all" aria-label="Close settings">
+                                                        <iconify-icon icon="lucide:x" width="14"></iconify-icon>
+                                                    </button>
+                                                </div>
+                                                <!-- Input -->
+                                                <div class="p-field">
+                                                    <label class="p-label">API Key <span class="p-label-note">· from sunoapi.org</span></label>
+                                                    <input id="apikey-input" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false">
+                                                </div>
+                                                <!-- Info row -->
+                                                <div class="flex items-center gap-2 text-xs text-white/22 font-light">
+                                                    <iconify-icon icon="lucide:external-link" width="11" class="flex-shrink-0"></iconify-icon>
+                                                    <a href="https://sunoapi.org/api-key" target="_blank" class="hover:text-white/55 transition-colors">Get an API key at sunoapi.org/api-key</a>
+                                                </div>
+                                                <!-- Buttons -->
+                                                <div class="flex gap-3 mt-1">
+                                                    <button id="apikey-clear-btn" class="flex-1 py-3 rounded-2xl border border-white/8 bg-transparent text-white/35 text-xs font-light hover:border-white/18 hover:text-white/65 transition-all">Clear</button>
+                                                    <button id="apikey-save-btn" class="flex-1 py-3 rounded-2xl border border-white/20 bg-white/10 text-white text-xs font-medium hover:bg-white/18 transition-all">Save Key</button>
+                                                </div>
+                                            </div>
                                     </div>
                                 </div>
-                        </div>
-                        <div>
-                            <span class="soma-section-label">Diagnostic report</span>
-                            <p class="text-sm text-white/35 font-light mt-3 leading-relaxed">Optional OpenAI key for narrating your report in natural language. Without a key, Soma falls back to a deterministic template generated entirely on this device.</p>
-                        </div>
-                        <div id="openai-key-modal" class="w-full flex flex-col">
-                            <div class="relative z-10 w-full max-w-none glass-panel rounded-3xl p-8 flex flex-col gap-6">
-                                <div class="flex items-center gap-2">
-                                    <div class="w-7 h-7 rounded-full border border-white/15 bg-white/5 flex items-center justify-center">
-                                        <iconify-icon icon="lucide:sparkles" width="13" class="text-white/60"></iconify-icon>
+                                <div id="settings-panel-report" role="tabpanel" aria-labelledby="settings-tab-report" class="hidden flex flex-col gap-6" hidden aria-hidden="true">
+                                    <div>
+                                        <span class="soma-section-label">Diagnostic report</span>
+                                        <p class="text-sm text-white/35 font-light mt-3 leading-relaxed">Optional OpenAI key for narrating your report in natural language. Without a key, Soma falls back to a deterministic template generated entirely on this device.</p>
                                     </div>
-                                    <span class="text-white/90 font-display italic text-xl tracking-wide">OpenAI API Key</span>
-                                </div>
-                                <p class="text-sm text-white/30 font-light leading-relaxed">
-                                    <strong class="text-amber-200/80 font-medium">Optional.</strong> Stored in this browser only and sent directly to OpenAI when generating your diagnostic report. Leave blank to keep everything offline.
-                                </p>
-                                <div class="p-field">
-                                    <label class="p-label" for="openai-key-input">API Key <span class="p-label-note">· sk-…</span></label>
-                                    <input id="openai-key-input" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false">
-                                </div>
-                                <div class="flex gap-3 mt-1">
-                                    <button id="openai-key-clear" class="flex-1 py-3 rounded-2xl border border-white/8 bg-transparent text-white/35 text-xs font-light hover:border-white/18 hover:text-white/65 transition-all">Clear</button>
-                                    <button id="openai-key-save" class="flex-1 py-3 rounded-2xl border border-white/20 bg-white/10 text-white text-xs font-medium hover:bg-white/18 transition-all">Save Key</button>
+                                    <div id="openai-key-modal" class="w-full flex flex-col">
+                                        <div class="relative z-10 w-full max-w-none glass-panel rounded-3xl p-8 flex flex-col gap-6">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-7 h-7 rounded-full border border-white/15 bg-white/5 flex items-center justify-center">
+                                                    <iconify-icon icon="lucide:sparkles" width="13" class="text-white/60"></iconify-icon>
+                                                </div>
+                                                <span class="text-white/90 font-display italic text-xl tracking-wide">OpenAI API Key</span>
+                                            </div>
+                                            <p class="text-sm text-white/30 font-light leading-relaxed">
+                                                <strong class="text-amber-200/80 font-medium">Optional.</strong> Stored in this browser only and sent directly to OpenAI when generating your diagnostic report. Leave blank to keep everything offline.
+                                            </p>
+                                            <div class="p-field">
+                                                <label class="p-label" for="openai-key-input">API Key <span class="p-label-note">· sk-…</span></label>
+                                                <input id="openai-key-input" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false">
+                                            </div>
+                                            <div class="flex gap-3 mt-1">
+                                                <button id="openai-key-clear" class="flex-1 py-3 rounded-2xl border border-white/8 bg-transparent text-white/35 text-xs font-light hover:border-white/18 hover:text-white/65 transition-all">Clear</button>
+                                                <button id="openai-key-save" class="flex-1 py-3 rounded-2xl border border-white/20 bg-white/10 text-white text-xs font-medium hover:bg-white/18 transition-all">Save Key</button>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -5841,8 +5881,81 @@
     // ── API Key (Settings workspace) ─────────────────────────────────────
     const apikeyCard = document.getElementById('apikey-card');
 
+    const SETTINGS_SECTION_IDS = ['experience', 'suno', 'report'];
+    const settingsContentEl = document.getElementById('settings-content');
+
+    function activateSettingsSection(sectionId, opts) {
+        opts = opts || {};
+        if (SETTINGS_SECTION_IDS.indexOf(sectionId) < 0) sectionId = 'suno';
+        SETTINGS_SECTION_IDS.forEach(function (sid) {
+            var on = sid === sectionId;
+            var tab = document.getElementById('settings-tab-' + sid);
+            var panel = document.getElementById('settings-panel-' + sid);
+            if (tab) {
+                tab.setAttribute('aria-selected', on ? 'true' : 'false');
+                tab.tabIndex = on ? 0 : -1;
+            }
+            if (panel) {
+                panel.classList.toggle('hidden', !on);
+                panel.hidden = !on;
+                panel.setAttribute('aria-hidden', on ? 'false' : 'true');
+            }
+        });
+        if (opts.scrollTopContent && settingsContentEl) settingsContentEl.scrollTop = 0;
+        if (opts.focusTab) {
+            var ft = document.getElementById('settings-tab-' + sectionId);
+            if (ft) try { ft.focus(); } catch (_) {}
+        }
+    }
+
+    function initSettingsSectionNav() {
+        var tablist = document.getElementById('settings-nav-inner');
+        if (!tablist) return;
+        SETTINGS_SECTION_IDS.forEach(function (sid) {
+            var tab = document.getElementById('settings-tab-' + sid);
+            if (!tab) return;
+            tab.addEventListener('click', function () {
+                activateSettingsSection(sid, { scrollTopContent: true });
+            });
+        });
+        var mqMobile = window.matchMedia('(max-width: 767px)');
+        tablist.addEventListener('keydown', function (e) {
+            var keys = { ArrowRight: 1, ArrowLeft: 1, ArrowDown: 1, ArrowUp: 1, Home: 1, End: 1 };
+            if (!keys[e.key]) return;
+            var curIdx = -1;
+            for (var i = 0; i < SETTINGS_SECTION_IDS.length; i++) {
+                var te = document.getElementById('settings-tab-' + SETTINGS_SECTION_IDS[i]);
+                if (te && te.getAttribute('aria-selected') === 'true') {
+                    curIdx = i;
+                    break;
+                }
+            }
+            if (curIdx < 0) curIdx = 0;
+            var next = curIdx;
+            var mobile = mqMobile.matches;
+            if (e.key === 'Home') next = 0;
+            else if (e.key === 'End') next = SETTINGS_SECTION_IDS.length - 1;
+            else if (mobile) {
+                if (e.key === 'ArrowRight') next = Math.min(SETTINGS_SECTION_IDS.length - 1, curIdx + 1);
+                else if (e.key === 'ArrowLeft') next = Math.max(0, curIdx - 1);
+                else if (e.key === 'ArrowDown') next = Math.min(SETTINGS_SECTION_IDS.length - 1, curIdx + 1);
+                else if (e.key === 'ArrowUp') next = Math.max(0, curIdx - 1);
+            } else {
+                if (e.key === 'ArrowDown' || e.key === 'ArrowRight') next = Math.min(SETTINGS_SECTION_IDS.length - 1, curIdx + 1);
+                else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') next = Math.max(0, curIdx - 1);
+            }
+            if (next !== curIdx) {
+                e.preventDefault();
+                activateSettingsSection(SETTINGS_SECTION_IDS[next], { focusTab: true, scrollTopContent: true });
+            }
+        });
+    }
+
+    initSettingsSectionNav();
+
     function primeApiKeyPanel() {
-        apikeyInput.value = getKey();
+        activateSettingsSection('suno', { scrollTopContent: true });
+        if (apikeyInput) apikeyInput.value = getKey();
         if (apikeyCard) {
             apikeyCard.style.animation = 'none';
             void apikeyCard.offsetWidth;
