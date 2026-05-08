@@ -121,6 +121,10 @@ class SystemConfig:
     knowledge_enabled_default: bool = os.environ.get(
         "KNOWLEDGE_ENABLED_DEFAULT", ""
     ).lower() in ("1", "true", "yes")
+    # Dense + lexical rerank when embeddings OK: (1-w)*cosine + w*lexical_hit_ratio; w=0 → dense only.
+    knowledge_hybrid_lexical_weight: float = _env_float(
+        "KNOWLEDGE_HYBRID_LEXICAL_WEIGHT", 0.22
+    )
 
     # Music generation bounds
     min_bpm: int = _env_int("MIN_BPM", 45)
