@@ -143,6 +143,113 @@
             border-radius: 999px;
         }
 
+        /* Settings: compact rows (title + control), stacks on narrow viewports */
+        .settings-setting-row {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            padding: 0.85rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        @media (min-width: 520px) {
+            .settings-setting-row {
+                flex-direction: row;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 1.25rem;
+            }
+            .settings-setting-row-main {
+                flex: 1;
+                min-width: 0;
+                max-width: 42ch;
+            }
+            .settings-setting-row-controls {
+                flex-shrink: 0;
+                align-self: center;
+            }
+        }
+        .settings-setting-title {
+            font-size: 0.8125rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.78);
+            letter-spacing: 0.02em;
+        }
+        .settings-setting-desc {
+            font-size: 0.75rem;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.38);
+            line-height: 1.55;
+            margin-top: 0.2rem;
+        }
+        .settings-segment {
+            display: inline-flex;
+            flex-wrap: wrap;
+            gap: 0.35rem;
+        }
+        .settings-segment button.settings-segment-btn {
+            font-size: 0.6875rem;
+            font-weight: 400;
+            letter-spacing: 0.06em;
+            padding: 0.45rem 0.65rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
+            color: rgba(255, 255, 255, 0.48);
+            transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+        }
+        .settings-segment button.settings-segment-btn:hover {
+            border-color: rgba(255, 255, 255, 0.14);
+            color: rgba(255, 255, 255, 0.72);
+        }
+        .settings-segment button.settings-segment-btn:focus-visible {
+            outline: 2px solid rgba(180, 198, 218, 0.4);
+            outline-offset: 2px;
+        }
+        .settings-segment button.settings-segment-btn.settings-segment-active {
+            border-color: rgba(255, 255, 255, 0.22);
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+        button.settings-toggle {
+            position: relative;
+            width: 2.75rem;
+            height: 1.5rem;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            background: rgba(255, 255, 255, 0.06);
+            transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        button.settings-toggle[aria-pressed="true"] {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.22);
+        }
+        button.settings-toggle::after {
+            content: "";
+            position: absolute;
+            top: 0.125rem;
+            left: 0.125rem;
+            width: 1.125rem;
+            height: 1.125rem;
+            border-radius: 9999px;
+            background: rgba(255, 255, 255, 0.82);
+            transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        button.settings-toggle[aria-pressed="true"]::after {
+            transform: translateX(1.15rem);
+        }
+        html.soma-aura-off .aura-background-component {
+            opacity: 0 !important;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        html.soma-density-compact #session-view .py-6 {
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+        html.soma-density-compact #session-view .mb-10 {
+            margin-bottom: 1.75rem;
+        }
+
         .soma-sidebar-inner {
             background: linear-gradient(180deg, rgba(8, 8, 12, 0.55) 0%, rgba(6, 6, 9, 0.35) 100%);
             backdrop-filter: blur(20px);
@@ -210,9 +317,54 @@
             min-height: min(88vh, 720px);
         }
 
+        /* Playback: compact gramophone + tight card rhythm so the column fits without page scroll */
         #session-playback-screen .gramophone-container {
-            margin-top: 0.5rem;
-            margin-bottom: 1rem;
+            width: 200px;
+            height: 200px;
+            margin: 0.35rem 0 0.5rem;
+            filter: drop-shadow(0 14px 28px rgba(0, 0, 0, 0.28));
+        }
+        #session-playback-screen .gramophone-glow {
+            width: 154px;
+            height: 154px;
+        }
+        #session-playback-screen .gramophone-aura {
+            width: 184px;
+            height: 184px;
+        }
+        #session-playback-screen .gramophone-record {
+            width: 130px;
+            height: 130px;
+        }
+        #session-playback-screen .record-label {
+            width: 38px;
+            height: 38px;
+        }
+        #session-playback-screen .tonearm-container {
+            top: 11px;
+            right: 15px;
+            width: 31px;
+            height: 108px;
+            transform-origin: 15.5px 15.5px;
+        }
+        #session-playback-screen .tonearm-base {
+            width: 31px;
+            height: 31px;
+        }
+        #session-playback-screen .tonearm-base::after {
+            width: 10px;
+            height: 10px;
+        }
+        #session-playback-screen .tonearm-arm {
+            top: 16px;
+            left: 13px;
+            width: 5px;
+            height: 84px;
+        }
+        #session-playback-screen .stylus-head {
+            width: 15px;
+            height: 24px;
+            left: -5px;
         }
         ::-webkit-scrollbar {
             width: 0px;
@@ -803,10 +955,10 @@
         #vitals-modal { transition: opacity 0.4s ease; }
         #vitals-card  { animation: modal-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
 
-        /* Metric card */
+        /* Metric card — tokens aligned with .glass-panel */
         .v-card {
-            background: linear-gradient(160deg, rgba(255,255,255,0.045) 0%, rgba(255,255,255,0.015) 100%);
-            border: 1px solid rgba(255,255,255,0.07);
+            background: linear-gradient(165deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 50%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid var(--glass-border);
             border-radius: 1.25rem;
             padding: 1.1rem 1.25rem 1rem;
             display: flex;
@@ -814,11 +966,13 @@
             gap: 0.35rem;
             position: relative;
             overflow: hidden;
-            transition: border-color 0.3s ease, background 0.3s ease;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.22);
+            transition: border-color 0.35s ease, background 0.35s ease, box-shadow 0.35s ease;
         }
         .v-card:hover {
-            border-color: rgba(255,255,255,0.13);
-            background: linear-gradient(160deg, rgba(255,255,255,0.065) 0%, rgba(255,255,255,0.025) 100%);
+            border-color: rgba(255,255,255,0.12);
+            background: linear-gradient(165deg, rgba(255,255,255,0.085) 0%, rgba(255,255,255,0.035) 50%, rgba(255,255,255,0.02) 100%);
+            box-shadow: 0 8px 36px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255,255,255,0.04);
         }
         .v-card-label {
             font-size: 0.625rem;
@@ -866,6 +1020,197 @@
         .v-status-ok    { color: rgba(134,239,172,0.85); border-color: rgba(134,239,172,0.2); background: rgba(134,239,172,0.06); }
         .v-status-warn  { color: rgba(251,191,36,0.85);  border-color: rgba(251,191,36,0.2);  background: rgba(251,191,36,0.06);  }
         .v-status-alert { color: rgba(252,165,165,0.85); border-color: rgba(252,165,165,0.2); background: rgba(252,165,165,0.06); }
+
+        /* Click affordance on each metric card */
+        .v-card[data-metric] { cursor: pointer; }
+        .v-card[data-metric]::after {
+            content: '';
+            position: absolute;
+            top: 0.85rem; right: 0.95rem;
+            width: 14px; height: 14px;
+            background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.28)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9 18l6-6-6-6'/></svg>") center/contain no-repeat;
+            opacity: 0;
+            transform: translateX(-2px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
+        }
+        .v-card[data-metric]:hover::after,
+        .v-card[data-metric]:focus-visible::after { opacity: 1; transform: translateX(0); }
+        .v-card[data-metric]:focus-visible {
+            outline: 1px solid rgba(255,255,255,0.25);
+            outline-offset: 2px;
+        }
+
+        /* ── Metric Detail Overlay ─────────────────────────────────────── */
+        /* Opaque panel (no backdrop blur): semi-transparent glass + blur composites the grid below and ghosts UI text onto titles/body */
+        #v-detail {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(165deg, #121214 0%, #0a0a0d 100%);
+            border-radius: 2.5rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 40px 80px rgba(0,0,0,0.45);
+            z-index: 30;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            isolation: isolate;
+        }
+        #v-detail.is-open {
+            display: flex;
+            animation: v-detail-in 0.45s cubic-bezier(0.16,1,0.3,1) both;
+        }
+        @keyframes v-detail-in {
+            from { opacity: 0; transform: scale(0.985) translateY(8px); }
+            to   { opacity: 1; transform: scale(1)     translateY(0);   }
+        }
+        .v-detail-head {
+            padding: 2rem 2.25rem 1.25rem;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            flex-shrink: 0;
+        }
+        .v-detail-eyebrow {
+            font-size: 0.625rem;
+            text-transform: uppercase;
+            letter-spacing: 0.28em;
+            color: rgba(255,255,255,0.32);
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+        .v-detail-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.75rem;
+            font-style: italic;
+            color: rgba(255,255,255,0.92);
+            line-height: 1.15;
+            margin-top: 0.5rem;
+            letter-spacing: 0.01em;
+        }
+        .v-detail-subtitle {
+            font-size: 0.9rem;
+            font-weight: 300;
+            color: rgba(255,255,255,0.42);
+            margin-top: 0.4rem;
+            letter-spacing: 0.02em;
+            line-height: 1.45;
+        }
+        .v-detail-subtitle:empty { display: none; }
+        .v-detail-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem 2.25rem 2.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.4rem;
+        }
+        .v-detail-body::-webkit-scrollbar { width: 0; }
+        .v-detail-hero {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 1.1rem 1.25rem;
+            border-radius: 1.25rem;
+            border: 1px solid var(--glass-border);
+            background: linear-gradient(165deg, rgba(28,28,34,1) 0%, rgba(16,16,20,1) 100%);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 4px 24px rgba(0,0,0,0.22);
+        }
+        .v-detail-hero-num {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 300;
+            color: rgba(255,255,255,0.95);
+            letter-spacing: -0.02em;
+            line-height: 1;
+        }
+        .v-detail-hero-unit { font-size: 0.95rem; color: rgba(255,255,255,0.42); align-self: flex-end; padding-bottom: 0.35rem; }
+        .v-detail-hero-meta {
+            margin-left: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.35rem;
+        }
+        .v-section { display: flex; flex-direction: column; gap: 0.6rem; }
+        .v-section-label {
+            font-size: 0.625rem;
+            text-transform: uppercase;
+            letter-spacing: 0.22em;
+            font-weight: 500;
+            color: rgba(255,255,255,0.32);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.55rem;
+        }
+        .v-section p {
+            font-size: 0.875rem;
+            line-height: 1.7;
+            color: rgba(255,255,255,0.72);
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+        .v-detail-ranges {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.5rem;
+        }
+        .v-range {
+            border-radius: 0.85rem;
+            border: 1px solid var(--glass-border);
+            background: rgba(255,255,255,0.03);
+            padding: 0.7rem 0.85rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            transition: border-color 0.3s ease, background 0.3s ease;
+        }
+        .v-range-label {
+            font-size: 0.625rem;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            font-weight: 500;
+            color: rgba(255,255,255,0.42);
+        }
+        .v-range-value {
+            font-size: 0.825rem;
+            color: rgba(255,255,255,0.78);
+            font-weight: 300;
+            font-family: 'Outfit', sans-serif;
+        }
+        .v-range.is-active { border-color: rgba(134,239,172,0.4); background: rgba(134,239,172,0.08); }
+        .v-range.is-active .v-range-label { color: rgba(255,255,255,0.78); }
+        .v-range.is-active.is-warn  { border-color: rgba(251,191,36,0.42);  background: rgba(251,191,36,0.07); }
+        .v-range.is-active.is-alert { border-color: rgba(252,165,165,0.42); background: rgba(252,165,165,0.07); }
+        .v-tip {
+            display: flex;
+            gap: 0.7rem;
+            padding: 0.85rem 1rem;
+            border-radius: 0.85rem;
+            border: 1px solid var(--glass-border);
+            background: linear-gradient(165deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.015) 100%);
+            font-size: 0.825rem;
+            line-height: 1.6;
+            color: rgba(255,255,255,0.72);
+            font-weight: 300;
+        }
+        .v-tip iconify-icon {
+            color: rgba(251,113,133,0.75);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+        @media (max-width: 640px) {
+            .v-detail-head { padding: 1.5rem 1.5rem 1rem; }
+            .v-detail-body { padding: 1.25rem 1.5rem 1.75rem; }
+            .v-detail-title { font-size: 1.4rem; }
+            .v-detail-ranges { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .v-detail-hero-num { font-size: 2rem; }
+            .v-detail-subtitle { font-size: 0.85rem; }
+        }
 
         /* Heartbeat sparkline */
         .v-sparkline {
@@ -1185,6 +1530,17 @@
             }
             #history-insight-view { animation: none !important; }
         }
+        html.soma-motion-soft .animate-stagger-1,
+        html.soma-motion-soft .animate-stagger-2,
+        html.soma-motion-soft .animate-stagger-3,
+        html.soma-motion-soft .animate-stagger-4 {
+            animation: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+        }
+        html.soma-motion-soft #history-insight-view {
+            animation: none !important;
+        }
         #history-list-scroll::-webkit-scrollbar { width: 0; }
 
         /* History workspace: toolbar scrolls horizontally on phones; rhythmic padding matches card edge */
@@ -1496,19 +1852,19 @@
 
                         <div id="session-playback-screen" class="hidden relative flex flex-col flex-1 min-h-0 min-w-0 items-stretch" role="region" aria-labelledby="session-playback-heading" aria-hidden="true" hidden>
                             <h3 id="session-playback-heading" class="sr-only">Session playback</h3>
-                            <button type="button" id="session-playback-back" class="absolute left-0 top-0 z-20 touch-manipulation inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm font-light text-white/55 hover:bg-white/[0.08] hover:text-white/90 hover:border-white/15 transition-colors">
+                            <button type="button" id="session-playback-back" class="fixed z-30 touch-manipulation inline-flex items-center gap-2 rounded-xl border border-white/10 bg-black/40 backdrop-blur-md px-3.5 py-2 text-sm font-light text-white/55 hover:bg-white/[0.08] hover:text-white/90 hover:border-white/15 transition-colors shadow-[0_8px_32px_rgba(0,0,0,0.35)] left-[calc(1rem+env(safe-area-inset-left,0px))] top-[calc(1.25rem+env(safe-area-inset-top,0px))] md:left-[calc(224px+1.5rem+env(safe-area-inset-left,0px))] md:top-[calc(1.5rem+env(safe-area-inset-top,0px))]">
                                 <iconify-icon icon="lucide:arrow-left" width="16" class="opacity-75"></iconify-icon>
                                 <span>Back to edit</span>
                             </button>
-                            <div class="flex flex-1 min-h-0 flex-col justify-start sm:justify-center items-center overflow-y-auto overscroll-y-contain min-w-0 w-full px-1 pb-4 gap-8 pt-14">
+                            <div class="flex flex-1 min-h-0 flex-col justify-center items-center overflow-hidden overscroll-none min-w-0 w-full px-1 pb-4 gap-5 pt-4 sm:pt-6">
         <!-- Player Card -->
-        <div class="w-full max-w-lg relative group animate-stagger-4 mx-auto shrink-0">
-            <div class="relative glass-panel rounded-[2.5rem] p-10 flex flex-col items-center">
+        <div class="w-full max-w-md relative group animate-stagger-4 mx-auto shrink-0">
+            <div class="relative glass-panel rounded-[2.5rem] px-7 py-6 sm:px-8 sm:py-7 flex flex-col items-center">
                 <!-- Top Bar -->
-                <div class="w-full flex justify-between items-start mb-8">
-                    <div class="flex flex-col">
-                        <span class="text-xs text-white/40 uppercase tracking-[0.3em] font-medium mb-2">Now Resonating</span>
-                        <h2 id="player-title" class="soma-text-on-aura text-3xl text-white flex items-center gap-3 font-display italic tracking-wide">
+                <div class="w-full flex justify-between items-start mb-5">
+                    <div class="flex flex-col min-w-0">
+                        <span class="text-xs text-white/40 uppercase tracking-[0.3em] font-medium mb-1.5">Now Resonating</span>
+                        <h2 id="player-title" class="soma-text-on-aura text-2xl sm:text-3xl text-white flex items-center gap-3 font-display italic tracking-wide">
                             Deep Focus
                         </h2>
                         <!-- Suno generated track badge -->
@@ -1556,7 +1912,7 @@
                 </div>
 
                 <!-- Controls -->
-                <div class="flex items-center justify-center gap-10 mb-10 w-full">
+                <div class="flex items-center justify-center gap-8 mb-5 w-full">
                     <button type="button" id="restart-btn" class="player-ctrl-hit hover:scale-110 duration-300 transition-transform">
                         <iconify-icon icon="lucide:skip-back" width="24"></iconify-icon>
                     </button>
@@ -1769,7 +2125,7 @@
                                         <div class="grid grid-cols-3 gap-3">
 
                                             <!-- Heart Rate -->
-                                            <div class="v-card col-span-1">
+                                            <div class="v-card col-span-1" data-metric="hr">
                                                 <span class="v-card-label">Heart Rate</span>
                                                 <div class="flex items-end gap-1.5 mt-1">
                                                     <span id="v-hr-value" class="v-card-value">—</span>
@@ -1783,7 +2139,7 @@
                                             </div>
 
                                             <!-- HRV -->
-                                            <div class="v-card col-span-1">
+                                            <div class="v-card col-span-1" data-metric="hrv">
                                                 <span class="v-card-label">HRV · SDNN</span>
                                                 <div class="flex items-end gap-1.5 mt-1">
                                                     <span id="v-hrv-value" class="v-card-value">—</span>
@@ -1795,7 +2151,7 @@
                                             </div>
 
                                             <!-- Stress Score -->
-                                            <div class="v-card col-span-1" style="flex-direction:column;">
+                                            <div class="v-card col-span-1" style="flex-direction:column;" data-metric="stress">
                                                 <span class="v-card-label">Stress</span>
                                                 <div class="flex items-center gap-3 mt-2">
                                                     <div class="v-stress-ring" style="width:58px;height:58px;flex-shrink:0;">
@@ -1818,7 +2174,7 @@
 
                                         <!-- Row 2: Respiratory + SpO2 + Temp (3 cols) -->
                                         <div class="grid grid-cols-3 gap-3">
-                                            <div class="v-card">
+                                            <div class="v-card" data-metric="rr">
                                                 <span class="v-card-label">Respiratory Rate</span>
                                                 <div class="flex items-end gap-1.5 mt-1">
                                                     <span id="v-rr-value" class="v-card-value">—</span>
@@ -1827,7 +2183,7 @@
                                                 <span id="v-rr-status" class="v-status"></span>
                                                 <span id="v-rr-sub" class="v-card-sub"></span>
                                             </div>
-                                            <div class="v-card">
+                                            <div class="v-card" data-metric="spo2">
                                                 <span class="v-card-label">Blood Oxygen · SpO2</span>
                                                 <div class="flex items-end gap-1.5 mt-1">
                                                     <span id="v-spo2-value" class="v-card-value">—</span>
@@ -1835,7 +2191,7 @@
                                                 </div>
                                                 <span id="v-spo2-status" class="v-status"></span>
                                             </div>
-                                            <div class="v-card">
+                                            <div class="v-card" data-metric="temp">
                                                 <span class="v-card-label">Wrist Temperature</span>
                                                 <div class="flex items-end gap-1.5 mt-1">
                                                     <span id="v-temp-value" class="v-card-value">—</span>
@@ -1847,7 +2203,7 @@
 
                                         <!-- Row 3: Environment + Motion + Sleep (wide layout) -->
                                         <div class="grid grid-cols-3 gap-3">
-                                            <div class="v-card">
+                                            <div class="v-card" data-metric="noise">
                                                 <span class="v-card-label">Ambient Noise</span>
                                                 <div class="flex items-end gap-1.5 mt-1">
                                                     <span id="v-noise-value" class="v-card-value">—</span>
@@ -1856,7 +2212,7 @@
                                                 <span id="v-noise-status" class="v-status"></span>
                                                 <span id="v-noise-sub" class="v-card-sub"></span>
                                             </div>
-                                            <div class="v-card">
+                                            <div class="v-card" data-metric="motion">
                                                 <span class="v-card-label">Body Motion</span>
                                                 <div class="flex flex-col gap-1.5 mt-2">
                                                     <div class="flex items-center gap-2">
@@ -1883,7 +2239,7 @@
                                                 </div>
                                                 <span id="v-motion-status" class="v-status mt-2"></span>
                                             </div>
-                                            <div class="v-card">
+                                            <div class="v-card" data-metric="sleep">
                                                 <span class="v-card-label">Sleep Stage</span>
                                                 <div class="flex items-end gap-1.5 mt-1">
                                                     <span id="v-sleep-value" class="v-card-value text-2xl">—</span>
@@ -1894,7 +2250,7 @@
                                         </div>
 
                                         <!-- Row 4: Middleware analysis output -->
-                                        <div class="v-card" style="border-color:rgba(255,255,255,0.09);">
+                                        <div class="v-card" style="border:1px solid rgba(255,255,255,0.1);">
                                             <div class="flex items-center gap-3 mb-3">
                                                 <iconify-icon icon="lucide:cpu" width="13" class="text-white/30 flex-shrink-0"></iconify-icon>
                                                 <span class="v-card-label" style="margin:0">Middleware Analysis · Layer 2 Output</span>
@@ -1929,6 +2285,46 @@
 
                                     </div><!-- /vitals-grid -->
                                 </div><!-- /scroll -->
+
+                                <!-- Metric Detail Overlay -->
+                                <div id="v-detail" role="dialog" aria-modal="true" aria-labelledby="v-detail-title" aria-hidden="true">
+                                    <div class="v-detail-head">
+                                        <div class="flex flex-col min-w-0">
+                                            <span id="v-detail-eyebrow" class="v-detail-eyebrow"></span>
+                                            <h3 id="v-detail-title" class="v-detail-title">—</h3>
+                                            <span id="v-detail-subtitle" class="v-detail-subtitle"></span>
+                                        </div>
+                                        <button id="v-detail-close" type="button" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0" aria-label="Close detail">
+                                            <iconify-icon icon="lucide:x" width="15"></iconify-icon>
+                                        </button>
+                                    </div>
+                                    <div class="v-detail-body">
+                                        <div class="v-detail-hero">
+                                            <span id="v-detail-num" class="v-detail-hero-num">—</span>
+                                            <span id="v-detail-unit" class="v-detail-hero-unit"></span>
+                                            <div class="v-detail-hero-meta">
+                                                <span id="v-detail-status" class="v-status"></span>
+                                                <span id="v-detail-meaning" class="text-xs text-white/45 font-light"></span>
+                                            </div>
+                                        </div>
+                                        <div class="v-section">
+                                            <span class="v-section-label"><iconify-icon icon="lucide:book-open" width="11"></iconify-icon>What it means</span>
+                                            <p id="v-detail-what">—</p>
+                                        </div>
+                                        <div class="v-section">
+                                            <span class="v-section-label"><iconify-icon icon="lucide:bar-chart-3" width="11"></iconify-icon>Reference ranges</span>
+                                            <div id="v-detail-ranges" class="v-detail-ranges"></div>
+                                        </div>
+                                        <div class="v-section">
+                                            <span class="v-section-label"><iconify-icon icon="lucide:activity" width="11"></iconify-icon>Why it matters</span>
+                                            <p id="v-detail-why">—</p>
+                                        </div>
+                                        <div class="v-section">
+                                            <span class="v-section-label"><iconify-icon icon="lucide:lightbulb" width="11"></iconify-icon>Practical tips</span>
+                                            <div id="v-detail-tips" class="flex flex-col gap-2"></div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div><!-- /card -->
                     </div>
                 </div>
@@ -2232,36 +2628,247 @@
                                     <iconify-icon icon="lucide:sparkles" width="15" class="opacity-80 shrink-0 text-white/55"></iconify-icon>
                                     <span class="whitespace-nowrap md:whitespace-normal">Experience</span>
                                 </button>
-                                <button type="button" id="settings-tab-suno" role="tab" aria-selected="true" aria-controls="settings-panel-suno" tabindex="0" class="flex shrink-0 md:w-full items-center gap-2.5 rounded-xl border border-transparent px-3 py-2.5 text-left text-[0.8125rem] font-light tracking-wide text-white/45 transition-colors duration-200 hover:bg-white/[0.05] hover:border-white/[0.08] hover:text-white/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/28 aria-selected:bg-white/[0.08] aria-selected:border-white/[0.12] aria-selected:text-white/92 aria-selected:shadow-[0_0_24px_rgba(180,198,218,0.12)]">
-                                    <iconify-icon icon="lucide:key-round" width="15" class="opacity-80 shrink-0 text-white/55"></iconify-icon>
-                                    <span class="whitespace-nowrap md:whitespace-normal">Suno &amp; network</span>
+                                <button type="button" id="settings-tab-session" role="tab" aria-selected="false" aria-controls="settings-panel-session" tabindex="-1" class="flex shrink-0 md:w-full items-center gap-2.5 rounded-xl border border-transparent px-3 py-2.5 text-left text-[0.8125rem] font-light tracking-wide text-white/45 transition-colors duration-200 hover:bg-white/[0.05] hover:border-white/[0.08] hover:text-white/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/28 aria-selected:bg-white/[0.08] aria-selected:border-white/[0.12] aria-selected:text-white/92 aria-selected:shadow-[0_0_24px_rgba(180,198,218,0.12)]">
+                                    <iconify-icon icon="lucide:orbit" width="15" class="opacity-80 shrink-0 text-white/55"></iconify-icon>
+                                    <span class="whitespace-nowrap md:whitespace-normal">Session</span>
+                                </button>
+                                <button type="button" id="settings-tab-playback" role="tab" aria-selected="false" aria-controls="settings-panel-playback" tabindex="-1" class="flex shrink-0 md:w-full items-center gap-2.5 rounded-xl border border-transparent px-3 py-2.5 text-left text-[0.8125rem] font-light tracking-wide text-white/45 transition-colors duration-200 hover:bg-white/[0.05] hover:border-white/[0.08] hover:text-white/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/28 aria-selected:bg-white/[0.08] aria-selected:border-white/[0.12] aria-selected:text-white/92 aria-selected:shadow-[0_0_24px_rgba(180,198,218,0.12)]">
+                                    <iconify-icon icon="lucide:music-2" width="15" class="opacity-80 shrink-0 text-white/55"></iconify-icon>
+                                    <span class="whitespace-nowrap md:whitespace-normal">Playback</span>
                                 </button>
                                 <button type="button" id="settings-tab-report" role="tab" aria-selected="false" aria-controls="settings-panel-report" tabindex="-1" class="flex shrink-0 md:w-full items-center gap-2.5 rounded-xl border border-transparent px-3 py-2.5 text-left text-[0.8125rem] font-light tracking-wide text-white/45 transition-colors duration-200 hover:bg-white/[0.05] hover:border-white/[0.08] hover:text-white/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/28 aria-selected:bg-white/[0.08] aria-selected:border-white/[0.12] aria-selected:text-white/92 aria-selected:shadow-[0_0_24px_rgba(180,198,218,0.12)]">
                                     <iconify-icon icon="lucide:file-heart" width="15" class="opacity-80 shrink-0 text-white/55"></iconify-icon>
-                                    <span class="whitespace-nowrap md:whitespace-normal">Diagnostic report</span>
+                                    <span class="whitespace-nowrap md:whitespace-normal">Report</span>
+                                </button>
+                                <button type="button" id="settings-tab-privacy" role="tab" aria-selected="false" aria-controls="settings-panel-privacy" tabindex="-1" class="flex shrink-0 md:w-full items-center gap-2.5 rounded-xl border border-transparent px-3 py-2.5 text-left text-[0.8125rem] font-light tracking-wide text-white/45 transition-colors duration-200 hover:bg-white/[0.05] hover:border-white/[0.08] hover:text-white/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/28 aria-selected:bg-white/[0.08] aria-selected:border-white/[0.12] aria-selected:text-white/92 aria-selected:shadow-[0_0_24px_rgba(180,198,218,0.12)]">
+                                    <iconify-icon icon="lucide:shield" width="15" class="opacity-80 shrink-0 text-white/55"></iconify-icon>
+                                    <span class="whitespace-nowrap md:whitespace-normal">Privacy</span>
+                                </button>
+                                <button type="button" id="settings-tab-integrations" role="tab" aria-selected="true" aria-controls="settings-panel-integrations" tabindex="0" class="flex shrink-0 md:w-full items-center gap-2.5 rounded-xl border border-transparent px-3 py-2.5 text-left text-[0.8125rem] font-light tracking-wide text-white/45 transition-colors duration-200 hover:bg-white/[0.05] hover:border-white/[0.08] hover:text-white/78 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/28 aria-selected:bg-white/[0.08] aria-selected:border-white/[0.12] aria-selected:text-white/92 aria-selected:shadow-[0_0_24px_rgba(180,198,218,0.12)]">
+                                    <iconify-icon icon="lucide:plug" width="15" class="opacity-80 shrink-0 text-white/55"></iconify-icon>
+                                    <span class="whitespace-nowrap md:whitespace-normal">Integrations</span>
                                 </button>
                             </div>
                         </nav>
                         <div id="settings-content" class="flex-1 min-h-0 overflow-y-auto overscroll-y-contain">
-                            <div class="w-full max-w-xl mx-auto px-4 sm:px-6 py-5 md:py-8 flex flex-col gap-8 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
-                                <div id="settings-panel-experience" role="tabpanel" aria-labelledby="settings-tab-experience" class="hidden flex flex-col gap-6" hidden aria-hidden="true">
-                                    <div>
-                                        <span class="soma-section-label">Experience</span>
-                                        <p class="text-sm text-white/35 font-light mt-3 leading-relaxed">Reset the Unicorn background if it glitches. Session audio and demo data stay in this browser unless you connect live APIs.</p>
-                                        <button id="reset-aura-btn" type="button" class="mt-4 text-xs font-light px-5 py-2.5 rounded-full border transition-all duration-300 bg-white/[0.04] border-white/12 text-white/60 hover:border-white/28 hover:text-white inline-flex items-center gap-2">
-                                            <iconify-icon icon="lucide:rotate-ccw" width="12"></iconify-icon>
-                                            Reset Aura
-                                        </button>
+                            <div class="w-full max-w-xl mx-auto px-4 sm:px-6 py-5 md:py-8 flex flex-col gap-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+                                <div id="settings-panel-experience" role="tabpanel" aria-labelledby="settings-tab-experience" class="hidden flex flex-col" hidden aria-hidden="true">
+                                    <span class="soma-section-label">Experience</span>
+                                    <p class="text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Tune visuals and density. Everything stays on this device unless you add keys under Integrations.</p>
+                                    <div class="settings-setting-row">
+                                        <div class="settings-setting-row-main">
+                                            <div class="settings-setting-title">Ambient background</div>
+                                            <p class="settings-setting-desc">Hide or show the Unicorn aura behind the app.</p>
+                                        </div>
+                                        <div class="settings-setting-row-controls">
+                                            <div class="settings-segment" role="group" aria-label="Ambient background">
+                                                <button type="button" class="settings-segment-btn settings-segment-active" data-soma-setting="experience.aura" data-val="on">On</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="experience.aura" data-val="off">Off</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="settings-setting-row">
+                                        <div class="settings-setting-row-main">
+                                            <div class="settings-setting-title">Motion</div>
+                                            <p class="settings-setting-desc">Reduce entrance animations while keeping the player usable.</p>
+                                        </div>
+                                        <div class="settings-setting-row-controls">
+                                            <div class="settings-segment" role="group" aria-label="Motion">
+                                                <button type="button" class="settings-segment-btn settings-segment-active" data-soma-setting="experience.motion" data-val="standard">Standard</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="experience.motion" data-val="reduced">Reduced</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="settings-setting-row border-b-0">
+                                        <div class="settings-setting-row-main">
+                                            <div class="settings-setting-title">Layout density</div>
+                                            <p class="settings-setting-desc">Comfortable keeps airy spacing on Session. Compact tightens vertical rhythm slightly.</p>
+                                        </div>
+                                        <div class="settings-setting-row-controls">
+                                            <div class="settings-segment" role="group" aria-label="Layout density">
+                                                <button type="button" class="settings-segment-btn settings-segment-active" data-soma-setting="experience.density" data-val="comfortable">Comfortable</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="experience.density" data-val="compact">Compact</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button id="reset-aura-btn" type="button" class="mt-2 text-xs font-light px-5 py-2.5 rounded-full border transition-all duration-300 bg-white/[0.04] border-white/12 text-white/60 hover:border-white/28 hover:text-white inline-flex items-center gap-2 self-start">
+                                        <iconify-icon icon="lucide:rotate-ccw" width="12"></iconify-icon>
+                                        Reset Aura layout
+                                    </button>
+                                </div>
+
+                                <div id="settings-panel-session" role="tabpanel" aria-labelledby="settings-tab-session" class="hidden flex flex-col" hidden aria-hidden="true">
+                                    <span class="soma-section-label">Session defaults</span>
+                                    <p class="text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Starting values when you open Session. You can still change them before each listen.</p>
+                                    <div class="settings-setting-row">
+                                        <div class="settings-setting-row-main">
+                                            <div class="settings-setting-title">Default mode</div>
+                                            <p class="settings-setting-desc">Which listening preset is selected first.</p>
+                                        </div>
+                                        <div class="settings-setting-row-controls min-w-0 w-full sm:w-auto">
+                                            <div class="settings-segment" role="group" aria-label="Default mode">
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.mode" data-val="focus">Focus</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.mode" data-val="calm">Calm</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.mode" data-val="sleep">Sleep</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.mode" data-val="anxious">Ease worry</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.mode" data-val="ground">Ground</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.mode" data-val="study">Study</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="settings-setting-row">
+                                        <div class="settings-setting-row-main">
+                                            <div class="settings-setting-title">Session length</div>
+                                            <p class="settings-setting-desc">Timer duration for the guided player strip.</p>
+                                        </div>
+                                        <div class="settings-setting-row-controls">
+                                            <div class="settings-segment" role="group" aria-label="Session length">
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.durationMin" data-val="15">15</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.durationMin" data-val="25">25</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.durationMin" data-val="30">30</button>
+                                                <button type="button" class="settings-segment-btn settings-segment-active" data-soma-setting="session.durationMin" data-val="45">45</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.durationMin" data-val="60">60</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.durationMin" data-val="90">90</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="settings-setting-row">
+                                        <div class="settings-setting-row-main">
+                                            <div class="settings-setting-title">Intensity</div>
+                                            <p class="settings-setting-desc">Planner hint level from soft (1) to full (4).</p>
+                                        </div>
+                                        <div class="settings-setting-row-controls">
+                                            <div class="settings-segment" role="group" aria-label="Intensity">
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.intensity" data-val="1">1</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.intensity" data-val="2">2</button>
+                                                <button type="button" class="settings-segment-btn settings-segment-active" data-soma-setting="session.intensity" data-val="3">3</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.intensity" data-val="4">4</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="settings-setting-row border-b-0">
+                                        <div class="settings-setting-row-main">
+                                            <div class="settings-setting-title">Environment layer</div>
+                                            <p class="settings-setting-desc">Rain or noise bed beneath the main texture.</p>
+                                        </div>
+                                        <div class="settings-setting-row-controls">
+                                            <div class="settings-segment" role="group" aria-label="Environment layer">
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.environment" data-val="None">None</button>
+                                                <button type="button" class="settings-segment-btn settings-segment-active" data-soma-setting="session.environment" data-val="Rain">Rain</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="session.environment" data-val="Noise">Noise</button>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                                <div id="settings-panel-suno" role="tabpanel" aria-labelledby="settings-tab-suno" class="flex flex-col gap-6" aria-hidden="false">
+
+                                <div id="settings-panel-playback" role="tabpanel" aria-labelledby="settings-tab-playback" class="hidden flex flex-col" hidden aria-hidden="true">
+                                    <span class="soma-section-label">Playback</span>
+                                    <p class="text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Controls how the player starts and skips.</p>
+                                    <div class="settings-setting-row">
+                                        <div class="settings-setting-row-main">
+                                            <div class="settings-setting-title">Auto-start audio</div>
+                                            <p class="settings-setting-desc">When on, the timer strip begins moving after load. Suno tracks still honor this after generation.</p>
+                                        </div>
+                                        <div class="settings-setting-row-controls">
+                                            <button type="button" id="settings-toggle-autoplay" class="settings-toggle" aria-pressed="true" aria-label="Auto-start audio"></button>
+                                        </div>
+                                    </div>
+                                    <div class="settings-setting-row">
+                                        <div class="settings-setting-row-main">
+                                            <div class="settings-setting-title">Session complete toast</div>
+                                            <p class="settings-setting-desc">Brief toast when the timer or Suno track reaches the end.</p>
+                                        </div>
+                                        <div class="settings-setting-row-controls">
+                                            <button type="button" id="settings-toggle-endsound" class="settings-toggle" aria-pressed="false" aria-label="Session complete toast"></button>
+                                        </div>
+                                    </div>
+                                    <div class="settings-setting-row">
+                                        <div class="settings-setting-row-main">
+                                            <div class="settings-setting-title">Skip forward step</div>
+                                            <p class="settings-setting-desc">Seconds added when using skip forward.</p>
+                                        </div>
+                                        <div class="settings-setting-row-controls">
+                                            <div class="settings-segment" role="group" aria-label="Skip forward step">
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="playback.skipStepSec" data-val="15">15s</button>
+                                                <button type="button" class="settings-segment-btn settings-segment-active" data-soma-setting="playback.skipStepSec" data-val="30">30s</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="playback.skipStepSec" data-val="60">60s</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="playback.skipStepSec" data-val="120">120s</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="settings-setting-row border-b-0">
+                                        <div class="settings-setting-row-main">
+                                            <div class="settings-setting-title">Wave detail chip</div>
+                                            <p class="settings-setting-desc">Shows the frequency label row under the timer.</p>
+                                        </div>
+                                        <div class="settings-setting-row-controls">
+                                            <button type="button" id="settings-toggle-freqinfo" class="settings-toggle" aria-pressed="true" aria-label="Show wave detail chip"></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="settings-panel-report" role="tabpanel" aria-labelledby="settings-tab-report" class="hidden flex flex-col" hidden aria-hidden="true">
+                                    <span class="soma-section-label">Diagnostic report</span>
+                                    <p class="text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Offline template stays the default. Add an OpenAI key under Integrations for richer narration.</p>
+                                    <div class="settings-setting-row">
+                                        <div class="settings-setting-row-main">
+                                            <div class="settings-setting-title">Default time window</div>
+                                            <p class="settings-setting-desc">Which range loads first inside Report.</p>
+                                        </div>
+                                        <div class="settings-setting-row-controls">
+                                            <div class="settings-segment" role="group" aria-label="Default report window">
+                                                <button type="button" class="settings-segment-btn settings-segment-active" data-soma-setting="report.defaultWindow" data-val="7">7 days</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="report.defaultWindow" data-val="30">30 days</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="report.defaultWindow" data-val="all">Full</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="settings-setting-row">
+                                        <div class="settings-setting-row-main">
+                                            <div class="settings-setting-title">Evidence bullets</div>
+                                            <p class="settings-setting-desc">Short factual bullets under each topic summary.</p>
+                                        </div>
+                                        <div class="settings-setting-row-controls">
+                                            <button type="button" id="settings-toggle-evidence" class="settings-toggle" aria-pressed="true" aria-label="Show evidence bullets"></button>
+                                        </div>
+                                    </div>
+                                    <div class="settings-setting-row border-b-0">
+                                        <div class="settings-setting-row-main">
+                                            <div class="settings-setting-title">Remember expanded sections</div>
+                                            <p class="settings-setting-desc">When off, topics reopen with their default layout next time.</p>
+                                        </div>
+                                        <div class="settings-setting-row-controls">
+                                            <button type="button" id="settings-toggle-remember-expanded" class="settings-toggle" aria-pressed="true" aria-label="Remember expanded sections"></button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div id="settings-panel-privacy" role="tabpanel" aria-labelledby="settings-tab-privacy" class="hidden flex flex-col" hidden aria-hidden="true">
+                                    <span class="soma-section-label">Privacy &amp; data</span>
+                                    <p class="text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Everything below stays in this browser until you clear it.</p>
+                                    <div id="settings-privacy-summary" class="text-xs text-white/42 font-light leading-relaxed rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 mb-2"></div>
+                                    <button type="button" id="settings-export-data" class="text-xs font-light px-5 py-2.5 rounded-full border bg-white/[0.06] border-white/14 text-white/78 hover:border-white/26 hover:bg-white/[0.09] inline-flex items-center gap-2 self-start">
+                                        <iconify-icon icon="lucide:download" width="13"></iconify-icon>
+                                        Export local JSON (no API keys)
+                                    </button>
+                                    <p class="text-[0.65rem] text-white/28 font-light mt-3 mb-2">Danger zone</p>
+                                    <div class="flex flex-col sm:flex-row flex-wrap gap-2">
+                                        <button type="button" id="settings-clear-sessions" class="text-xs font-light px-4 py-2 rounded-full border border-white/10 text-white/55 hover:text-white hover:border-white/22">Clear sessions</button>
+                                        <button type="button" id="settings-clear-profile" class="text-xs font-light px-4 py-2 rounded-full border border-white/10 text-white/55 hover:text-white hover:border-white/22">Clear profile</button>
+                                        <button type="button" id="settings-clear-report-cache" class="text-xs font-light px-4 py-2 rounded-full border border-white/10 text-white/55 hover:text-white hover:border-white/22">Clear report cache</button>
+                                        <button type="button" id="settings-clear-keys" class="text-xs font-light px-4 py-2 rounded-full border border-rose-400/25 text-rose-200/85 hover:border-rose-400/45">Clear API keys</button>
+                                        <button type="button" id="settings-clear-all-local" class="text-xs font-light px-4 py-2 rounded-full border border-rose-400/35 text-rose-200/95 hover:border-rose-400/55">Reset all local data</button>
+                                    </div>
+                                </div>
+
+                                <div id="settings-panel-integrations" role="tabpanel" aria-labelledby="settings-tab-integrations" class="flex flex-col gap-5" aria-hidden="false">
                                     <div>
-                                        <span class="soma-section-label">Suno &amp; network</span>
-                                        <p class="text-sm text-white/35 font-light mt-3 leading-relaxed">Optional API key for live generation. Key is stored in localStorage only (demo).</p>
+                                        <span class="soma-section-label">Integrations</span>
+                                        <p class="text-sm text-white/35 font-light mt-3 leading-relaxed">Optional keys unlock live generation and richer reporting. Keys never touch a first-party Soma server in this demo.</p>
+                                        <p id="settings-integration-status" class="text-xs text-white/40 font-light mt-2 leading-relaxed"></p>
                                     </div>
                                     <div id="apikey-modal" class="w-full flex flex-col">
                                         <div id="apikey-card" class="relative z-10 w-full max-w-none glass-panel rounded-3xl p-8 flex flex-col gap-6">
-                                                <!-- Header -->
                                                 <div class="flex items-start justify-between gap-3">
                                                     <div class="flex flex-col gap-1 min-w-0">
                                                         <div class="flex items-center gap-2">
@@ -2271,35 +2878,26 @@
                                                             <span class="text-white/90 font-display italic text-xl tracking-wide">Suno API Key</span>
                                                         </div>
                                                         <p class="text-sm text-white/30 font-light leading-relaxed mt-1">
-                                                            <strong class="text-amber-200/80 font-medium">Demo only.</strong> Key lives in this browser (localStorage) and is sent directly to the Suno-compatible API — not to a first-party Soma backend. Production builds should proxy generation server-side (<span class="text-white/40">session-api-contract § Suno proxy</span>).
+                                                            <strong class="text-amber-200/80 font-medium">Demo only.</strong> Stored in localStorage and sent straight to the Suno-compatible API. Production builds should proxy generation server-side.
                                                         </p>
                                                     </div>
                                                     <button type="button" id="apikey-close" class="w-8 h-8 shrink-0 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all" aria-label="Close settings">
                                                         <iconify-icon icon="lucide:x" width="14"></iconify-icon>
                                                     </button>
                                                 </div>
-                                                <!-- Input -->
                                                 <div class="p-field">
                                                     <label class="p-label">API Key <span class="p-label-note">· from sunoapi.org</span></label>
                                                     <input id="apikey-input" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false">
                                                 </div>
-                                                <!-- Info row -->
                                                 <div class="flex items-center gap-2 text-xs text-white/22 font-light">
                                                     <iconify-icon icon="lucide:external-link" width="11" class="flex-shrink-0"></iconify-icon>
-                                                    <a href="https://sunoapi.org/api-key" target="_blank" class="hover:text-white/55 transition-colors">Get an API key at sunoapi.org/api-key</a>
+                                                    <a href="https://sunoapi.org/api-key" target="_blank" rel="noopener noreferrer" class="hover:text-white/55 transition-colors">Get an API key at sunoapi.org/api-key</a>
                                                 </div>
-                                                <!-- Buttons -->
                                                 <div class="flex gap-3 mt-1">
-                                                    <button id="apikey-clear-btn" class="flex-1 py-3 rounded-2xl border border-white/8 bg-transparent text-white/35 text-xs font-light hover:border-white/18 hover:text-white/65 transition-all">Clear</button>
-                                                    <button id="apikey-save-btn" class="flex-1 py-3 rounded-2xl border border-white/20 bg-white/10 text-white text-xs font-medium hover:bg-white/18 transition-all">Save Key</button>
+                                                    <button type="button" id="apikey-clear-btn" class="flex-1 py-3 rounded-2xl border border-white/8 bg-transparent text-white/35 text-xs font-light hover:border-white/18 hover:text-white/65 transition-all">Clear</button>
+                                                    <button type="button" id="apikey-save-btn" class="flex-1 py-3 rounded-2xl border border-white/20 bg-white/10 text-white text-xs font-medium hover:bg-white/18 transition-all">Save Key</button>
                                                 </div>
                                             </div>
-                                    </div>
-                                </div>
-                                <div id="settings-panel-report" role="tabpanel" aria-labelledby="settings-tab-report" class="hidden flex flex-col gap-6" hidden aria-hidden="true">
-                                    <div>
-                                        <span class="soma-section-label">Diagnostic report</span>
-                                        <p class="text-sm text-white/35 font-light mt-3 leading-relaxed">Optional OpenAI key for narrating your report in natural language. Without a key, Soma falls back to a deterministic template generated entirely on this device.</p>
                                     </div>
                                     <div id="openai-key-modal" class="w-full flex flex-col">
                                         <div class="relative z-10 w-full max-w-none glass-panel rounded-3xl p-8 flex flex-col gap-6">
@@ -2310,15 +2908,15 @@
                                                 <span class="text-white/90 font-display italic text-xl tracking-wide">OpenAI API Key</span>
                                             </div>
                                             <p class="text-sm text-white/30 font-light leading-relaxed">
-                                                <strong class="text-amber-200/80 font-medium">Optional.</strong> Stored in this browser only and sent directly to OpenAI when generating your diagnostic report. Leave blank to keep everything offline.
+                                                <strong class="text-amber-200/80 font-medium">Optional.</strong> Sent directly to OpenAI when generating your diagnostic report. Leave blank for offline template mode.
                                             </p>
                                             <div class="p-field">
                                                 <label class="p-label" for="openai-key-input">API Key <span class="p-label-note">· sk-…</span></label>
                                                 <input id="openai-key-input" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false">
                                             </div>
                                             <div class="flex gap-3 mt-1">
-                                                <button id="openai-key-clear" class="flex-1 py-3 rounded-2xl border border-white/8 bg-transparent text-white/35 text-xs font-light hover:border-white/18 hover:text-white/65 transition-all">Clear</button>
-                                                <button id="openai-key-save" class="flex-1 py-3 rounded-2xl border border-white/20 bg-white/10 text-white text-xs font-medium hover:bg-white/18 transition-all">Save Key</button>
+                                                <button type="button" id="openai-key-clear" class="flex-1 py-3 rounded-2xl border border-white/8 bg-transparent text-white/35 text-xs font-light hover:border-white/18 hover:text-white/65 transition-all">Clear</button>
+                                                <button type="button" id="openai-key-save" class="flex-1 py-3 rounded-2xl border border-white/20 bg-white/10 text-white text-xs font-medium hover:bg-white/18 transition-all">Save Key</button>
                                             </div>
                                         </div>
                                     </div>
@@ -2770,20 +3368,46 @@
         study: 0.72, restore: 2.95, still: 1.22, warm: 1.05,
     };
 
+    const LS_SOMA_SETTINGS = 'soma-settings-v1';
+    function somaReadSettingsBlob() {
+        try { return JSON.parse(localStorage.getItem(LS_SOMA_SETTINGS) || '{}'); }
+        catch (_) { return {}; }
+    }
+    window.somaGetPlaybackSkipSeconds = function () {
+        const o = somaReadSettingsBlob();
+        const n = +(o.playback && o.playback.skipStepSec);
+        if (Number.isFinite(n) && n >= 5 && n <= 600) return Math.round(n);
+        return 30;
+    };
+
     // Tailwind class sets for chips (all classes must already exist in DOM so CDN generates them)
     const ON  = ['border-white/20', 'bg-white/10', 'text-white', 'shadow-[0_0_15px_rgba(255,255,255,0.05)]'];
     const OFF = ['border-white/5',  'bg-transparent', 'text-white/50', 'hover:border-white/20', 'hover:text-white'];
 
     // ── State ─────────────────────────────────────────────────────────────
-    let currentMode      = 'focus';
+    const __sb0 = somaReadSettingsBlob();
+    const __ses0 = (__sb0.session && typeof __sb0.session === 'object') ? __sb0.session : {};
+    const __pb0 = (__sb0.playback && typeof __sb0.playback === 'object') ? __sb0.playback : {};
+    let currentMode      = (typeof __ses0.mode === 'string' && MODES[__ses0.mode]) ? __ses0.mode : 'focus';
     let selectedVibes    = new Set(['creative']);
-    let isPlaying        = true;
+    let isPlaying        = __pb0.autoplay !== false;
     let elapsedSec       = 15 * 60;   // start at 15 min
     let totalSec         = 45 * 60;   // mutable — somaSetUiSessionParams / guided sessions
     let currentIntensity = 3;
     let currentDuration  = 45;        // minutes
     let currentEnv       = 'Rain';
     let ticker           = null;
+    if (__ses0.durationMin != null && Number.isFinite(+__ses0.durationMin)) {
+        currentDuration = Math.max(1, +__ses0.durationMin);
+        totalSec = currentDuration * 60;
+    }
+    if (__ses0.intensity != null && Number.isFinite(+__ses0.intensity)) {
+        currentIntensity = Math.min(4, Math.max(1, +__ses0.intensity));
+    }
+    if (__ses0.environment && ['None', 'Rain', 'Noise'].includes(__ses0.environment)) {
+        currentEnv = __ses0.environment;
+    }
+    elapsedSec = Math.min(elapsedSec, totalSec);
 
     function triggerSomaDraftRefresh() {
         if (typeof window.somaRefreshDraft === 'function') window.somaRefreshDraft();
@@ -2848,6 +3472,14 @@
     const freqHzEl       = document.getElementById('freq-hz');
     const freqDescEl     = document.getElementById('freq-desc');
     let   freqCardOpen   = false;
+
+    function applyFreqToggleFromSettings() {
+        const o = somaReadSettingsBlob();
+        const hide = o.playback && o.playback.showFrequencyInfo === false;
+        if (freqToggle) freqToggle.classList.toggle('hidden', !!hide);
+    }
+    window.somaApplyFreqToggleVisibility = applyFreqToggleFromSettings;
+    applyFreqToggleFromSettings();
 
     // ── EQ speed update ───────────────────────────────────────────────────
     // Scales each bar's animation-duration by the mode-specific factor so
@@ -3190,9 +3822,10 @@
         freqCard.style.opacity   = freqCardOpen ? '1'     : '0';
     });
 
-    // ── Skip Forward — advance 30 s ───────────────────────────────────────
+    // ── Skip Forward — advance (seconds from Settings) ────────────────────
     skipForwardBtn.addEventListener('click', () => {
-        elapsedSec = Math.min(elapsedSec + 30, totalSec);
+        const step = typeof window.somaGetPlaybackSkipSeconds === 'function' ? window.somaGetPlaybackSkipSeconds() : 30;
+        elapsedSec = Math.min(elapsedSec + step, totalSec);
         updateProgressVisuals(elapsedSec);
         if (elapsedSec >= totalSec) {
             setPlaying(false);
@@ -3276,12 +3909,21 @@
 
     // Sync initial progress visuals (fill + thumb + time label)
     updateProgressVisuals(elapsedSec);
+    timeTotal.textContent = fmt(totalSec);
 
-    // Kick off auto-play
+    // Kick off player motion (respect Settings playback.autoplay)
     record.style.animationDuration = MODES[currentMode].recordSpeed;
     updateEqSpeed(currentMode);   // sync EQ tempo with initial mode
-    startTicker();
-    document.title = '▶ Playing… · Soma';
+    if (isPlaying) {
+        startTicker();
+        document.title = '▶ Playing… · Soma';
+    } else {
+        playIcon.setAttribute('icon', 'lucide:play');
+        record.classList.add('record-paused');
+        gramophoneContainer.classList.add('gramophone-paused');
+        eqBars.classList.add('eq-paused');
+        document.title = 'Soma';
+    }
 
     // ── Global player API (Soma session / guided fallback) ─────────────
     window.somaPlayerApi = {
@@ -4104,6 +4746,12 @@
     }
 
     window.somaOnFakeSessionTimerEnd = function () {
+        try {
+            const o = JSON.parse(localStorage.getItem('soma-settings-v1') || '{}');
+            if (o.playback && o.playback.endSound && window.showToast) {
+                window.showToast('Session timer complete');
+            }
+        } catch (_) {}
         const act = getActive();
         if (act && act.status === 'playing' && act.track && act.track.source === 'guided_fallback') {
             openFeedbackModal();
@@ -4111,6 +4759,12 @@
     };
 
     window.somaOnAudioEnded = function () {
+        try {
+            const o = JSON.parse(localStorage.getItem('soma-settings-v1') || '{}');
+            if (o.playback && o.playback.endSound && window.showToast) {
+                window.showToast('Playback complete');
+            }
+        } catch (_) {}
         const act = getActive();
         if (act && act.status === 'playing') openFeedbackModal();
     };
@@ -4715,7 +5369,23 @@
     const LS_OPENAI_KEY = 'moodtune-openai-key';
     const LS_WINDOW = 'soma-report-window';
     const LS_EXPANDED = 'soma-report-expanded-v1';
+    const LS_SOMA_SETTINGS = 'soma-settings-v1';
     const DEBOUNCE_MS = 700;
+
+    function readSettingsForReport() {
+        try { return JSON.parse(localStorage.getItem(LS_SOMA_SETTINGS) || '{}'); }
+        catch (_) { return {}; }
+    }
+    function reportEvidenceVisible() {
+        const o = readSettingsForReport();
+        if (o.report && o.report.evidenceVisible === false) return false;
+        return true;
+    }
+    function rememberReportExpandedTopics() {
+        const o = readSettingsForReport();
+        if (o.report && o.report.rememberExpandedTopics === false) return false;
+        return true;
+    }
 
     const TOPICS = [
         { id: 'trends', navLabel: 'Trends', title: 'Trends', icon: 'lucide:trending-up', blurb: 'How your sessions landed recently.', expandDefault: true },
@@ -4775,6 +5445,10 @@
     function setWindow(w) {
         try { localStorage.setItem(LS_WINDOW, w); } catch (_) {}
     }
+
+    window.somaApplyReportWindowSetting = function (w) {
+        if (w === '7' || w === '30' || w === 'all') setWindow(w);
+    };
 
     function readSessions() {
         const fn = api().listSessions;
@@ -5475,8 +6149,9 @@
     }
 
     function getExpandedState() {
-        const saved = loadJson(LS_EXPANDED, null);
         const defaults = getExpandedDefaults();
+        if (!rememberReportExpandedTopics()) return defaults;
+        const saved = loadJson(LS_EXPANDED, null);
         if (!saved || typeof saved !== 'object') return defaults;
         TOPICS.forEach(function (t) {
             if (Object.prototype.hasOwnProperty.call(saved, t.id)) defaults[t.id] = !!saved[t.id];
@@ -5485,6 +6160,7 @@
     }
 
     function saveExpandedState(topicId, open) {
+        if (!rememberReportExpandedTopics()) return;
         const cur = loadJson(LS_EXPANDED, {});
         cur[topicId] = !!open;
         saveJson(LS_EXPANDED, cur);
@@ -5544,7 +6220,7 @@
         const sec = (rep.narrative.sections && rep.narrative.sections[topic.id]) || emptySection();
         const evKey = topic.id;
         const evidence = (rep.ctx.topicEvidence && rep.ctx.topicEvidence[evKey]) || [];
-        const evHtml = evidence.length
+        const evHtml = (reportEvidenceVisible() && evidence.length)
             ? '<ul class="mt-4 space-y-1.5 text-xs text-white/55 font-light list-disc pl-4 marker:text-white/25">' +
               evidence.slice(0, 6).map(function (e) { return '<li>' + escHtml(e) + '</li>'; }).join('') +
               '</ul>'
@@ -5819,12 +6495,14 @@
             try { localStorage.setItem(LS_OPENAI_KEY, v); } catch (_) {}
             if (window.showToast) window.showToast(v ? 'OpenAI key saved' : 'OpenAI key cleared');
             refreshReport({ force: true, immediate: true });
+            if (window.somaRefreshSettingsIndicators) window.somaRefreshSettingsIndicators();
         });
         if (clearBtn) clearBtn.addEventListener('click', function () {
             try { localStorage.removeItem(LS_OPENAI_KEY); } catch (_) {}
             if (keyInput) keyInput.value = '';
             if (window.showToast) window.showToast('OpenAI key cleared');
             refreshReport({ force: true, immediate: true });
+            if (window.somaRefreshSettingsIndicators) window.somaRefreshSettingsIndicators();
         });
     });
 
@@ -5847,6 +6525,11 @@
     }
 
     window.addEventListener('load', function () {
+        try {
+            const o = readSettingsForReport();
+            const w = o.report && o.report.defaultWindow;
+            if (w === '7' || w === '30' || w === 'all') setWindow(w);
+        } catch (_) {}
         setTimeout(() => refreshReport({ immediate: true }), 250);
     });
 })();
@@ -5943,12 +6626,183 @@
     // ── API Key (Settings workspace) ─────────────────────────────────────
     const apikeyCard = document.getElementById('apikey-card');
 
-    const SETTINGS_SECTION_IDS = ['experience', 'suno', 'report'];
-    const settingsContentEl = document.getElementById('settings-content');
+    const SETTINGS_SECTION_IDS = ['experience', 'session', 'playback', 'report', 'privacy', 'integrations'];
+    const LS_SETTINGS_AGGREGATE = 'soma-settings-v1';
+    const LS_SESSIONS_EXP = 'soma-sessions-v1';
+    const LS_ACTIVE_SESSION = 'soma-active-session-v1';
+    const LS_PROFILE_KEY = 'moodtune-profile';
+    const LS_REPORT_CACHE = 'soma-report-v1';
+    const LS_EXPANDED_REP = 'soma-report-expanded-v1';
+    const LS_WINDOW_REP = 'soma-report-window';
+    const LS_OPENAI_STORE = 'moodtune-openai-key';
+
+    const DEFAULT_SOMA_SETTINGS = {
+        experience: { aura: 'on', motion: 'standard', density: 'comfortable' },
+        session: { mode: 'focus', durationMin: 45, intensity: 3, environment: 'Rain' },
+        playback: { autoplay: true, endSound: false, skipStepSec: 30, showFrequencyInfo: true },
+        report: { defaultWindow: '7', evidenceVisible: true, rememberExpandedTopics: true },
+    };
+
+    function loadSomaSettingsAggregated() {
+        var raw = null;
+        try { raw = localStorage.getItem(LS_SETTINGS_AGGREGATE); } catch (_) { raw = null; }
+        var parsed = {};
+        try { parsed = raw ? JSON.parse(raw) : {}; } catch (_) { parsed = {}; }
+        return {
+            experience: Object.assign({}, DEFAULT_SOMA_SETTINGS.experience, parsed.experience || {}),
+            session: Object.assign({}, DEFAULT_SOMA_SETTINGS.session, parsed.session || {}),
+            playback: Object.assign({}, DEFAULT_SOMA_SETTINGS.playback, parsed.playback || {}),
+            report: Object.assign({}, DEFAULT_SOMA_SETTINGS.report, parsed.report || {}),
+        };
+    }
+
+    function saveSomaSettingsAggregated(full) {
+        try { localStorage.setItem(LS_SETTINGS_AGGREGATE, JSON.stringify(full)); } catch (_) {}
+    }
+
+    function patchSomaSettingsAggregated(partial) {
+        var cur = loadSomaSettingsAggregated();
+        if (partial.experience) cur.experience = Object.assign({}, cur.experience, partial.experience);
+        if (partial.session) cur.session = Object.assign({}, cur.session, partial.session);
+        if (partial.playback) cur.playback = Object.assign({}, cur.playback, partial.playback);
+        if (partial.report) cur.report = Object.assign({}, cur.report, partial.report);
+        saveSomaSettingsAggregated(cur);
+        if (partial.report && partial.report.rememberExpandedTopics === false) {
+            try { localStorage.removeItem(LS_EXPANDED_REP); } catch (_) {}
+        }
+        applySomaSettingsSideEffects(cur, partial);
+        hydrateSettingsControls(cur);
+        return cur;
+    }
+
+    function applySomaSettingsSideEffects(full, partial) {
+        var root = document.documentElement;
+        if (!partial || partial.experience) {
+            var ex = full.experience || {};
+            root.classList.toggle('soma-aura-off', ex.aura === 'off');
+            root.classList.toggle('soma-motion-soft', ex.motion === 'reduced');
+            root.classList.toggle('soma-density-compact', ex.density === 'compact');
+        }
+        if (!partial || partial.session) {
+            var se = full.session || {};
+            if (typeof window.somaSetUiSessionParams === 'function') {
+                window.somaSetUiSessionParams({
+                    durationMin: se.durationMin,
+                    intensity: se.intensity,
+                    environment: se.environment,
+                });
+            }
+            var mb = se.mode && document.querySelector('.mode-chip[data-mode="' + se.mode + '"]');
+            if (mb) mb.click();
+        }
+        if (!partial || partial.playback) {
+            if (typeof window.somaApplyFreqToggleVisibility === 'function') {
+                window.somaApplyFreqToggleVisibility();
+            }
+        }
+        if (!partial || partial.report) {
+            var rw = full.report && full.report.defaultWindow;
+            if (rw && typeof window.somaApplyReportWindowSetting === 'function') {
+                window.somaApplyReportWindowSetting(rw);
+            }
+            if (partial && partial.report && (partial.report.evidenceVisible != null || partial.report.rememberExpandedTopics != null || partial.report.defaultWindow != null)) {
+                if (window.SomaReport && typeof window.SomaReport.refresh === 'function') {
+                    window.SomaReport.refresh({ immediate: true });
+                }
+            }
+        }
+        updatePrivacySummaryBlock();
+        updateIntegrationStatusLine();
+    }
+
+    function hydrateSettingsControls(full) {
+        full = full || loadSomaSettingsAggregated();
+        document.querySelectorAll('[data-soma-setting]').forEach(function (btn) {
+            var key = btn.getAttribute('data-soma-setting');
+            var val = btn.getAttribute('data-val');
+            if (!key || val == null) return;
+            var parts = key.split('.');
+            var obj = full;
+            for (var i = 0; i < parts.length; i++) obj = obj && obj[parts[i]];
+            var on = (obj !== undefined && String(obj) === String(val));
+            btn.classList.toggle('settings-segment-active', on);
+        });
+        function togg(id, pressed) {
+            var el = document.getElementById(id);
+            if (el) el.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+        }
+        var pb = full.playback || {};
+        togg('settings-toggle-autoplay', pb.autoplay !== false);
+        togg('settings-toggle-endsound', !!pb.endSound);
+        togg('settings-toggle-freqinfo', pb.showFrequencyInfo !== false);
+        var rp = full.report || {};
+        togg('settings-toggle-evidence', rp.evidenceVisible !== false);
+        togg('settings-toggle-remember-expanded', rp.rememberExpandedTopics !== false);
+    }
+
+    function updatePrivacySummaryBlock() {
+        var el = document.getElementById('settings-privacy-summary');
+        if (!el) return;
+        var n = 0;
+        try {
+            var raw = localStorage.getItem(LS_SESSIONS_EXP);
+            var arr = raw ? JSON.parse(raw) : [];
+            n = Array.isArray(arr) ? arr.length : 0;
+        } catch (_) { n = 0; }
+        var prof = false;
+        try { prof = !!(localStorage.getItem(LS_PROFILE_KEY) || '').trim(); } catch (_) { prof = false; }
+        var suno = false;
+        var oai = false;
+        try { suno = !!(localStorage.getItem(LS_KEY) || '').trim(); } catch (_) {}
+        try { oai = !!(localStorage.getItem(LS_OPENAI_STORE) || '').trim(); } catch (_) {}
+        el.textContent = 'Saved sessions: ' + n + '. Profile: ' + (prof ? 'yes' : 'no') + '. Suno key: ' + (suno ? 'set' : 'none') + '. OpenAI key: ' + (oai ? 'set' : 'none') + '.';
+    }
+
+    function updateIntegrationStatusLine() {
+        var el = document.getElementById('settings-integration-status');
+        if (!el) return;
+        var suno = !!(getKey() || '').trim();
+        var oai = false;
+        try { oai = !!(localStorage.getItem(LS_OPENAI_STORE) || '').trim(); } catch (_) {}
+        el.textContent = 'Live Suno: ' + (suno ? 'ready (key saved)' : 'not configured') + '. Report LLM: ' + (oai ? 'optional narration on' : 'template-only offline mode') + '.';
+    }
+
+    window.somaRefreshSettingsIndicators = function () {
+        updatePrivacySummaryBlock();
+        updateIntegrationStatusLine();
+    };
+
+    function exportLocalJsonNoKeys() {
+        var payload = {
+            exportedAt: new Date().toISOString(),
+            settings: loadSomaSettingsAggregated(),
+            profile: null,
+            sessions: null,
+        };
+        try {
+            var pr = localStorage.getItem(LS_PROFILE_KEY);
+            payload.profile = pr ? JSON.parse(pr) : null;
+        } catch (_) { payload.profile = null; }
+        try {
+            var sr = localStorage.getItem(LS_SESSIONS_EXP);
+            payload.sessions = sr ? JSON.parse(sr) : [];
+            if (!Array.isArray(payload.sessions)) payload.sessions = [];
+        } catch (_) { payload.sessions = []; }
+        var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+        var a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'soma-local-export.json';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+        if (window.showToast) window.showToast('Export downloaded');
+    }
+
+    var settingsContentEl = document.getElementById('settings-content');
 
     function activateSettingsSection(sectionId, opts) {
         opts = opts || {};
-        if (SETTINGS_SECTION_IDS.indexOf(sectionId) < 0) sectionId = 'suno';
+        if (SETTINGS_SECTION_IDS.indexOf(sectionId) < 0) sectionId = 'integrations';
         SETTINGS_SECTION_IDS.forEach(function (sid) {
             var on = sid === sectionId;
             var tab = document.getElementById('settings-tab-' + sid);
@@ -5968,6 +6822,8 @@
             var ft = document.getElementById('settings-tab-' + sectionId);
             if (ft) try { ft.focus(); } catch (_) {}
         }
+        if (sectionId === 'privacy') updatePrivacySummaryBlock();
+        if (sectionId === 'integrations') updateIntegrationStatusLine();
     }
 
     function initSettingsSectionNav() {
@@ -6015,8 +6871,133 @@
 
     initSettingsSectionNav();
 
+    document.querySelectorAll('[data-soma-setting]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var key = btn.getAttribute('data-soma-setting');
+            var val = btn.getAttribute('data-val');
+            if (!key || val == null) return;
+            var parts = key.split('.');
+            if (parts.length !== 2) return;
+            var sec = parts[0];
+            var k = parts[1];
+            var patch = {};
+            patch[sec] = {};
+            var coerced = val;
+            if (sec === 'session') {
+                if (k === 'durationMin' || k === 'intensity') coerced = +val;
+            }
+            if (sec === 'playback' && k === 'skipStepSec') coerced = +val;
+            patch[sec][k] = coerced;
+            patchSomaSettingsAggregated(patch);
+        });
+    });
+
+    function wirePlaybackToggle(id, settingKey, defaultTrue) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('click', function () {
+            var cur = loadSomaSettingsAggregated();
+            var pb = cur.playback || {};
+            var oldVal = defaultTrue ? (pb[settingKey] !== false) : !!pb[settingKey];
+            var next = {};
+            next[settingKey] = !oldVal;
+            patchSomaSettingsAggregated({ playback: next });
+        });
+    }
+    wirePlaybackToggle('settings-toggle-autoplay', 'autoplay', true);
+    wirePlaybackToggle('settings-toggle-endsound', 'endSound', false);
+    wirePlaybackToggle('settings-toggle-freqinfo', 'showFrequencyInfo', true);
+
+    function wireReportToggle(id, settingKey, defaultTrue) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.addEventListener('click', function () {
+            var cur = loadSomaSettingsAggregated();
+            var rp = cur.report || {};
+            var oldVal = defaultTrue ? (rp[settingKey] !== false) : !!rp[settingKey];
+            var next = {};
+            next[settingKey] = !oldVal;
+            patchSomaSettingsAggregated({ report: next });
+        });
+    }
+    wireReportToggle('settings-toggle-evidence', 'evidenceVisible', true);
+    wireReportToggle('settings-toggle-remember-expanded', 'rememberExpandedTopics', true);
+
+    var exportBtn = document.getElementById('settings-export-data');
+    if (exportBtn) exportBtn.addEventListener('click', exportLocalJsonNoKeys);
+
+    var clrSess = document.getElementById('settings-clear-sessions');
+    if (clrSess) clrSess.addEventListener('click', function () {
+        if (!confirm('Clear all saved sessions on this device?')) return;
+        try { localStorage.removeItem(LS_SESSIONS_EXP); } catch (_) {}
+        try { localStorage.removeItem(LS_ACTIVE_SESSION); } catch (_) {}
+        if (window.showToast) window.showToast('Sessions cleared');
+        updatePrivacySummaryBlock();
+        if (window.SomaReport && typeof window.SomaReport.refresh === 'function') window.SomaReport.refresh({ immediate: true });
+    });
+
+    var clrProf = document.getElementById('settings-clear-profile');
+    if (clrProf) clrProf.addEventListener('click', function () {
+        if (!confirm('Clear saved profile fields on this device?')) return;
+        try { localStorage.removeItem(LS_PROFILE_KEY); } catch (_) {}
+        if (window.showToast) window.showToast('Profile cleared');
+        updatePrivacySummaryBlock();
+    });
+
+    var clrRep = document.getElementById('settings-clear-report-cache');
+    if (clrRep) clrRep.addEventListener('click', function () {
+        if (!confirm('Clear cached diagnostic report on this device?')) return;
+        try { localStorage.removeItem(LS_REPORT_CACHE); } catch (_) {}
+        try { localStorage.removeItem(LS_EXPANDED_REP); } catch (_) {}
+        if (window.showToast) window.showToast('Report cache cleared');
+        if (window.SomaReport && typeof window.SomaReport.refresh === 'function') window.SomaReport.refresh({ immediate: true });
+    });
+
+    var clrKeys = document.getElementById('settings-clear-keys');
+    if (clrKeys) clrKeys.addEventListener('click', function () {
+        if (!confirm('Remove Suno and OpenAI API keys from this browser?')) return;
+        try { localStorage.removeItem(LS_KEY); } catch (_) {}
+        try { localStorage.removeItem(LS_OPENAI_STORE); } catch (_) {}
+        var aiIn = document.getElementById('openai-key-input');
+        if (aiIn) aiIn.value = '';
+        if (apikeyInput) apikeyInput.value = '';
+        syncKeyIndicator();
+        if (window.showToast) window.showToast('API keys cleared');
+        if (window.SomaReport && typeof window.SomaReport.refresh === 'function') window.SomaReport.refresh({ force: true, immediate: true });
+        updatePrivacySummaryBlock();
+        updateIntegrationStatusLine();
+    });
+
+    var clrAll = document.getElementById('settings-clear-all-local');
+    if (clrAll) clrAll.addEventListener('click', function () {
+        if (!confirm('Reset ALL local Soma data in this browser? This cannot be undone.')) return;
+        var keys = [LS_SESSIONS_EXP, LS_ACTIVE_SESSION, LS_PROFILE_KEY, LS_KEY, LS_OPENAI_STORE, LS_REPORT_CACHE, LS_EXPANDED_REP, LS_WINDOW_REP, LS_SETTINGS_AGGREGATE];
+        keys.forEach(function (k) { try { localStorage.removeItem(k); } catch (_) {} });
+        saveSomaSettingsAggregated({
+            experience: Object.assign({}, DEFAULT_SOMA_SETTINGS.experience),
+            session: Object.assign({}, DEFAULT_SOMA_SETTINGS.session),
+            playback: Object.assign({}, DEFAULT_SOMA_SETTINGS.playback),
+            report: Object.assign({}, DEFAULT_SOMA_SETTINGS.report),
+        });
+        var full = loadSomaSettingsAggregated();
+        applySomaSettingsSideEffects(full, null);
+        hydrateSettingsControls(full);
+        if (apikeyInput) apikeyInput.value = '';
+        var aiIn2 = document.getElementById('openai-key-input');
+        if (aiIn2) aiIn2.value = '';
+        syncKeyIndicator();
+        if (window.showToast) window.showToast('Local data reset');
+        if (window.SomaReport && typeof window.SomaReport.refresh === 'function') window.SomaReport.refresh({ force: true, immediate: true });
+    });
+
+    (function bootstrapAggregatedSettings() {
+        var full = loadSomaSettingsAggregated();
+        applySomaSettingsSideEffects(full, null);
+        hydrateSettingsControls(full);
+    })();
+
     function primeApiKeyPanel() {
-        activateSettingsSection('suno', { scrollTopContent: true });
+        activateSettingsSection('integrations', { scrollTopContent: true });
         if (apikeyInput) apikeyInput.value = getKey();
         if (apikeyCard) {
             apikeyCard.style.animation = 'none';
@@ -6027,6 +7008,8 @@
             apikeyModal.style.opacity = '1';
             apikeyModal.style.pointerEvents = 'auto';
         }
+        updateIntegrationStatusLine();
+        updatePrivacySummaryBlock();
         setTimeout(() => apikeyInput && apikeyInput.focus(), 120);
     }
     function closeApiKeyModal() {
@@ -6046,14 +7029,17 @@
         if (!k) { window.showToast('Please enter an API key'); return; }
         setKey(k);
         syncKeyIndicator();
-        closeApiKeyModal();
         window.showToast('API key saved');
+        updateIntegrationStatusLine();
+        updatePrivacySummaryBlock();
     });
     apikeyClearBtn.addEventListener('click', () => {
         apikeyInput.value = '';
         clearKey();
         syncKeyIndicator();
         window.showToast('API key cleared');
+        updateIntegrationStatusLine();
+        updatePrivacySummaryBlock();
     });
     apikeyInput.addEventListener('keydown', e => { if (e.key === 'Enter') apikeySaveBtn.click(); });
 
@@ -6219,8 +7205,13 @@
         // Wire audio events to the player UI
         wireAudioToPlayer();
 
-        // Auto-play
-        sunoAudio.play().catch(() => {});
+        // Auto-play (respect Settings playback.autoplay)
+        try {
+            const o = JSON.parse(localStorage.getItem('soma-settings-v1') || '{}');
+            if (!(o.playback && o.playback.autoplay === false)) sunoAudio.play().catch(() => {});
+        } catch (_) {
+            sunoAudio.play().catch(() => {});
+        }
         if (typeof window.showSessionStep === 'function') window.showSessionStep('playback');
     }
 
@@ -6309,10 +7300,10 @@
             sunoAudio.play().catch(() => {});
         }, true);
 
-        // ── skip-forward: +30 s ──────────────────────────────────────────
         document.getElementById('skip-forward-btn').addEventListener('click', () => {
+            const step = typeof window.somaGetPlaybackSkipSeconds === 'function' ? window.somaGetPlaybackSkipSeconds() : 30;
             sunoAudio.currentTime = Math.min(
-                sunoAudio.currentTime + 30,
+                sunoAudio.currentTime + step,
                 sunoAudio.duration || 0
             );
         }, true);
@@ -7547,9 +8538,10 @@
                     sunoAudio.currentTime = 0;
                     sunoAudio.play().catch(() => {});
                 }, true);
-                document.getElementById('skip-forward-btn').addEventListener('click', () => {
-                    sunoAudio.currentTime = Math.min(sunoAudio.currentTime + 30, sunoAudio.duration || 0);
-                }, true);
+        document.getElementById('skip-forward-btn').addEventListener('click', () => {
+            const step = typeof window.somaGetPlaybackSkipSeconds === 'function' ? window.somaGetPlaybackSkipSeconds() : 30;
+            sunoAudio.currentTime = Math.min(sunoAudio.currentTime + step, sunoAudio.duration || 0);
+        }, true);
             }
         }
     }
@@ -7840,6 +8832,319 @@
 
 })();
 </script>
+
+<!-- ── Vitals Metric Detail (per-card education panel) ─────────────── -->
+<script>
+(function () {
+    'use strict';
+
+    // Knowledge base per metric: English copy, reference bands, and tips.
+    const METRIC_INFO = {
+        hr: {
+            title: 'Heart Rate',
+            subtitle: 'Beats per minute — how hard your heart is working right now.',
+            unit: 'BPM',
+            term: 'BPM — beats per minute',
+            ranges: [
+                { label: 'Low',     value: '< 60',     kind: 'warn'  },
+                { label: 'Typical', value: '60 – 100', kind: 'ok'    },
+                { label: 'High',    value: '> 100',    kind: 'alert' },
+            ],
+            classify: v => v < 60 ? 0 : v <= 100 ? 1 : 2,
+            what: 'Heart rate counts how many times your heart beats each minute. At rest, many adults fall between 60 and 100 bpm, but stress, caffeine, illness, and movement move it up or down. Trained athletes often rest below 60 bpm.',
+            why: 'It is a fast read on cardiovascular load and sympathetic “fight-or-flight” tone. Soma maps your HR to a musical pulse so sessions feel physically coherent rather than fighting your body.',
+            tips: [
+                'Sit quietly for ~5 minutes before comparing resting HR; skip caffeine if you want a clean baseline.',
+                'A slow exhale (for example 4s in / 6s out) often lowers HR within a few minutes.',
+                'Resting HR persistently above 100 or below ~50 with dizziness or chest pressure deserves a clinician’s review.',
+            ],
+        },
+        hrv: {
+            title: 'HRV · SDNN',
+            subtitle: 'How much beat-to-beat variation your heart allows — a window into recovery.',
+            unit: 'ms',
+            term: 'SDNN — standard deviation of normal-to-normal R–R intervals',
+            ranges: [
+                { label: 'Low',    value: '< 30 ms',    kind: 'alert' },
+                { label: 'Mid',    value: '30 – 50 ms', kind: 'warn'  },
+                { label: 'Strong', value: '> 50 ms',    kind: 'ok'    },
+            ],
+            classify: v => v < 30 ? 0 : v < 50 ? 1 : 2,
+            what: 'Heart rate variability (HRV) is the healthy irregularity between heartbeats. SDNN summarizes that variability in milliseconds; higher values usually mean your autonomic system can flex between stress and recovery.',
+            why: 'HRV is one of the best consumer-friendly markers of readiness. Chronically low HRV can track overload, poor sleep, or heavy alcohol — even when HR looks “fine”.',
+            tips: [
+                'Protect 7–9 hours of consistent sleep; it is the fastest lever most people have for HRV.',
+                'Regular easy aerobic work and steady wake times raise baseline HRV over weeks.',
+                'Late meals, bright screens at night, and alcohol often slash overnight HRV.',
+            ],
+        },
+        stress: {
+            title: 'Stress Score',
+            subtitle: 'A 0–10 blend of HR, HRV, and breathing — not a clinical diagnosis.',
+            unit: '/10',
+            term: 'Fused arousal index from HR, HRV, and respiratory rate (demo model)',
+            ranges: [
+                { label: 'Low',       value: '0 – 3',  kind: 'ok'    },
+                { label: 'Moderate',  value: '4 – 5',  kind: 'ok'    },
+                { label: 'Elevated',  value: '6 – 7',  kind: 'warn'  },
+                { label: 'High',      value: '8 – 10', kind: 'alert' },
+            ],
+            classify: v => v <= 3 ? 0 : v <= 5 ? 1 : v <= 7 ? 2 : 3,
+            what: 'The score estimates how much your body is leaning into sympathetic drive — the wired, mobilized state. Higher numbers mean tighter regulation and less parasympathetic “brake”.',
+            why: 'Sustained high scores suppress HRV, fragment sleep, and dull emotional regulation. Think of it as today’s physiological bandwidth, not a moral judgment.',
+            tips: [
+                'Five minutes of 4-7-8 breathing (inhale 4, hold 7, exhale 8) often nudges the score down.',
+                'When the score stays ≥7, favor gentle movement and postpone all-out efforts.',
+                'Soma uses this index to thin harmonic density and slow the musical grid.',
+            ],
+        },
+        rr: {
+            title: 'Respiratory Rate',
+            subtitle: 'Breaths per minute while you are relatively still.',
+            unit: 'br/min',
+            term: 'br/min — breaths per minute (estimated from watch motion + HR coupling)',
+            ranges: [
+                { label: 'Slow',    value: '< 12',     kind: 'warn'  },
+                { label: 'Typical', value: '12 – 18',  kind: 'ok'    },
+                { label: 'Fast',    value: '19 – 20',  kind: 'warn'  },
+                { label: 'Rapid',   value: '> 20',     kind: 'alert' },
+            ],
+            classify: v => v < 12 ? 0 : v <= 18 ? 1 : v <= 20 ? 2 : 3,
+            what: 'Respiratory rate is how many breaths you take each minute at rest. Watches infer it without a chest strap, so treat sharp swings as “worth noticing,” not definitive.',
+            why: 'Slow, diaphragmatic breathing recruits the vagus nerve and lifts HRV. Fast, shallow breathing often rides along with anxiety, pain, fever, or poor recovery.',
+            tips: [
+                'Aim for ~5–6 breaths per minute during listening if you want maximal HRV coupling.',
+                'If RR stays >20 at rest without exercise, review sleep, stress load, and illness symptoms.',
+            ],
+        },
+        spo2: {
+            title: 'Blood Oxygen · SpO₂',
+            subtitle: 'How saturated your hemoglobin is with oxygen (wrist estimate).',
+            unit: '%',
+            term: 'SpO₂ — peripheral oxygen saturation via green/red PPG on the wrist',
+            ranges: [
+                { label: 'Low',         value: '< 94 %',     kind: 'alert' },
+                { label: 'Borderline',  value: '94 – 95 %',  kind: 'warn'  },
+                { label: 'Typical',     value: '>= 96 %',     kind: 'ok'    },
+            ],
+            classify: v => v < 94 ? 0 : v < 96 ? 1 : 2,
+            what: 'SpO₂ describes what fraction of hemoglobin is carrying oxygen. Consumer watches estimate it optically; cold hands, nail polish, or motion can skew a single reading.',
+            why: 'Persistently low values can flag lung issues, altitude stress, or sleep-disordered breathing. Nightly stability at or above 95% is a practical “green flag” for many healthy adults.',
+            tips: [
+                'Keep the band snug, the wrist warm, and the arm still while sampling.',
+                'If awake readings repeatedly fall below 92%, verify with a clinical pulse oximeter or clinician.',
+            ],
+        },
+        temp: {
+            title: 'Wrist Temperature',
+            subtitle: 'Skin temperature at the wrist — compare to your personal baseline.',
+            unit: '°C',
+            term: 'Nightly wrist skin temperature relative to your established baseline (watch)',
+            ranges: [
+                { label: 'Cool',    value: '< 35.5 °C',      kind: 'warn' },
+                { label: 'Typical', value: '35.5 – 37.4 °C', kind: 'ok'   },
+                { label: 'Warm',    value: '>= 37.5 °C',      kind: 'warn' },
+            ],
+            classify: v => v < 35.5 ? 0 : v < 37.5 ? 1 : 2,
+            what: 'This is not core body temperature. Apple Watch builds a personal baseline while you sleep, then highlights deviations — trends usually beat one-off absolutes.',
+            why: 'Small sustained rises can precede illness, track menstrual phases, or reflect a hot room. Deviation from your own baseline matters more than a single Celsius tick.',
+            tips: [
+                'Compare readings in the same sleep environment across multiple nights.',
+                'If you run warmer than baseline for several nights and feel ill, consider a fever check.',
+            ],
+        },
+        noise: {
+            title: 'Ambient Noise',
+            subtitle: 'Estimated A-weighted sound level around you — audio is not stored.',
+            unit: 'dB',
+            term: 'dB(A) — A-weighted sound pressure level from the watch microphone (metadata only)',
+            ranges: [
+                { label: 'Quiet',    value: '< 60 dB',    kind: 'ok'    },
+                { label: 'Moderate', value: '60 – 70 dB', kind: 'warn'  },
+                { label: 'Loud',     value: '> 70 dB',    kind: 'alert' },
+            ],
+            classify: v => v < 60 ? 0 : v <= 70 ? 1 : 2,
+            what: 'The watch listens briefly to estimate loudness for health context. Soma never uploads raw audio — only the level bucket shown here.',
+            why: 'Noise triggers stress hormones, raises HR, trims HRV, and chips away at deep sleep. Above ~70 dB we tighten safeguards so therapy audio stays intelligible and safe.',
+            tips: [
+                'Under ~40 dB at bedtime supports deeper slow-wave sleep for many people.',
+                'Over ~80 dB for long stretches — protect your ears or relocate the session.',
+            ],
+        },
+        motion: {
+            title: 'Body Motion',
+            subtitle: 'Three-axis acceleration magnitude while wearing the watch.',
+            unit: 'g',
+            term: 'g — gravities of acceleration on X, Y, Z from the wrist IMU',
+            ranges: [
+                { label: 'Still',  value: '< 0.2 g',     kind: 'ok'   },
+                { label: 'Light',  value: '0.2 – 0.6 g', kind: 'ok'   },
+                { label: 'Active', value: '> 0.6 g',     kind: 'warn' },
+            ],
+            classify: v => v < 0.2 ? 0 : v <= 0.6 ? 1 : 2,
+            what: 'Each axis reports linear acceleration; we show a vector magnitude so you can see fidgeting, walking compensation, or true stillness.',
+            why: 'Motion helps the watch classify sleep stages, reject noisy HR samples, and tells Soma whether to keep you in an immersive “held” mix or hold back transients.',
+            tips: [
+                'For breathwork or music therapy, rest the wrist on your thigh and stay relaxed for the cleanest trace.',
+            ],
+        },
+        sleep: {
+            title: 'Sleep Stage',
+            subtitle: 'Classifier output from HR, HRV, motion, and duration.',
+            unit: '',
+            term: 'Stage estimate — awake, core (light), deep, or REM',
+            ranges: [
+                { label: 'Awake', value: 'Fully conscious',            kind: 'warn' },
+                { label: 'Core',  value: 'Light sleep (stabilizing)',    kind: 'ok'   },
+                { label: 'Deep',  value: 'Physical restoration',          kind: 'ok'   },
+                { label: 'REM',   value: 'Dreaming and memory sorting',   kind: 'ok'   },
+            ],
+            classify: v => ({ awake: 0, core: 1, deep: 2, rem: 3 }[v] ?? 0),
+            what: 'Stages group your night into awake time, core sleep, deep sleep, and REM. Consumer estimates are directional — perfect night-to-night precision still lives in the lab.',
+            why: 'Deep sleep clears metabolic waste and repairs tissue; REM processes emotion and learning. Imbalance between the two often shows up as fatigue even after “enough” hours.',
+            tips: [
+                'A steady sleep window does more for deep sleep than any single hack.',
+                'Soma lowers treble density during deep and REM so sudden spikes do not pull you toward wake.',
+            ],
+        },
+    };
+
+    function getCurrent(metric) {
+        const v = window.__somaLastVitals;
+        if (!v) return null;
+        switch (metric) {
+            case 'hr':     return { display: v.heartRate,                   raw: v.heartRate,        unit: 'BPM' };
+            case 'hrv':    return { display: v.hrv,                         raw: v.hrv,              unit: 'ms' };
+            case 'stress': return { display: v.stressScore,                 raw: v.stressScore,      unit: '/10' };
+            case 'rr':     return { display: v.respiratoryRate,             raw: v.respiratoryRate,  unit: 'br/min' };
+            case 'spo2':   return { display: v.bloodOxygen?.toFixed(1),     raw: v.bloodOxygen,      unit: '%' };
+            case 'temp':   return { display: v.wristTemperature?.toFixed(1),raw: v.wristTemperature, unit: '°C' };
+            case 'noise':  return { display: v.ambientNoise,                raw: v.ambientNoise,     unit: 'dB' };
+            case 'motion': {
+                const m = v.bodyMotion || { x: 0, y: 0, z: 0 };
+                const total = Math.sqrt((m.x||0)**2 + (m.y||0)**2 + (m.z||0)**2);
+                return { display: total.toFixed(2), raw: total, unit: 'g' };
+            }
+            case 'sleep': {
+                const labels = { awake: 'Awake', core: 'Core Sleep', deep: 'Deep Sleep', rem: 'REM' };
+                return { display: labels[v.sleepStage] ?? v.sleepStage ?? '—', raw: v.sleepStage, unit: '' };
+            }
+        }
+        return null;
+    }
+
+    const detail   = document.getElementById('v-detail');
+    const dEyebrow = document.getElementById('v-detail-eyebrow');
+    const dTitle   = document.getElementById('v-detail-title');
+    const dSubtitle = document.getElementById('v-detail-subtitle');
+    const dNum     = document.getElementById('v-detail-num');
+    const dUnit    = document.getElementById('v-detail-unit');
+    const dStatus  = document.getElementById('v-detail-status');
+    const dMeaning = document.getElementById('v-detail-meaning');
+    const dWhat    = document.getElementById('v-detail-what');
+    const dRanges  = document.getElementById('v-detail-ranges');
+    const dWhy     = document.getElementById('v-detail-why');
+    const dTips    = document.getElementById('v-detail-tips');
+    const dClose   = document.getElementById('v-detail-close');
+
+    function openDetail(metric) {
+        const info = METRIC_INFO[metric];
+        if (!info || !detail) return;
+
+        const cur = getCurrent(metric);
+        const activeIdx = (cur && cur.raw != null) ? info.classify(cur.raw) : -1;
+
+        dEyebrow.innerHTML =
+            '<span class="w-1.5 h-1.5 rounded-full bg-rose-400/70 inline-block"></span>' +
+            'BIOMETRIC · ' + (info.term || '');
+        dTitle.textContent    = info.title;
+        dSubtitle.textContent = info.subtitle || '';
+
+        dNum.textContent  = (cur && cur.display != null && cur.display !== '') ? cur.display : '—';
+        dUnit.textContent = (cur && cur.unit) || info.unit || '';
+
+        if (activeIdx >= 0) {
+            const r = info.ranges[activeIdx];
+            const cls = r.kind === 'alert' ? 'v-status-alert' : r.kind === 'warn' ? 'v-status-warn' : 'v-status-ok';
+            dStatus.className = 'v-status ' + cls;
+            dStatus.innerHTML =
+                '<span class="w-1.5 h-1.5 rounded-full" style="background:currentColor;opacity:0.75;flex-shrink:0"></span>' +
+                r.label;
+            dMeaning.textContent = r.value;
+        } else {
+            dStatus.className = 'v-status';
+            dStatus.innerHTML = '';
+            dMeaning.textContent = 'Load a demo case to see live band analysis.';
+        }
+
+        dWhat.textContent = info.what;
+        dWhy.textContent  = info.why;
+
+        dRanges.innerHTML = '';
+        info.ranges.forEach((r, i) => {
+            const el = document.createElement('div');
+            el.className = 'v-range';
+            if (i === activeIdx) {
+                el.classList.add('is-active');
+                if (r.kind === 'warn')  el.classList.add('is-warn');
+                if (r.kind === 'alert') el.classList.add('is-alert');
+            }
+            el.innerHTML =
+                '<span class="v-range-label">' + r.label + '</span>' +
+                '<span class="v-range-value">' + r.value + '</span>';
+            dRanges.appendChild(el);
+        });
+
+        dTips.innerHTML = '';
+        info.tips.forEach(t => {
+            const el = document.createElement('div');
+            el.className = 'v-tip';
+            el.innerHTML =
+                '<iconify-icon icon="lucide:check-circle-2" width="13"></iconify-icon>' +
+                '<span>' + t + '</span>';
+            dTips.appendChild(el);
+        });
+
+        detail.classList.add('is-open');
+        detail.setAttribute('aria-hidden', 'false');
+        // Move focus for accessibility, but don't scroll the page.
+        try { dClose.focus({ preventScroll: true }); } catch (_) { dClose.focus(); }
+    }
+
+    function closeDetail() {
+        if (!detail) return;
+        detail.classList.remove('is-open');
+        detail.setAttribute('aria-hidden', 'true');
+    }
+
+    document.querySelectorAll('.v-card[data-metric]').forEach(card => {
+        card.setAttribute('role', 'button');
+        card.setAttribute('tabindex', '0');
+        card.setAttribute('aria-label',
+            (METRIC_INFO[card.dataset.metric]?.title || card.dataset.metric) + ' — open details');
+        card.addEventListener('click', () => openDetail(card.dataset.metric));
+        card.addEventListener('keydown', e => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openDetail(card.dataset.metric);
+            }
+        });
+    });
+
+    dClose?.addEventListener('click', closeDetail);
+    // Use capture so we close the inner detail before the outer Esc handler closes the whole vitals view.
+    document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && detail?.classList.contains('is-open')) {
+            e.stopPropagation();
+            closeDetail();
+        }
+    }, true);
+
+    window.somaOpenMetricDetail  = openDetail;
+    window.somaCloseMetricDetail = closeDetail;
+})();
+</script>
+
 <!-- Mock HealthKit prototype connector -->
 <script>
 (function () {
