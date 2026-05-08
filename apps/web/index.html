@@ -66,12 +66,93 @@
             -webkit-backdrop-filter: blur(12px);
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
         }
-        /* Above #suno-overlay (z-90); modals stay higher so they still cover the shell */
-        header.glass-nav {
-            z-index: 95;
+        /* App shell: above content, below Suno overlay (z-90) and blocking modals */
+        .soma-app-shell {
+            position: relative;
+            z-index: 10;
         }
-        header iconify-icon {
+        aside.soma-sidebar {
+            z-index: 20;
+        }
+        .soma-mobile-brand {
+            z-index: 30;
+        }
+        .soma-mobile-nav {
+            z-index: 35;
+        }
+        .soma-workspace {
+            position: relative;
+            z-index: 10;
+        }
+        aside.soma-sidebar iconify-icon,
+        .soma-mobile-brand iconify-icon,
+        .soma-mobile-nav iconify-icon {
             pointer-events: none;
+        }
+
+        .soma-sidebar-inner {
+            background: linear-gradient(180deg, rgba(8, 8, 12, 0.55) 0%, rgba(6, 6, 9, 0.35) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .soma-nav-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            width: 100%;
+            text-align: left;
+            padding: 0.55rem 0.85rem;
+            border-radius: 0.75rem;
+            font-size: 0.8125rem;
+            font-weight: 300;
+            letter-spacing: 0.04em;
+            color: rgba(255, 255, 255, 0.45);
+            border: 1px solid transparent;
+            background: transparent;
+            transition: color 0.25s ease, background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+        }
+        .soma-nav-btn:hover {
+            color: rgba(255, 255, 255, 0.88);
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        .soma-nav-btn:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, 0.35);
+            outline-offset: 2px;
+        }
+        .soma-nav-btn.soma-nav-active {
+            color: rgba(255, 255, 255, 0.92);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.12);
+            box-shadow: 0 0 24px rgba(180, 198, 218, 0.12);
+        }
+
+        .soma-mobile-nav-btn {
+            border: 1px solid transparent;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.45);
+            transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+        }
+        .soma-mobile-nav-btn.soma-nav-active {
+            color: rgba(255, 255, 255, 0.92);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+        .soma-mobile-nav-btn:focus-visible {
+            outline: 2px solid rgba(255, 255, 255, 0.35);
+            outline-offset: 2px;
+        }
+
+        .soma-panel-inline {
+            height: 100%;
+            min-height: min(88vh, 720px);
+        }
+
+        .session-station__playback .gramophone-container {
+            margin-top: 0.5rem;
+            margin-bottom: 1rem;
         }
         
         ::-webkit-scrollbar {
@@ -1022,6 +1103,25 @@
         .soma-demo-hint {
             border-left: 2px solid rgba(251, 191, 36, 0.25);
         }
+
+        /* Inline workspace panels (former full-screen modals) */
+        .soma-inline-panel-host {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            width: 100%;
+            align-items: stretch;
+            justify-content: flex-start;
+            padding: 1rem 1rem 1.5rem;
+        }
+        @media (min-width: 768px) {
+            .soma-inline-panel-host {
+                padding: 1.5rem 1.5rem 2rem;
+                align-items: center;
+                justify-content: center;
+            }
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-white/20 selection:text-white overflow-hidden flex flex-col h-screen">
@@ -1036,45 +1136,60 @@
         </div>
     </div>
 
-    <!-- Header -->
-    <header class="w-full glass-nav transition-all duration-300 flex-shrink-0 absolute top-0">
-        <div class="max-w-6xl mx-auto px-8 h-20 flex items-center justify-between">
-            <a href="#" class="flex items-center gap-3 group">
-                <div class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-md group-hover:bg-white/10 transition-all duration-500">
-                    <iconify-icon icon="lucide:waves" class="text-white/80 group-hover:text-white" width="16"></iconify-icon>
+    <!-- App shell: sidebar + workspace -->
+    <div class="soma-app-shell flex flex-1 min-h-0 min-w-0 flex-col">
+        <header class="soma-mobile-brand md:hidden glass-nav border-b border-white/[0.06] h-14 px-4 flex items-center flex-shrink-0" role="banner">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-md">
+                    <iconify-icon icon="lucide:waves" width="16" class="text-white/80"></iconify-icon>
                 </div>
-                <span class="text-xl font-medium tracking-wide text-white/90 font-display italic">Soma</span>
-            </a>
-            <div class="flex items-center gap-3">
-                <button id="history-btn" type="button" class="text-xs font-light px-5 py-2.5 rounded-full border transition-all duration-300 bg-transparent border-white/10 text-white/50 hover:border-white/30 hover:text-white flex items-center gap-2 group">
-                    <iconify-icon icon="lucide:history" width="13"></iconify-icon>
-                    <span id="history-btn-label">History</span>
-                </button>
-                <button id="vitals-btn" class="text-xs font-light px-5 py-2.5 rounded-full border transition-all duration-300 bg-transparent border-white/10 text-white/50 hover:border-white/30 hover:text-white flex items-center gap-2 group">
-                    <iconify-icon icon="lucide:activity" width="13"></iconify-icon>
-                    <span id="vitals-btn-label">Vitals</span>
-                    <span id="vitals-live-dot" class="hidden w-1.5 h-1.5 rounded-full bg-rose-400/70 animate-pulse transition-all"></span>
-                </button>
-                <button id="profile-btn" class="text-xs font-light px-5 py-2.5 rounded-full border transition-all duration-300 bg-transparent border-white/10 text-white/50 hover:border-white/30 hover:text-white flex items-center gap-2 group">
-                    <iconify-icon icon="lucide:user-round" width="13"></iconify-icon>
-                    <span id="profile-btn-label">My Profile</span>
-                    <span id="profile-saved-dot" class="hidden w-1.5 h-1.5 rounded-full bg-white/50 group-hover:bg-white transition-all"></span>
-                </button>
-                <button id="api-key-btn" class="text-xs font-light px-5 py-2.5 rounded-full border transition-all duration-300 bg-transparent border-white/10 text-white/50 hover:border-white/30 hover:text-white flex items-center gap-2">
-                    <iconify-icon icon="lucide:key-round" width="13"></iconify-icon>
-                    <span id="api-key-btn-label">API Key</span>
-                    <span id="api-key-dot" class="hidden w-1.5 h-1.5 rounded-full bg-emerald-400/70 group-hover:bg-emerald-300 transition-all"></span>
-                </button>
-                <button id="reset-aura-btn" class="text-xs font-light px-5 py-2.5 rounded-full border transition-all duration-300 bg-transparent border-white/10 text-white/50 hover:border-white/30 hover:text-white flex items-center gap-2">
-                    <iconify-icon icon="lucide:rotate-ccw" width="12"></iconify-icon>
-                    Reset Aura
-                </button>
+                <span class="text-lg font-medium tracking-wide text-white/90 font-display italic">Soma</span>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <!-- Main Content -->
-    <main class="flex-1 overflow-y-auto w-full relative z-10 flex flex-col items-center pt-32 pb-48 px-6">
+        <div class="flex flex-1 min-h-0 min-w-0 flex-row">
+            <aside class="soma-sidebar hidden md:flex w-[224px] flex-shrink-0 flex-col soma-sidebar-inner" aria-label="Workspace navigation">
+                <div class="flex flex-col p-5 h-full min-h-0">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center bg-white/5">
+                            <iconify-icon icon="lucide:waves" width="17" class="text-white/80"></iconify-icon>
+                        </div>
+                        <span class="text-xl font-medium tracking-wide text-white/90 font-display italic">Soma</span>
+                    </div>
+                    <p class="text-[0.65rem] text-white/25 uppercase tracking-[0.28em] font-medium mb-2">Workspace</p>
+                    <nav class="flex flex-col gap-1.5" aria-label="Primary">
+                        <button type="button" class="soma-nav-btn soma-nav-active" data-soma-view="session" aria-current="page">
+                            <iconify-icon icon="lucide:orbit" width="17"></iconify-icon>
+                            Session
+                        </button>
+                        <button type="button" id="history-btn" class="soma-nav-btn" data-soma-view="history" aria-current="false">
+                            <iconify-icon icon="lucide:history" width="16"></iconify-icon>
+                            <span id="history-btn-label">History</span>
+                        </button>
+                        <button type="button" id="vitals-btn" class="soma-nav-btn" data-soma-view="vitals" aria-current="false">
+                            <iconify-icon icon="lucide:activity" width="16"></iconify-icon>
+                            <span id="vitals-btn-label">Vitals</span>
+                            <span id="vitals-live-dot" class="hidden w-1.5 h-1.5 rounded-full bg-rose-400/70 animate-pulse transition-all ml-auto flex-shrink-0"></span>
+                        </button>
+                        <button type="button" id="profile-btn" class="soma-nav-btn" data-soma-view="profile" aria-current="false">
+                            <iconify-icon icon="lucide:user-round" width="16"></iconify-icon>
+                            <span id="profile-btn-label">My Profile</span>
+                            <span id="profile-saved-dot" class="hidden w-1.5 h-1.5 rounded-full bg-white/50 transition-all ml-auto flex-shrink-0"></span>
+                        </button>
+                        <button type="button" id="api-key-btn" class="soma-nav-btn" data-soma-view="settings" aria-current="false">
+                            <iconify-icon icon="lucide:settings" width="16"></iconify-icon>
+                            <span id="api-key-btn-label">Settings</span>
+                            <span id="api-key-dot" class="hidden w-1.5 h-1.5 rounded-full bg-emerald-400/70 transition-all ml-auto flex-shrink-0"></span>
+                        </button>
+                    </nav>
+                </div>
+            </aside>
+
+            <div id="soma-workspace" class="soma-workspace flex flex-1 min-w-0 min-h-0 flex-col overflow-hidden pb-[4.25rem] md:pb-0">
+                <div id="session-view" class="soma-view soma-view-active flex flex-col flex-1 min-h-0 overflow-y-auto overscroll-y-contain px-4 sm:px-6 py-6 md:py-7" role="region" aria-labelledby="session-heading">
+                    <h2 id="session-heading" class="sr-only">Session workspace</h2>
+                    <div class="session-station w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 lg:items-start">
+                        <div class="session-station__inputs flex flex-col w-full min-w-0">
 
         <!-- Demo Cases Bar -->
         <div id="demo-cases-bar" class="w-full max-w-2xl mb-8 flex flex-col gap-2">
@@ -1112,7 +1227,7 @@
             </div>
             <p class="soma-demo-hint mt-2 px-3 py-2 rounded-xl bg-white/[0.03] text-xs text-white/38 font-light leading-relaxed tracking-wide">
                 <strong class="text-white/55 font-medium">Stable demo:</strong> use Demo Cases for instant cached audio.
-                Optional: header <strong class="text-white/55">API Key</strong> for live Suno (network dependent).
+                Optional: <strong class="text-white/55">Settings → API Key</strong> for live Suno (network dependent).
                 See <span class="text-white/45">docs/demo-script.md</span> for a 4-minute walkthrough.
             </p>
         </div>
@@ -1216,9 +1331,11 @@
                 </div>
             </div>
         </div>
+                        </div><!-- /.session-station__inputs -->
 
+                        <div class="session-station__playback flex flex-col w-full min-w-0 items-center lg:items-stretch gap-6 lg:sticky lg:top-4 self-start">
         <!-- Player Card -->
-        <div class="w-full max-w-lg relative group animate-stagger-4">
+        <div class="w-full max-w-lg relative group animate-stagger-4 mx-auto lg:mx-0">
             <div class="relative glass-panel rounded-[2.5rem] p-10 flex flex-col items-center">
                 <!-- Top Bar -->
                 <div class="w-full flex justify-between items-start mb-8">
@@ -1327,28 +1444,26 @@
             </div>
         </div>
 
-    </main>
-
-    <!-- Controls Drawer (Floating Island) -->
-    <div class="fixed bottom-8 left-1/2 -translate-x-1/2 z-50 flex justify-center pointer-events-none w-full max-w-2xl px-6">
+        <!-- Session parameters (in-column; was floating island) -->
+        <div id="session-controls-panel" class="w-full max-w-lg mx-auto lg:max-w-none">
         <div class="pointer-events-auto glass-panel rounded-3xl w-full overflow-hidden transition-all duration-500 group hover:bg-white/[0.05] border border-white/10 hover:border-white/20 shadow-2xl">
             
             <!-- Collapsed View -->
-            <div class="px-8 py-5 flex items-center justify-between cursor-pointer">
-                <div class="flex items-center gap-6 text-sm font-light text-white/60">
+            <div class="px-5 sm:px-8 py-5 flex items-center justify-between cursor-pointer">
+                <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-light text-white/60">
                     <iconify-icon icon="lucide:sliders-horizontal" width="18" class="text-white/40"></iconify-icon>
                     <span class="flex items-center gap-2">Intensity <span id="summary-intensity" class="text-white font-medium">Medium</span></span>
-                    <span class="w-1 h-1 rounded-full bg-white/20"></span>
+                    <span class="w-1 h-1 rounded-full bg-white/20 hidden sm:inline-block"></span>
                     <span id="summary-duration" class="text-white font-medium">45 min</span>
-                    <span class="w-1 h-1 rounded-full bg-white/20"></span>
+                    <span class="w-1 h-1 rounded-full bg-white/20 hidden sm:inline-block"></span>
                     <span id="summary-env" class="text-white font-medium">Rain</span>
                 </div>
-                <iconify-icon icon="lucide:chevron-up" width="20" class="text-white/40 group-hover:text-white transition-all group-hover:rotate-180 duration-500"></iconify-icon>
+                <iconify-icon icon="lucide:chevron-up" width="20" class="text-white/40 group-hover:text-white transition-all group-hover:rotate-180 duration-500 flex-shrink-0"></iconify-icon>
             </div>
             
             <!-- Expanded View -->
             <div class="max-h-0 group-hover:max-h-64 opacity-0 group-hover:opacity-100 transition-all duration-700 ease-in-out">
-                <div class="px-8 pb-8 pt-2 border-t border-white/5 flex flex-col md:flex-row gap-10 mt-2">
+                <div class="px-5 sm:px-8 pb-8 pt-2 border-t border-white/5 flex flex-col md:flex-row gap-10 mt-2">
                     
                     <!-- Intensity -->
                     <div class="flex-1">
@@ -1386,7 +1501,717 @@
                 </div>
             </div>
         </div>
+        </div>
+
+                        </div><!-- /.session-station__playback -->
+                    </div><!-- /.session-station -->
+                </div><!-- /#session-view -->
+
+                <!-- Additional workspace views (panels moved from former modals) -->
+                <div id="history-view" class="soma-view hidden flex flex-col flex-1 min-h-0 overflow-hidden" role="region" aria-labelledby="history-view-title" hidden>
+                    <h2 id="history-view-title" class="sr-only">History</h2>
+                    <div id="history-modal" class="soma-inline-panel-host flex flex-1 flex-col min-h-0 w-full max-w-3xl mx-auto">
+    <div id="history-card" class="relative glass-panel rounded-[2.5rem] w-full flex flex-col shadow-[0_40px_80px_rgba(0,0,0,0.65)] flex-1 min-h-0" style="min-height:min(88vh,640px);border:1px solid rgba(255,255,255,0.1);">
+        <div class="px-8 pt-8 pb-4 flex items-start justify-between gap-4 flex-shrink-0">
+            <div class="min-w-0 flex-1">
+                <span class="soma-section-label block mb-2">Your sessions</span>
+                <h2 class="font-display text-2xl text-white/90 italic tracking-wide">History</h2>
+                <p id="history-summary-line" class="text-sm text-white/32 font-light mt-2">—</p>
+                <button type="button" id="history-insight-entry" class="hidden mt-3 w-full p-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] text-left">
+                    <span class="flex items-center justify-between gap-3">
+                        <span class="min-w-0">
+                            <span class="block text-xs text-white/40 uppercase tracking-[0.22em]">History insight</span>
+                            <span id="history-insight-entry-summary" class="block text-sm text-white/58 font-light mt-1 truncate">Open trend panel</span>
+                        </span>
+                        <span class="text-xs text-white/32 uppercase tracking-[0.14em] flex-shrink-0">Open →</span>
+                    </span>
+                </button>
+            </div>
+            <button type="button" id="history-close" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0" title="Back to Session" aria-label="Back to Session">
+                <iconify-icon icon="lucide:x" width="15"></iconify-icon>
+            </button>
+        </div>
+        <div id="history-list-view" class="flex flex-col flex-1 min-h-0">
+            <div class="px-8 pb-3 flex flex-wrap gap-2 flex-shrink-0">
+                <button type="button" class="soma-pill soma-pill-active hist-filter" data-filter="all">All</button>
+                <button type="button" class="soma-pill hist-filter" data-filter="calm">Calm</button>
+                <button type="button" class="soma-pill hist-filter" data-filter="focus">Focus</button>
+                <button type="button" class="soma-pill hist-filter" data-filter="sleep">Sleep</button>
+                <button type="button" class="soma-pill hist-filter" data-filter="helped">Helped</button>
+            </div>
+            <div id="history-list-scroll" class="flex-1 overflow-y-auto px-8 pb-8 min-h-0">
+                <div id="history-list" class="flex flex-col gap-2"></div>
+                <p id="history-empty" class="text-center text-sm text-white/25 py-12 font-light">No completed sessions yet. Finish a session and save feedback.</p>
+            </div>
+        </div>
+        <div id="history-insight-view" class="hidden flex-col flex-1 min-h-0 px-8 pb-8">
+            <button type="button" id="history-insight-back" class="soma-action-ghost self-start mb-4">← Back to history</button>
+            <div id="history-insights" class="flex-1 p-4 rounded-3xl border border-white/[0.08] bg-white/[0.03] text-left space-y-1.5 overflow-y-auto min-h-0"></div>
+        </div>
     </div>
+                    </div>
+                </div>
+                <div id="vitals-view" class="soma-view hidden flex flex-col flex-1 min-h-0 overflow-hidden" role="region" aria-labelledby="vitals-view-title" hidden>
+                    <h2 id="vitals-view-title" class="sr-only">Vitals</h2>
+                    <div id="vitals-modal" class="soma-inline-panel-host flex flex-1 min-h-0 flex-col w-full max-w-4xl mx-auto">
+                        <div id="vitals-card" class="relative glass-panel rounded-[2.5rem] w-full flex flex-col flex-1 min-h-0 shadow-[0_40px_80px_rgba(0,0,0,0.65)]" style="min-height:min(88vh,680px);border:1px solid rgba(255,255,255,0.1);">
+
+                                <!-- Header -->
+                                <div class="px-9 pt-9 pb-6 flex-shrink-0">
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex flex-col gap-2">
+                                            <div class="flex items-center gap-3">
+                                                <div class="v-live-dot"></div>
+                                                <span class="text-xs text-white/30 uppercase tracking-[0.28em] font-medium">Biometric Monitor</span>
+                                            </div>
+                                            <h2 id="vitals-title" class="font-display text-3xl text-white/90 italic tracking-wide leading-tight">No Data</h2>
+                                            <div class="flex items-center gap-3 mt-0.5">
+                                                <span class="v-source">
+                                                    <iconify-icon icon="lucide:watch" width="10"></iconify-icon>
+                                                    Apple Watch · HealthKit
+                                                </span>
+                                                <span id="vitals-timestamp" class="text-xs text-white/18 font-light tracking-wide"></span>
+                                            </div>
+                                        </div>
+                                        <button id="vitals-close" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0">
+                                            <iconify-icon icon="lucide:x" width="15"></iconify-icon>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- Mock HealthKit prototype (web only; maps to /api/healthkit/mock/run when API available) -->
+                                <div class="px-9 pb-3 flex-shrink-0 flex flex-wrap gap-2 items-center border-b border-white/[0.06]">
+                                    <span class="text-xs text-white/25 uppercase tracking-widest">Prototype</span>
+                                    <button type="button" id="mock-hk-connect" class="text-sm font-light px-3 py-1.5 rounded-full border border-white/15 bg-white/[0.04] text-white/70 hover:bg-white/10 hover:text-white transition-all">Connect mock HealthKit</button>
+                                    <button type="button" id="mock-hk-next" disabled class="text-sm font-light px-3 py-1.5 rounded-full border border-white/10 bg-transparent text-white/35 transition-all">Next sample</button>
+                                    <span id="mock-hk-status" class="text-xs text-white/30 font-light tracking-wide ml-1 min-w-0 flex-1">Disconnected · start FastAPI (see README) for full MindWave sync</span>
+                                </div>
+                                <p class="px-9 pb-3 text-xs text-white/22 font-light leading-relaxed">Synthetic vitals for demos only — not a medical readout. Real use requires explicit consent and clinical oversight where applicable.</p>
+
+                                <!-- Scrollable content -->
+                                <div id="vitals-scroll" class="flex-1 overflow-y-auto px-9 pb-8" style="-webkit-overflow-scrolling:touch;">
+
+                                    <!-- Empty state -->
+                                    <div id="vitals-empty" class="flex flex-col items-center justify-center gap-4 py-16 text-center">
+                                        <div class="w-14 h-14 rounded-full border border-white/10 bg-white/[0.03] flex items-center justify-center">
+                                            <iconify-icon icon="lucide:activity" width="22" class="text-white/20"></iconify-icon>
+                                        </div>
+                                        <p class="text-white/25 text-sm font-light tracking-wide">Load a demo case to see biometric data</p>
+                                    </div>
+
+                                    <!-- Data grid (hidden until data loaded) -->
+                                    <div id="vitals-grid" class="hidden flex flex-col gap-5">
+
+                                        <!-- Row 1: HR + HRV + Stress (3 cols) -->
+                                        <div class="grid grid-cols-3 gap-3">
+
+                                            <!-- Heart Rate -->
+                                            <div class="v-card col-span-1">
+                                                <span class="v-card-label">Heart Rate</span>
+                                                <div class="flex items-end gap-1.5 mt-1">
+                                                    <span id="v-hr-value" class="v-card-value">—</span>
+                                                    <span class="v-card-unit mb-1">BPM</span>
+                                                </div>
+                                                <span id="v-hr-status" class="v-status"></span>
+                                                <!-- ECG sparkline -->
+                                                <svg class="v-sparkline" viewBox="0 0 100 42" fill="none" preserveAspectRatio="none">
+                                                    <path id="v-ecg-path" class="v-ecg-path" d="M0 30 L12 30 L18 30 L22 5 L26 38 L30 30 L42 30 L46 14 L50 38 L54 30 L66 30 L70 10 L74 38 L78 30 L100 30" stroke="rgba(248,113,113,0.7)" stroke-width="1.5" fill="none"/>
+                                                </svg>
+                                            </div>
+
+                                            <!-- HRV -->
+                                            <div class="v-card col-span-1">
+                                                <span class="v-card-label">HRV · SDNN</span>
+                                                <div class="flex items-end gap-1.5 mt-1">
+                                                    <span id="v-hrv-value" class="v-card-value">—</span>
+                                                    <span class="v-card-unit mb-1">ms</span>
+                                                </div>
+                                                <span id="v-hrv-status" class="v-status"></span>
+                                                <!-- HRV bar chart -->
+                                                <div id="v-hrv-bars" class="absolute bottom-3 right-3 flex items-end gap-[2px]" style="width:52px;height:28px;"></div>
+                                            </div>
+
+                                            <!-- Stress Score -->
+                                            <div class="v-card col-span-1" style="flex-direction:column;">
+                                                <span class="v-card-label">Stress</span>
+                                                <div class="flex items-center gap-3 mt-2">
+                                                    <div class="v-stress-ring" style="width:58px;height:58px;flex-shrink:0;">
+                                                        <svg width="58" height="58" viewBox="0 0 58 58">
+                                                            <circle class="ring-track" cx="29" cy="29" r="22" fill="none" stroke-width="4.5"/>
+                                                            <circle id="v-stress-ring-fill" class="ring-fill" cx="29" cy="29" r="22" fill="none" stroke-width="4.5" stroke="rgba(251,191,36,0.7)" stroke-dasharray="138.2" stroke-dashoffset="138.2"/>
+                                                        </svg>
+                                                        <div class="v-stress-center">
+                                                            <span id="v-stress-num" class="font-light text-white/90" style="line-height:1;font-size:1.125rem">—</span>
+                                                            <span class="text-xs text-white/28 uppercase tracking-widest">/10</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
+                                                        <span id="v-stress-label" class="text-sm font-light text-white/60 leading-snug">—</span>
+                                                        <span id="v-stress-status" class="v-status" style="font-size:0.625rem;padding:0.2rem 0.5rem;white-space:nowrap;"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Row 2: Respiratory + SpO2 + Temp (3 cols) -->
+                                        <div class="grid grid-cols-3 gap-3">
+                                            <div class="v-card">
+                                                <span class="v-card-label">Respiratory Rate</span>
+                                                <div class="flex items-end gap-1.5 mt-1">
+                                                    <span id="v-rr-value" class="v-card-value">—</span>
+                                                    <span class="v-card-unit mb-1">br/min</span>
+                                                </div>
+                                                <span id="v-rr-status" class="v-status"></span>
+                                                <span id="v-rr-sub" class="v-card-sub"></span>
+                                            </div>
+                                            <div class="v-card">
+                                                <span class="v-card-label">Blood Oxygen · SpO2</span>
+                                                <div class="flex items-end gap-1.5 mt-1">
+                                                    <span id="v-spo2-value" class="v-card-value">—</span>
+                                                    <span class="v-card-unit mb-1">%</span>
+                                                </div>
+                                                <span id="v-spo2-status" class="v-status"></span>
+                                            </div>
+                                            <div class="v-card">
+                                                <span class="v-card-label">Wrist Temperature</span>
+                                                <div class="flex items-end gap-1.5 mt-1">
+                                                    <span id="v-temp-value" class="v-card-value">—</span>
+                                                    <span class="v-card-unit mb-1">°C</span>
+                                                </div>
+                                                <span id="v-temp-status" class="v-status"></span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Row 3: Environment + Motion + Sleep (wide layout) -->
+                                        <div class="grid grid-cols-3 gap-3">
+                                            <div class="v-card">
+                                                <span class="v-card-label">Ambient Noise</span>
+                                                <div class="flex items-end gap-1.5 mt-1">
+                                                    <span id="v-noise-value" class="v-card-value">—</span>
+                                                    <span class="v-card-unit mb-1">dB</span>
+                                                </div>
+                                                <span id="v-noise-status" class="v-status"></span>
+                                                <span id="v-noise-sub" class="v-card-sub"></span>
+                                            </div>
+                                            <div class="v-card">
+                                                <span class="v-card-label">Body Motion</span>
+                                                <div class="flex flex-col gap-1.5 mt-2">
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-xs text-white/28 font-mono w-3">X</span>
+                                                        <div class="flex-1 h-1 rounded-full bg-white/6 overflow-hidden">
+                                                            <div id="v-motion-x" class="h-full rounded-full bg-white/35 transition-all duration-700" style="width:0%"></div>
+                                                        </div>
+                                                        <span id="v-motion-x-val" class="text-xs font-mono text-white/30 w-7 text-right">—</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-xs text-white/28 font-mono w-3">Y</span>
+                                                        <div class="flex-1 h-1 rounded-full bg-white/6 overflow-hidden">
+                                                            <div id="v-motion-y" class="h-full rounded-full bg-white/35 transition-all duration-700" style="width:0%"></div>
+                                                        </div>
+                                                        <span id="v-motion-y-val" class="text-xs font-mono text-white/30 w-7 text-right">—</span>
+                                                    </div>
+                                                    <div class="flex items-center gap-2">
+                                                        <span class="text-xs text-white/28 font-mono w-3">Z</span>
+                                                        <div class="flex-1 h-1 rounded-full bg-white/6 overflow-hidden">
+                                                            <div id="v-motion-z" class="h-full rounded-full bg-white/35 transition-all duration-700" style="width:0%"></div>
+                                                        </div>
+                                                        <span id="v-motion-z-val" class="text-xs font-mono text-white/30 w-7 text-right">—</span>
+                                                    </div>
+                                                </div>
+                                                <span id="v-motion-status" class="v-status mt-2"></span>
+                                            </div>
+                                            <div class="v-card">
+                                                <span class="v-card-label">Sleep Stage</span>
+                                                <div class="flex items-end gap-1.5 mt-1">
+                                                    <span id="v-sleep-value" class="v-card-value text-2xl">—</span>
+                                                </div>
+                                                <span id="v-sleep-status" class="v-status"></span>
+                                                <span id="v-sleep-sub" class="v-card-sub"></span>
+                                            </div>
+                                        </div>
+
+                                        <!-- Row 4: Middleware analysis output -->
+                                        <div class="v-card" style="border-color:rgba(255,255,255,0.09);">
+                                            <div class="flex items-center gap-3 mb-3">
+                                                <iconify-icon icon="lucide:cpu" width="13" class="text-white/30 flex-shrink-0"></iconify-icon>
+                                                <span class="v-card-label" style="margin:0">Middleware Analysis · Layer 2 Output</span>
+                                            </div>
+                                            <div class="grid grid-cols-2 gap-x-6 gap-y-2">
+                                                <div class="flex items-center justify-between border-b border-white/[0.04] pb-2">
+                                                    <span class="text-xs text-white/30 font-light">Target Entrainment BPM</span>
+                                                    <span id="v-target-bpm" class="text-sm font-mono text-white/65">—</span>
+                                                </div>
+                                                <div class="flex items-center justify-between border-b border-white/[0.04] pb-2">
+                                                    <span class="text-xs text-white/30 font-light">Sympathetic Load</span>
+                                                    <span id="v-sympathetic" class="text-sm font-mono text-white/65">—</span>
+                                                </div>
+                                                <div class="flex items-center justify-between border-b border-white/[0.04] pb-2">
+                                                    <span class="text-xs text-white/30 font-light">HRV Status</span>
+                                                    <span id="v-hrv-analysis" class="text-sm font-mono text-white/65">—</span>
+                                                </div>
+                                                <div class="flex items-center justify-between border-b border-white/[0.04] pb-2">
+                                                    <span class="text-xs text-white/30 font-light">Acoustic Texture</span>
+                                                    <span id="v-texture" class="text-sm font-mono text-white/65">—</span>
+                                                </div>
+                                                <div class="flex items-center justify-between pb-1">
+                                                    <span class="text-xs text-white/30 font-light">Instrument Set</span>
+                                                    <span id="v-instruments" class="text-sm font-mono text-white/65">—</span>
+                                                </div>
+                                                <div class="flex items-center justify-between pb-1">
+                                                    <span class="text-xs text-white/30 font-light">Noise Safeguard</span>
+                                                    <span id="v-safeguard" class="text-sm font-mono text-white/65">—</span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div><!-- /vitals-grid -->
+                                </div><!-- /scroll -->
+                            </div><!-- /card -->
+                    </div>
+                </div>
+                <div id="profile-view" class="soma-view hidden flex flex-col flex-1 min-h-0 overflow-hidden" role="region" aria-labelledby="profile-view-title" hidden>
+                    <h2 id="profile-view-title" class="sr-only">Therapy profile</h2>
+                    <div id="profile-modal" class="soma-inline-panel-host flex flex-1 min-h-0 flex-col w-full max-w-3xl mx-auto">
+                        <div id="profile-card" class="relative glass-panel rounded-[2.5rem] w-full flex flex-col flex-1 min-h-0 shadow-[0_40px_80px_rgba(0,0,0,0.65)]" style="min-height:min(88vh,720px);border:1px solid rgba(255,255,255,0.1);">
+
+                                <!-- ── Card Header ─────────────────────────────────────────── -->
+                                <div class="px-9 pt-9 pb-5 flex-shrink-0">
+                                    <div class="flex items-start justify-between mb-5">
+                                        <div>
+                                            <span class="p-label" style="margin-bottom:.45rem">Therapy Profile</span>
+                                            <h2 id="p-step-title" class="font-display text-[2.25rem] text-white/90 italic tracking-wide leading-tight">Basic Information</h2>
+                                        </div>
+                                        <button id="profile-close" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0">
+                                            <iconify-icon icon="lucide:x" width="15"></iconify-icon>
+                                        </button>
+                                    </div>
+
+                                    <!-- Step indicator dots -->
+                                    <div class="flex items-center gap-2">
+                                        <div class="sdot h-1.5 rounded-full bg-white/65" style="width:24px" data-sdot="0"></div>
+                                        <div class="sdot h-1.5 rounded-full bg-white/13" style="width:8px"  data-sdot="1"></div>
+                                        <div class="sdot h-1.5 rounded-full bg-white/13" style="width:8px"  data-sdot="2"></div>
+                                        <div class="sdot h-1.5 rounded-full bg-white/13" style="width:8px"  data-sdot="3"></div>
+                                        <div class="sdot h-1.5 rounded-full bg-white/13" style="width:8px"  data-sdot="4"></div>
+                                        <span id="p-step-counter" class="ml-3 text-sm font-mono text-white/22 tracking-widest">01 / 05</span>
+                                    </div>
+                                </div>
+
+                                <!-- ── Scrollable Content ──────────────────────────────────── -->
+                                <div id="profile-scroll" class="flex-1 overflow-y-auto px-9 pb-2" style="-webkit-overflow-scrolling:touch;">
+
+                                    <!-- STEP 1 · Basic Information ─────────────────────────── -->
+                                    <div class="step-panel active" data-panel="0">
+
+                                        <div class="profile-section mb-7">
+                                            <label class="p-label" for="p-name">Full Name</label>
+                                            <div class="p-field">
+                                                <input id="p-name" type="text" placeholder="Your name…" autocomplete="off">
+                                            </div>
+                                        </div>
+
+                                        <div class="flex gap-4 mb-7">
+                                            <div class="flex-1">
+                                                <label class="p-label" for="p-age">Age</label>
+                                                <div class="p-field">
+                                                    <input id="p-age" type="number" min="1" max="120" placeholder="e.g. 28" autocomplete="off">
+                                                </div>
+                                            </div>
+                                            <div class="flex-1">
+                                                <label class="p-label">Gender</label>
+                                                <div class="flex flex-wrap gap-2 pt-1">
+                                                    <button class="p-chip" data-group="gender" data-val="male">Male</button>
+                                                    <button class="p-chip" data-group="gender" data-val="female">Female</button>
+                                                    <button class="p-chip" data-group="gender" data-val="nb">Non-binary</button>
+                                                    <button class="p-chip" data-group="gender" data-val="other">Other</button>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-7">
+                                            <label class="p-label" for="p-contact">Contact <span class="p-label-note">(for therapist communication)</span></label>
+                                            <div class="p-field">
+                                                <input id="p-contact" type="text" placeholder="Email or phone…" autocomplete="off">
+                                            </div>
+                                        </div>
+
+                                    </div><!-- /step 1 -->
+
+                                    <!-- STEP 2 · Physical Health ───────────────────────────── -->
+                                    <div class="step-panel" data-panel="1">
+
+                                        <div class="mb-7">
+                                            <label class="p-label">Hearing Status</label>
+                                            <div class="flex flex-wrap gap-2">
+                                                <button class="p-chip" data-group="hearing" data-val="normal">Normal</button>
+                                                <button class="p-chip" data-group="hearing" data-val="mild">Mild Impairment</button>
+                                                <button class="p-chip" data-group="hearing" data-val="moderate">Moderate Impairment</button>
+                                                <button class="p-chip" data-group="hearing" data-val="severe">Severe Impairment</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-7">
+                                            <label class="p-label">Chronic Conditions <span class="p-label-note">(all that apply)</span></label>
+                                            <div class="flex flex-wrap gap-2">
+                                                <button class="p-chip" data-group="conditions" data-multi="1" data-val="none">None</button>
+                                                <button class="p-chip" data-group="conditions" data-multi="1" data-val="hypertension">Hypertension</button>
+                                                <button class="p-chip" data-group="conditions" data-multi="1" data-val="diabetes">Diabetes</button>
+                                                <button class="p-chip" data-group="conditions" data-multi="1" data-val="heart">Heart Disease</button>
+                                                <button class="p-chip" data-group="conditions" data-multi="1" data-val="anxiety-d">Anxiety Disorder</button>
+                                                <button class="p-chip" data-group="conditions" data-multi="1" data-val="other">Other</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-7">
+                                            <label class="p-label">Current Medication</label>
+                                            <div class="flex gap-2">
+                                                <button class="p-chip" data-group="medication" data-val="yes">Yes</button>
+                                                <button class="p-chip" data-group="medication" data-val="no">No</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-7">
+                                            <div class="flex items-center justify-between mb-3">
+                                                <label class="p-label" style="margin-bottom:0">Sleep Quality</label>
+                                                <span id="p-sleep-disp" class="text-sm font-mono text-white/40 tracking-widest">6 / 10</span>
+                                            </div>
+                                            <input id="p-sleep" class="p-slider" type="range" min="1" max="10" value="6" step="1">
+                                            <div class="flex justify-between mt-1.5">
+                                                <span class="text-sm text-white/20">Poor</span>
+                                                <span class="text-sm text-white/20">Excellent</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-7">
+                                            <label class="p-label" for="p-meds-note">Medication or Health Notes <span class="p-label-note">(optional)</span></label>
+                                            <div class="p-field">
+                                                <textarea id="p-meds-note" rows="2" placeholder="e.g. taking SSRIs, managing chronic back pain…"></textarea>
+                                            </div>
+                                        </div>
+
+                                    </div><!-- /step 2 -->
+
+                                    <!-- STEP 3 · Emotional Landscape ──────────────────────── -->
+                                    <div class="step-panel" data-panel="2">
+
+                                        <div class="mb-7">
+                                            <label class="p-label">Current Emotional State <span class="p-label-note">(up to 3)</span></label>
+                                            <div class="flex flex-wrap gap-2">
+                                                <button class="p-chip" data-group="emotions" data-multi="3" data-val="anxious">Anxious</button>
+                                                <button class="p-chip" data-group="emotions" data-multi="3" data-val="depressed">Depressed</button>
+                                                <button class="p-chip" data-group="emotions" data-multi="3" data-val="stressed">Stressed</button>
+                                                <button class="p-chip" data-group="emotions" data-multi="3" data-val="calm">Calm</button>
+                                                <button class="p-chip" data-group="emotions" data-multi="3" data-val="sad">Sad</button>
+                                                <button class="p-chip" data-group="emotions" data-multi="3" data-val="angry">Angry</button>
+                                                <button class="p-chip" data-group="emotions" data-multi="3" data-val="fatigued">Fatigued</button>
+                                                <button class="p-chip" data-group="emotions" data-multi="3" data-val="peaceful">At Peace</button>
+                                                <button class="p-chip" data-group="emotions" data-multi="3" data-val="numb">Emotionally Numb</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-7">
+                                            <label class="p-label">Treatment Goals <span class="p-label-note">(all that apply)</span></label>
+                                            <div class="flex flex-wrap gap-2">
+                                                <button class="p-chip" data-group="goals" data-multi="1" data-val="relax">Relaxation</button>
+                                                <button class="p-chip" data-group="goals" data-multi="1" data-val="focus">Focus &amp; Clarity</button>
+                                                <button class="p-chip" data-group="goals" data-multi="1" data-val="emotion-reg">Emotional Regulation</button>
+                                                <button class="p-chip" data-group="goals" data-multi="1" data-val="trauma">Trauma Healing</button>
+                                                <button class="p-chip" data-group="goals" data-multi="1" data-val="energy">Energy Boost</button>
+                                                <button class="p-chip" data-group="goals" data-multi="1" data-val="sleep">Sleep Improvement</button>
+                                                <button class="p-chip" data-group="goals" data-multi="1" data-val="confidence">Self-Confidence</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-7">
+                                            <label class="p-label">Emotional Fluctuation Pattern <span class="p-label-note">(when it's most intense)</span></label>
+                                            <div class="flex flex-wrap gap-2">
+                                                <button class="p-chip" data-group="fluctuation" data-multi="1" data-val="morning">Morning Peak</button>
+                                                <button class="p-chip" data-group="fluctuation" data-multi="1" data-val="afternoon">Afternoon Peak</button>
+                                                <button class="p-chip" data-group="fluctuation" data-multi="1" data-val="night">Nighttime Peak</button>
+                                                <button class="p-chip" data-group="fluctuation" data-multi="1" data-val="random">Unpredictable</button>
+                                                <button class="p-chip" data-group="fluctuation" data-multi="1" data-val="stable">Generally Stable</button>
+                                            </div>
+                                        </div>
+
+                                    </div><!-- /step 3 -->
+
+                                    <!-- STEP 4 · Music Preferences ─────────────────────────── -->
+                                    <div class="step-panel" data-panel="3">
+
+                                        <div class="mb-7">
+                                            <label class="p-label">Preferred Music Styles <span class="p-label-note">(all that apply)</span></label>
+                                            <div class="flex flex-wrap gap-2">
+                                                <button class="p-chip" data-group="styles" data-multi="1" data-val="classical">Classical</button>
+                                                <button class="p-chip" data-group="styles" data-multi="1" data-val="nature">Nature Sounds</button>
+                                                <button class="p-chip" data-group="styles" data-multi="1" data-val="electronic">Electronic</button>
+                                                <button class="p-chip" data-group="styles" data-multi="1" data-val="jazz">Jazz</button>
+                                                <button class="p-chip" data-group="styles" data-multi="1" data-val="meditation">Meditation</button>
+                                                <button class="p-chip" data-group="styles" data-multi="1" data-val="ambient">Ambient</button>
+                                                <button class="p-chip" data-group="styles" data-multi="1" data-val="folk">Folk</button>
+                                                <button class="p-chip" data-group="styles" data-multi="1" data-val="instrumental">Pure Instrumental</button>
+                                                <button class="p-chip" data-group="styles" data-multi="1" data-val="binaural">Binaural Beats</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-7">
+                                            <label class="p-label" for="p-sensitive">Sounds to Avoid <span class="p-label-note">(triggers or discomfort)</span></label>
+                                            <div class="p-field">
+                                                <textarea id="p-sensitive" rows="3" placeholder="e.g. high-pitched tones, heavy percussion, lyrics in certain languages…"></textarea>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-7">
+                                            <div class="flex items-center justify-between mb-3">
+                                                <label class="p-label" style="margin-bottom:0">Rhythm Preference</label>
+                                                <span id="p-rhythm-disp" class="text-sm font-mono text-white/40 tracking-widest">Balanced</span>
+                                            </div>
+                                            <input id="p-rhythm" class="p-slider" type="range" min="1" max="5" value="3" step="1">
+                                            <div class="flex justify-between mt-1.5">
+                                                <span class="text-sm text-white/20">Slow &amp; Soothing</span>
+                                                <span class="text-sm text-white/20">Fast &amp; Activating</span>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-7">
+                                            <label class="p-label">Volume Sensitivity</label>
+                                            <div class="flex flex-wrap gap-2">
+                                                <button class="p-chip" data-group="volume" data-val="soft">Prefer Soft</button>
+                                                <button class="p-chip" data-group="volume" data-val="moderate">Moderate</button>
+                                                <button class="p-chip" data-group="volume" data-val="immersive">Immersive &amp; Full</button>
+                                            </div>
+                                        </div>
+
+                                    </div><!-- /step 4 -->
+
+                                    <!-- STEP 5 · Treatment History ─────────────────────────── -->
+                                    <div class="step-panel" data-panel="4">
+
+                                        <div class="mb-7">
+                                            <label class="p-label">Previous Therapy Experience</label>
+                                            <div class="flex gap-2">
+                                                <button class="p-chip" data-group="prevTherapy" data-val="yes">Yes</button>
+                                                <button class="p-chip" data-group="prevTherapy" data-val="no">No</button>
+                                                <button class="p-chip" data-group="prevTherapy" data-val="unsure">Unsure</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-7">
+                                            <label class="p-label">Types of Therapy Tried <span class="p-label-note">(all that apply)</span></label>
+                                            <div class="flex flex-wrap gap-2">
+                                                <button class="p-chip" data-group="therapyTypes" data-multi="1" data-val="music-therapy">Music Therapy</button>
+                                                <button class="p-chip" data-group="therapyTypes" data-multi="1" data-val="counseling">Counseling</button>
+                                                <button class="p-chip" data-group="therapyTypes" data-multi="1" data-val="meditation">Meditation</button>
+                                                <button class="p-chip" data-group="therapyTypes" data-multi="1" data-val="cbt">CBT</button>
+                                                <button class="p-chip" data-group="therapyTypes" data-multi="1" data-val="somatic">Somatic Therapy</button>
+                                                <button class="p-chip" data-group="therapyTypes" data-multi="1" data-val="other">Other</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-7">
+                                            <label class="p-label">Sessions Completed (approximate)</label>
+                                            <div class="flex gap-2 flex-wrap">
+                                                <button class="p-chip" data-group="sessions" data-val="0">None yet</button>
+                                                <button class="p-chip" data-group="sessions" data-val="1-5">1 – 5</button>
+                                                <button class="p-chip" data-group="sessions" data-val="6-20">6 – 20</button>
+                                                <button class="p-chip" data-group="sessions" data-val="21+">21 +</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-7">
+                                            <label class="p-label">Overall Effectiveness of Past Therapy</label>
+                                            <div class="flex gap-2 flex-wrap">
+                                                <button class="p-chip" data-group="effectiveness" data-val="excellent">Excellent</button>
+                                                <button class="p-chip" data-group="effectiveness" data-val="good">Good</button>
+                                                <button class="p-chip" data-group="effectiveness" data-val="fair">Fair</button>
+                                                <button class="p-chip" data-group="effectiveness" data-val="poor">Poor</button>
+                                                <button class="p-chip" data-group="effectiveness" data-val="na">N / A</button>
+                                            </div>
+                                        </div>
+
+                                        <div class="mb-7">
+                                            <label class="p-label" for="p-notes">Feedback & Additional Notes <span class="p-label-note">(for your therapist)</span></label>
+                                            <div class="p-field">
+                                                <textarea id="p-notes" rows="4" placeholder="Describe past experiences, what worked, what didn't, or anything your therapist should know…"></textarea>
+                                            </div>
+                                        </div>
+
+                                    </div><!-- /step 5 -->
+
+                                </div><!-- /scroll -->
+
+                                <!-- ── Footer Navigation ──────────────────────────────────── -->
+                                <div class="px-9 py-7 flex-shrink-0 border-t border-white/5 flex items-center justify-between">
+
+                                    <button id="p-prev" class="text-xs font-light px-6 py-3 rounded-full border border-white/10 text-white/38 hover:text-white hover:border-white/28 transition-all duration-300 flex items-center gap-2" style="opacity:0;pointer-events:none;">
+                                        <iconify-icon icon="lucide:arrow-left" width="13"></iconify-icon>
+                                        Back
+                                    </button>
+
+                                    <!-- Completion dots (right side) -->
+                                    <div class="flex items-center gap-5">
+                                        <button id="p-next" class="text-xs font-light px-8 py-3 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/18 transition-all duration-300 flex items-center gap-2">
+                                            Continue
+                                            <iconify-icon icon="lucide:arrow-right" width="13"></iconify-icon>
+                                        </button>
+                                    </div>
+
+                                </div>
+
+                            </div><!-- /card -->
+                    </div>
+                </div>
+                <div id="settings-view" class="soma-view hidden flex flex-col flex-1 min-h-0 overflow-y-auto overscroll-y-contain" role="region" aria-labelledby="settings-view-title" hidden>
+                    <h2 id="settings-view-title" class="sr-only">Settings</h2>
+                    <div class="w-full max-w-lg mx-auto px-4 sm:px-6 py-6 md:py-8 flex flex-col gap-8 flex-1">
+                        <div>
+                            <span class="soma-section-label">Experience</span>
+                            <p class="text-sm text-white/35 font-light mt-3 leading-relaxed">Reset the Unicorn background if it glitches. Session audio and demo data stay in this browser unless you connect live APIs.</p>
+                            <button id="reset-aura-btn" type="button" class="mt-4 text-xs font-light px-5 py-2.5 rounded-full border transition-all duration-300 bg-white/[0.04] border-white/12 text-white/60 hover:border-white/28 hover:text-white inline-flex items-center gap-2">
+                                <iconify-icon icon="lucide:rotate-ccw" width="12"></iconify-icon>
+                                Reset Aura
+                            </button>
+                        </div>
+                        <div>
+                            <span class="soma-section-label">Suno &amp; network</span>
+                            <p class="text-sm text-white/35 font-light mt-3 leading-relaxed">Optional API key for live generation. Key is stored in localStorage only (demo).</p>
+                        </div>
+                        <div id="apikey-modal" class="w-full flex flex-col">
+                            <div id="apikey-card" class="relative z-10 w-full max-w-md mx-6 glass-panel rounded-3xl p-8 flex flex-col gap-6">
+                                    <!-- Header -->
+                                    <div class="flex items-start justify-between">
+                                        <div class="flex flex-col gap-1">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-7 h-7 rounded-full border border-white/15 bg-white/5 flex items-center justify-center">
+                                                    <iconify-icon icon="lucide:key-round" width="13" class="text-white/60"></iconify-icon>
+                                                </div>
+                                                <span class="text-white/90 font-display italic text-xl tracking-wide">Suno API Key</span>
+                                            </div>
+                                            <p class="text-sm text-white/30 font-light leading-relaxed mt-1">
+                                                <strong class="text-amber-200/80 font-medium">Demo only.</strong> Key lives in this browser (localStorage) and is sent directly to the Suno-compatible API — not to a first-party Soma backend. Production builds should proxy generation server-side (<span class="text-white/40">session-api-contract § Suno proxy</span>).
+                                            </p>
+                                        </div>
+                                        <button id="apikey-close" class="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all">
+                                            <iconify-icon icon="lucide:x" width="14"></iconify-icon>
+                                        </button>
+                                    </div>
+                                    <!-- Input -->
+                                    <div class="p-field">
+                                        <label class="p-label">API Key <span class="p-label-note">· from sunoapi.org</span></label>
+                                        <input id="apikey-input" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false">
+                                    </div>
+                                    <!-- Info row -->
+                                    <div class="flex items-center gap-2 text-xs text-white/22 font-light">
+                                        <iconify-icon icon="lucide:external-link" width="11" class="flex-shrink-0"></iconify-icon>
+                                        <a href="https://sunoapi.org/api-key" target="_blank" class="hover:text-white/55 transition-colors">Get an API key at sunoapi.org/api-key</a>
+                                    </div>
+                                    <!-- Buttons -->
+                                    <div class="flex gap-3 mt-1">
+                                        <button id="apikey-clear-btn" class="flex-1 py-3 rounded-2xl border border-white/8 bg-transparent text-white/35 text-xs font-light hover:border-white/18 hover:text-white/65 transition-all">Clear</button>
+                                        <button id="apikey-save-btn" class="flex-1 py-3 rounded-2xl border border-white/20 bg-white/10 text-white text-xs font-medium hover:bg-white/18 transition-all">Save Key</button>
+                                    </div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div><!-- /#soma-workspace -->
+        </div><!-- /sidebar + workspace row -->
+
+        <nav class="soma-mobile-nav md:hidden fixed bottom-0 left-0 right-0 glass-nav border-t border-white/[0.06] px-1 py-2 flex justify-between items-stretch gap-0.5" aria-label="Workspace">
+            <button type="button" class="soma-mobile-nav-btn soma-nav-active flex flex-1 flex-col items-center gap-1 py-2 rounded-xl text-[0.65rem]" data-soma-view="session" aria-current="page">
+                <iconify-icon icon="lucide:orbit" width="20" class="opacity-80"></iconify-icon>
+                <span>Session</span>
+            </button>
+            <button type="button" class="soma-mobile-nav-btn flex flex-1 flex-col items-center gap-1 py-2 rounded-xl text-[0.65rem]" data-soma-view="history" aria-current="false">
+                <iconify-icon icon="lucide:history" width="20" class="opacity-80"></iconify-icon>
+                <span>History</span>
+            </button>
+            <button type="button" class="soma-mobile-nav-btn flex flex-1 flex-col items-center gap-1 py-2 rounded-xl text-[0.65rem]" data-soma-view="vitals" aria-current="false">
+                <iconify-icon icon="lucide:activity" width="20" class="opacity-80"></iconify-icon>
+                <span>Vitals</span>
+            </button>
+            <button type="button" class="soma-mobile-nav-btn flex flex-1 flex-col items-center gap-1 py-2 rounded-xl text-[0.65rem]" data-soma-view="profile" aria-current="false">
+                <iconify-icon icon="lucide:user-round" width="20" class="opacity-80"></iconify-icon>
+                <span>Profile</span>
+            </button>
+            <button type="button" class="soma-mobile-nav-btn flex flex-1 flex-col items-center gap-1 py-2 rounded-xl text-[0.65rem]" data-soma-view="settings" aria-current="false">
+                <iconify-icon icon="lucide:settings" width="20" class="opacity-80"></iconify-icon>
+                <span>Settings</span>
+            </button>
+        </nav>
+
+    </div><!-- /.soma-app-shell -->
+
+<script>
+(function () {
+    'use strict';
+    var LS_VIEW = 'soma-active-view';
+    var VIEW_ORDER = ['session', 'history', 'vitals', 'profile', 'settings'];
+
+    function showSomaView(name, opts) {
+        opts = opts || {};
+        if (VIEW_ORDER.indexOf(name) < 0) name = 'session';
+        VIEW_ORDER.forEach(function (v) {
+            var el = document.getElementById(v + '-view');
+            if (!el) return;
+            var on = v === name;
+            el.classList.toggle('hidden', !on);
+            el.hidden = !on;
+            el.classList.toggle('soma-view-active', !!on);
+            el.setAttribute('aria-hidden', on ? 'false' : 'true');
+        });
+        document.querySelectorAll('[data-soma-view]').forEach(function (btn) {
+            var on = btn.getAttribute('data-soma-view') === name;
+            btn.classList.toggle('soma-nav-active', !!on);
+            btn.setAttribute('aria-current', on ? 'page' : 'false');
+        });
+        try { localStorage.setItem(LS_VIEW, name); } catch (_) {}
+        if (!opts.skipExtras) {
+            if (name === 'history' && typeof window.somaOnEnterHistoryView === 'function') {
+                window.somaOnEnterHistoryView();
+            }
+            if (name === 'vitals' && typeof window.somaOnEnterVitalsView === 'function') {
+                window.somaOnEnterVitalsView();
+            }
+            if (name === 'profile' && typeof window.somaOnEnterProfileView === 'function') {
+                window.somaOnEnterProfileView();
+            }
+            if (name === 'settings' && typeof window.somaOnEnterSettingsView === 'function') {
+                window.somaOnEnterSettingsView(opts);
+            }
+        }
+        var ph = document.getElementById(name + '-heading') || document.getElementById(name + '-view-title');
+        if (ph && opts.focusHeading) {
+            try { ph.setAttribute('tabindex', '-1'); ph.focus(); } catch (_) {}
+        }
+    }
+    window.showSomaView = showSomaView;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.body.addEventListener('click', function (e) {
+            var t = e.target && e.target.closest('[data-soma-view]');
+            if (!t) return;
+            var v = t.getAttribute('data-soma-view');
+            if (!v) return;
+            showSomaView(v);
+        });
+    });
+
+    window.addEventListener('load', function () {
+        try {
+            var saved = localStorage.getItem(LS_VIEW) || 'session';
+            if (VIEW_ORDER.indexOf(saved) < 0) saved = 'session';
+            showSomaView(saved, { skipExtras: true });
+            if (saved === 'history' && typeof window.somaOnEnterHistoryView === 'function') window.somaOnEnterHistoryView();
+            if (saved === 'vitals' && typeof window.somaOnEnterVitalsView === 'function') window.somaOnEnterVitalsView();
+            if (saved === 'profile' && typeof window.somaOnEnterProfileView === 'function') window.somaOnEnterProfileView();
+            if (saved === 'settings' && typeof window.somaOnEnterSettingsView === 'function') window.somaOnEnterSettingsView({});
+        } catch (_) {
+            showSomaView('session', { skipExtras: true });
+        }
+    });
+})();
+</script>
 
 <!-- ═══════════════════════════════════════════════════════════════
      SUNO GENERATION OVERLAY
@@ -1416,267 +2241,6 @@
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     VITALS MODAL
-════════════════════════════════════════════════════════════════ -->
-<div id="vitals-modal" class="fixed inset-0 z-[105] flex items-center justify-center" style="opacity:0;pointer-events:none;">
-    <div id="vitals-backdrop" class="absolute inset-0 bg-black/65 backdrop-blur-sm cursor-pointer"></div>
-    <div id="vitals-card" class="relative glass-panel rounded-[2.5rem] w-full max-w-2xl mx-5 flex flex-col shadow-[0_40px_80px_rgba(0,0,0,0.65)]" style="height:min(88vh,680px);border:1px solid rgba(255,255,255,0.1);">
-
-        <!-- Header -->
-        <div class="px-9 pt-9 pb-6 flex-shrink-0">
-            <div class="flex items-start justify-between">
-                <div class="flex flex-col gap-2">
-                    <div class="flex items-center gap-3">
-                        <div class="v-live-dot"></div>
-                        <span class="text-xs text-white/30 uppercase tracking-[0.28em] font-medium">Biometric Monitor</span>
-                    </div>
-                    <h2 id="vitals-title" class="font-display text-3xl text-white/90 italic tracking-wide leading-tight">No Data</h2>
-                    <div class="flex items-center gap-3 mt-0.5">
-                        <span class="v-source">
-                            <iconify-icon icon="lucide:watch" width="10"></iconify-icon>
-                            Apple Watch · HealthKit
-                        </span>
-                        <span id="vitals-timestamp" class="text-xs text-white/18 font-light tracking-wide"></span>
-                    </div>
-                </div>
-                <button id="vitals-close" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0">
-                    <iconify-icon icon="lucide:x" width="15"></iconify-icon>
-                </button>
-            </div>
-        </div>
-
-        <!-- Mock HealthKit prototype (web only; maps to /api/healthkit/mock/run when API available) -->
-        <div class="px-9 pb-3 flex-shrink-0 flex flex-wrap gap-2 items-center border-b border-white/[0.06]">
-            <span class="text-xs text-white/25 uppercase tracking-widest">Prototype</span>
-            <button type="button" id="mock-hk-connect" class="text-sm font-light px-3 py-1.5 rounded-full border border-white/15 bg-white/[0.04] text-white/70 hover:bg-white/10 hover:text-white transition-all">Connect mock HealthKit</button>
-            <button type="button" id="mock-hk-next" disabled class="text-sm font-light px-3 py-1.5 rounded-full border border-white/10 bg-transparent text-white/35 transition-all">Next sample</button>
-            <span id="mock-hk-status" class="text-xs text-white/30 font-light tracking-wide ml-1 min-w-0 flex-1">Disconnected · start FastAPI (see README) for full MindWave sync</span>
-        </div>
-        <p class="px-9 pb-3 text-xs text-white/22 font-light leading-relaxed">Synthetic vitals for demos only — not a medical readout. Real use requires explicit consent and clinical oversight where applicable.</p>
-
-        <!-- Scrollable content -->
-        <div id="vitals-scroll" class="flex-1 overflow-y-auto px-9 pb-8" style="-webkit-overflow-scrolling:touch;">
-
-            <!-- Empty state -->
-            <div id="vitals-empty" class="flex flex-col items-center justify-center gap-4 py-16 text-center">
-                <div class="w-14 h-14 rounded-full border border-white/10 bg-white/[0.03] flex items-center justify-center">
-                    <iconify-icon icon="lucide:activity" width="22" class="text-white/20"></iconify-icon>
-                </div>
-                <p class="text-white/25 text-sm font-light tracking-wide">Load a demo case to see biometric data</p>
-            </div>
-
-            <!-- Data grid (hidden until data loaded) -->
-            <div id="vitals-grid" class="hidden flex flex-col gap-5">
-
-                <!-- Row 1: HR + HRV + Stress (3 cols) -->
-                <div class="grid grid-cols-3 gap-3">
-
-                    <!-- Heart Rate -->
-                    <div class="v-card col-span-1">
-                        <span class="v-card-label">Heart Rate</span>
-                        <div class="flex items-end gap-1.5 mt-1">
-                            <span id="v-hr-value" class="v-card-value">—</span>
-                            <span class="v-card-unit mb-1">BPM</span>
-                        </div>
-                        <span id="v-hr-status" class="v-status"></span>
-                        <!-- ECG sparkline -->
-                        <svg class="v-sparkline" viewBox="0 0 100 42" fill="none" preserveAspectRatio="none">
-                            <path id="v-ecg-path" class="v-ecg-path" d="M0 30 L12 30 L18 30 L22 5 L26 38 L30 30 L42 30 L46 14 L50 38 L54 30 L66 30 L70 10 L74 38 L78 30 L100 30" stroke="rgba(248,113,113,0.7)" stroke-width="1.5" fill="none"/>
-                        </svg>
-                    </div>
-
-                    <!-- HRV -->
-                    <div class="v-card col-span-1">
-                        <span class="v-card-label">HRV · SDNN</span>
-                        <div class="flex items-end gap-1.5 mt-1">
-                            <span id="v-hrv-value" class="v-card-value">—</span>
-                            <span class="v-card-unit mb-1">ms</span>
-                        </div>
-                        <span id="v-hrv-status" class="v-status"></span>
-                        <!-- HRV bar chart -->
-                        <div id="v-hrv-bars" class="absolute bottom-3 right-3 flex items-end gap-[2px]" style="width:52px;height:28px;"></div>
-                    </div>
-
-                    <!-- Stress Score -->
-                    <div class="v-card col-span-1" style="flex-direction:column;">
-                        <span class="v-card-label">Stress</span>
-                        <div class="flex items-center gap-3 mt-2">
-                            <div class="v-stress-ring" style="width:58px;height:58px;flex-shrink:0;">
-                                <svg width="58" height="58" viewBox="0 0 58 58">
-                                    <circle class="ring-track" cx="29" cy="29" r="22" fill="none" stroke-width="4.5"/>
-                                    <circle id="v-stress-ring-fill" class="ring-fill" cx="29" cy="29" r="22" fill="none" stroke-width="4.5" stroke="rgba(251,191,36,0.7)" stroke-dasharray="138.2" stroke-dashoffset="138.2"/>
-                                </svg>
-                                <div class="v-stress-center">
-                                    <span id="v-stress-num" class="font-light text-white/90" style="line-height:1;font-size:1.125rem">—</span>
-                                    <span class="text-xs text-white/28 uppercase tracking-widest">/10</span>
-                                </div>
-                            </div>
-                            <div class="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
-                                <span id="v-stress-label" class="text-sm font-light text-white/60 leading-snug">—</span>
-                                <span id="v-stress-status" class="v-status" style="font-size:0.625rem;padding:0.2rem 0.5rem;white-space:nowrap;"></span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Row 2: Respiratory + SpO2 + Temp (3 cols) -->
-                <div class="grid grid-cols-3 gap-3">
-                    <div class="v-card">
-                        <span class="v-card-label">Respiratory Rate</span>
-                        <div class="flex items-end gap-1.5 mt-1">
-                            <span id="v-rr-value" class="v-card-value">—</span>
-                            <span class="v-card-unit mb-1">br/min</span>
-                        </div>
-                        <span id="v-rr-status" class="v-status"></span>
-                        <span id="v-rr-sub" class="v-card-sub"></span>
-                    </div>
-                    <div class="v-card">
-                        <span class="v-card-label">Blood Oxygen · SpO2</span>
-                        <div class="flex items-end gap-1.5 mt-1">
-                            <span id="v-spo2-value" class="v-card-value">—</span>
-                            <span class="v-card-unit mb-1">%</span>
-                        </div>
-                        <span id="v-spo2-status" class="v-status"></span>
-                    </div>
-                    <div class="v-card">
-                        <span class="v-card-label">Wrist Temperature</span>
-                        <div class="flex items-end gap-1.5 mt-1">
-                            <span id="v-temp-value" class="v-card-value">—</span>
-                            <span class="v-card-unit mb-1">°C</span>
-                        </div>
-                        <span id="v-temp-status" class="v-status"></span>
-                    </div>
-                </div>
-
-                <!-- Row 3: Environment + Motion + Sleep (wide layout) -->
-                <div class="grid grid-cols-3 gap-3">
-                    <div class="v-card">
-                        <span class="v-card-label">Ambient Noise</span>
-                        <div class="flex items-end gap-1.5 mt-1">
-                            <span id="v-noise-value" class="v-card-value">—</span>
-                            <span class="v-card-unit mb-1">dB</span>
-                        </div>
-                        <span id="v-noise-status" class="v-status"></span>
-                        <span id="v-noise-sub" class="v-card-sub"></span>
-                    </div>
-                    <div class="v-card">
-                        <span class="v-card-label">Body Motion</span>
-                        <div class="flex flex-col gap-1.5 mt-2">
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs text-white/28 font-mono w-3">X</span>
-                                <div class="flex-1 h-1 rounded-full bg-white/6 overflow-hidden">
-                                    <div id="v-motion-x" class="h-full rounded-full bg-white/35 transition-all duration-700" style="width:0%"></div>
-                                </div>
-                                <span id="v-motion-x-val" class="text-xs font-mono text-white/30 w-7 text-right">—</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs text-white/28 font-mono w-3">Y</span>
-                                <div class="flex-1 h-1 rounded-full bg-white/6 overflow-hidden">
-                                    <div id="v-motion-y" class="h-full rounded-full bg-white/35 transition-all duration-700" style="width:0%"></div>
-                                </div>
-                                <span id="v-motion-y-val" class="text-xs font-mono text-white/30 w-7 text-right">—</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs text-white/28 font-mono w-3">Z</span>
-                                <div class="flex-1 h-1 rounded-full bg-white/6 overflow-hidden">
-                                    <div id="v-motion-z" class="h-full rounded-full bg-white/35 transition-all duration-700" style="width:0%"></div>
-                                </div>
-                                <span id="v-motion-z-val" class="text-xs font-mono text-white/30 w-7 text-right">—</span>
-                            </div>
-                        </div>
-                        <span id="v-motion-status" class="v-status mt-2"></span>
-                    </div>
-                    <div class="v-card">
-                        <span class="v-card-label">Sleep Stage</span>
-                        <div class="flex items-end gap-1.5 mt-1">
-                            <span id="v-sleep-value" class="v-card-value text-2xl">—</span>
-                        </div>
-                        <span id="v-sleep-status" class="v-status"></span>
-                        <span id="v-sleep-sub" class="v-card-sub"></span>
-                    </div>
-                </div>
-
-                <!-- Row 4: Middleware analysis output -->
-                <div class="v-card" style="border-color:rgba(255,255,255,0.09);">
-                    <div class="flex items-center gap-3 mb-3">
-                        <iconify-icon icon="lucide:cpu" width="13" class="text-white/30 flex-shrink-0"></iconify-icon>
-                        <span class="v-card-label" style="margin:0">Middleware Analysis · Layer 2 Output</span>
-                    </div>
-                    <div class="grid grid-cols-2 gap-x-6 gap-y-2">
-                        <div class="flex items-center justify-between border-b border-white/[0.04] pb-2">
-                            <span class="text-xs text-white/30 font-light">Target Entrainment BPM</span>
-                            <span id="v-target-bpm" class="text-sm font-mono text-white/65">—</span>
-                        </div>
-                        <div class="flex items-center justify-between border-b border-white/[0.04] pb-2">
-                            <span class="text-xs text-white/30 font-light">Sympathetic Load</span>
-                            <span id="v-sympathetic" class="text-sm font-mono text-white/65">—</span>
-                        </div>
-                        <div class="flex items-center justify-between border-b border-white/[0.04] pb-2">
-                            <span class="text-xs text-white/30 font-light">HRV Status</span>
-                            <span id="v-hrv-analysis" class="text-sm font-mono text-white/65">—</span>
-                        </div>
-                        <div class="flex items-center justify-between border-b border-white/[0.04] pb-2">
-                            <span class="text-xs text-white/30 font-light">Acoustic Texture</span>
-                            <span id="v-texture" class="text-sm font-mono text-white/65">—</span>
-                        </div>
-                        <div class="flex items-center justify-between pb-1">
-                            <span class="text-xs text-white/30 font-light">Instrument Set</span>
-                            <span id="v-instruments" class="text-sm font-mono text-white/65">—</span>
-                        </div>
-                        <div class="flex items-center justify-between pb-1">
-                            <span class="text-xs text-white/30 font-light">Noise Safeguard</span>
-                            <span id="v-safeguard" class="text-sm font-mono text-white/65">—</span>
-                        </div>
-                    </div>
-                </div>
-
-            </div><!-- /vitals-grid -->
-        </div><!-- /scroll -->
-    </div><!-- /card -->
-</div><!-- /modal -->
-
-
-<!-- ═══════════════════════════════════════════════════════════════
-     API KEY MODAL
-════════════════════════════════════════════════════════════════ -->
-<div id="apikey-modal" class="fixed inset-0 z-[110] flex items-center justify-center" style="opacity:0;pointer-events:none;">
-    <div id="apikey-backdrop" class="absolute inset-0" style="background:rgba(3,3,5,0.65);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);"></div>
-    <div id="apikey-card" class="relative z-10 w-full max-w-md mx-6 glass-panel rounded-3xl p-8 flex flex-col gap-6">
-        <!-- Header -->
-        <div class="flex items-start justify-between">
-            <div class="flex flex-col gap-1">
-                <div class="flex items-center gap-2">
-                    <div class="w-7 h-7 rounded-full border border-white/15 bg-white/5 flex items-center justify-center">
-                        <iconify-icon icon="lucide:key-round" width="13" class="text-white/60"></iconify-icon>
-                    </div>
-                    <span class="text-white/90 font-display italic text-xl tracking-wide">Suno API Key</span>
-                </div>
-                <p class="text-sm text-white/30 font-light leading-relaxed mt-1">
-                    <strong class="text-amber-200/80 font-medium">Demo only.</strong> Key lives in this browser (localStorage) and is sent directly to the Suno-compatible API — not to a first-party Soma backend. Production builds should proxy generation server-side (<span class="text-white/40">session-api-contract § Suno proxy</span>).
-                </p>
-            </div>
-            <button id="apikey-close" class="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all">
-                <iconify-icon icon="lucide:x" width="14"></iconify-icon>
-            </button>
-        </div>
-        <!-- Input -->
-        <div class="p-field">
-            <label class="p-label">API Key <span class="p-label-note">· from sunoapi.org</span></label>
-            <input id="apikey-input" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false">
-        </div>
-        <!-- Info row -->
-        <div class="flex items-center gap-2 text-xs text-white/22 font-light">
-            <iconify-icon icon="lucide:external-link" width="11" class="flex-shrink-0"></iconify-icon>
-            <a href="https://sunoapi.org/api-key" target="_blank" class="hover:text-white/55 transition-colors">Get an API key at sunoapi.org/api-key</a>
-        </div>
-        <!-- Buttons -->
-        <div class="flex gap-3 mt-1">
-            <button id="apikey-clear-btn" class="flex-1 py-3 rounded-2xl border border-white/8 bg-transparent text-white/35 text-xs font-light hover:border-white/18 hover:text-white/65 transition-all">Clear</button>
-            <button id="apikey-save-btn" class="flex-1 py-3 rounded-2xl border border-white/20 bg-white/10 text-white text-xs font-medium hover:bg-white/18 transition-all">Save Key</button>
-        </div>
-    </div>
-</div>
 
 <!-- ═══════════════════════════════════════════════════════════════
      FEEDBACK MODAL (session end)
@@ -1729,346 +2293,6 @@
     </div>
 </div>
 
-<!-- ═══════════════════════════════════════════════════════════════
-     HISTORY MODAL
-════════════════════════════════════════════════════════════════ -->
-<div id="history-modal" class="fixed inset-0 z-[111] flex items-center justify-center" style="opacity:0;pointer-events:none;">
-    <div id="history-backdrop" class="absolute inset-0 bg-black/65 backdrop-blur-sm cursor-pointer"></div>
-    <div id="history-card" class="relative glass-panel rounded-[2.5rem] w-full max-w-lg mx-5 flex flex-col shadow-[0_40px_80px_rgba(0,0,0,0.65)]" style="height:min(88vh,640px);border:1px solid rgba(255,255,255,0.1);">
-        <div class="px-8 pt-8 pb-4 flex items-start justify-between gap-4 flex-shrink-0">
-            <div class="min-w-0 flex-1">
-                <span class="soma-section-label block mb-2">Your sessions</span>
-                <h2 class="font-display text-2xl text-white/90 italic tracking-wide">History</h2>
-                <p id="history-summary-line" class="text-sm text-white/32 font-light mt-2">—</p>
-                <button type="button" id="history-insight-entry" class="hidden mt-3 w-full p-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] text-left">
-                    <span class="flex items-center justify-between gap-3">
-                        <span class="min-w-0">
-                            <span class="block text-xs text-white/40 uppercase tracking-[0.22em]">History insight</span>
-                            <span id="history-insight-entry-summary" class="block text-sm text-white/58 font-light mt-1 truncate">Open trend panel</span>
-                        </span>
-                        <span class="text-xs text-white/32 uppercase tracking-[0.14em] flex-shrink-0">Open →</span>
-                    </span>
-                </button>
-            </div>
-            <button type="button" id="history-close" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0">
-                <iconify-icon icon="lucide:x" width="15"></iconify-icon>
-            </button>
-        </div>
-        <div id="history-list-view" class="flex flex-col flex-1 min-h-0">
-            <div class="px-8 pb-3 flex flex-wrap gap-2 flex-shrink-0">
-                <button type="button" class="soma-pill soma-pill-active hist-filter" data-filter="all">All</button>
-                <button type="button" class="soma-pill hist-filter" data-filter="calm">Calm</button>
-                <button type="button" class="soma-pill hist-filter" data-filter="focus">Focus</button>
-                <button type="button" class="soma-pill hist-filter" data-filter="sleep">Sleep</button>
-                <button type="button" class="soma-pill hist-filter" data-filter="helped">Helped</button>
-            </div>
-            <div id="history-list-scroll" class="flex-1 overflow-y-auto px-8 pb-8 min-h-0">
-                <div id="history-list" class="flex flex-col gap-2"></div>
-                <p id="history-empty" class="text-center text-sm text-white/25 py-12 font-light">No completed sessions yet. Finish a session and save feedback.</p>
-            </div>
-        </div>
-        <div id="history-insight-view" class="hidden flex-col flex-1 min-h-0 px-8 pb-8">
-            <button type="button" id="history-insight-back" class="soma-action-ghost self-start mb-4">← Back to history</button>
-            <div id="history-insights" class="flex-1 p-4 rounded-3xl border border-white/[0.08] bg-white/[0.03] text-left space-y-1.5 overflow-y-auto min-h-0"></div>
-        </div>
-    </div>
-</div>
-
-<!-- ═══════════════════════════════════════════════════════════════
-     PROFILE MODAL
-════════════════════════════════════════════════════════════════ -->
-<div id="profile-modal" class="fixed inset-0 z-[100] flex items-center justify-center" style="opacity:0;pointer-events:none;">
-
-    <!-- Backdrop -->
-    <div id="profile-backdrop" class="absolute inset-0 bg-black/65 backdrop-blur-sm cursor-pointer"></div>
-
-    <!-- Card -->
-    <div id="profile-card" class="relative glass-panel rounded-[2.5rem] w-full max-w-xl mx-5 flex flex-col shadow-[0_40px_80px_rgba(0,0,0,0.65)]" style="height:min(88vh,720px);border:1px solid rgba(255,255,255,0.1);">
-
-        <!-- ── Card Header ─────────────────────────────────────────── -->
-        <div class="px-9 pt-9 pb-5 flex-shrink-0">
-            <div class="flex items-start justify-between mb-5">
-                <div>
-                    <span class="p-label" style="margin-bottom:.45rem">Therapy Profile</span>
-                    <h2 id="p-step-title" class="font-display text-[2.25rem] text-white/90 italic tracking-wide leading-tight">Basic Information</h2>
-                </div>
-                <button id="profile-close" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0">
-                    <iconify-icon icon="lucide:x" width="15"></iconify-icon>
-                </button>
-            </div>
-
-            <!-- Step indicator dots -->
-            <div class="flex items-center gap-2">
-                <div class="sdot h-1.5 rounded-full bg-white/65" style="width:24px" data-sdot="0"></div>
-                <div class="sdot h-1.5 rounded-full bg-white/13" style="width:8px"  data-sdot="1"></div>
-                <div class="sdot h-1.5 rounded-full bg-white/13" style="width:8px"  data-sdot="2"></div>
-                <div class="sdot h-1.5 rounded-full bg-white/13" style="width:8px"  data-sdot="3"></div>
-                <div class="sdot h-1.5 rounded-full bg-white/13" style="width:8px"  data-sdot="4"></div>
-                <span id="p-step-counter" class="ml-3 text-sm font-mono text-white/22 tracking-widest">01 / 05</span>
-            </div>
-        </div>
-
-        <!-- ── Scrollable Content ──────────────────────────────────── -->
-        <div id="profile-scroll" class="flex-1 overflow-y-auto px-9 pb-2" style="-webkit-overflow-scrolling:touch;">
-
-            <!-- STEP 1 · Basic Information ─────────────────────────── -->
-            <div class="step-panel active" data-panel="0">
-
-                <div class="profile-section mb-7">
-                    <label class="p-label" for="p-name">Full Name</label>
-                    <div class="p-field">
-                        <input id="p-name" type="text" placeholder="Your name…" autocomplete="off">
-                    </div>
-                </div>
-
-                <div class="flex gap-4 mb-7">
-                    <div class="flex-1">
-                        <label class="p-label" for="p-age">Age</label>
-                        <div class="p-field">
-                            <input id="p-age" type="number" min="1" max="120" placeholder="e.g. 28" autocomplete="off">
-                        </div>
-                    </div>
-                    <div class="flex-1">
-                        <label class="p-label">Gender</label>
-                        <div class="flex flex-wrap gap-2 pt-1">
-                            <button class="p-chip" data-group="gender" data-val="male">Male</button>
-                            <button class="p-chip" data-group="gender" data-val="female">Female</button>
-                            <button class="p-chip" data-group="gender" data-val="nb">Non-binary</button>
-                            <button class="p-chip" data-group="gender" data-val="other">Other</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="mb-7">
-                    <label class="p-label" for="p-contact">Contact <span class="p-label-note">(for therapist communication)</span></label>
-                    <div class="p-field">
-                        <input id="p-contact" type="text" placeholder="Email or phone…" autocomplete="off">
-                    </div>
-                </div>
-
-            </div><!-- /step 1 -->
-
-            <!-- STEP 2 · Physical Health ───────────────────────────── -->
-            <div class="step-panel" data-panel="1">
-
-                <div class="mb-7">
-                    <label class="p-label">Hearing Status</label>
-                    <div class="flex flex-wrap gap-2">
-                        <button class="p-chip" data-group="hearing" data-val="normal">Normal</button>
-                        <button class="p-chip" data-group="hearing" data-val="mild">Mild Impairment</button>
-                        <button class="p-chip" data-group="hearing" data-val="moderate">Moderate Impairment</button>
-                        <button class="p-chip" data-group="hearing" data-val="severe">Severe Impairment</button>
-                    </div>
-                </div>
-
-                <div class="mb-7">
-                    <label class="p-label">Chronic Conditions <span class="p-label-note">(all that apply)</span></label>
-                    <div class="flex flex-wrap gap-2">
-                        <button class="p-chip" data-group="conditions" data-multi="1" data-val="none">None</button>
-                        <button class="p-chip" data-group="conditions" data-multi="1" data-val="hypertension">Hypertension</button>
-                        <button class="p-chip" data-group="conditions" data-multi="1" data-val="diabetes">Diabetes</button>
-                        <button class="p-chip" data-group="conditions" data-multi="1" data-val="heart">Heart Disease</button>
-                        <button class="p-chip" data-group="conditions" data-multi="1" data-val="anxiety-d">Anxiety Disorder</button>
-                        <button class="p-chip" data-group="conditions" data-multi="1" data-val="other">Other</button>
-                    </div>
-                </div>
-
-                <div class="mb-7">
-                    <label class="p-label">Current Medication</label>
-                    <div class="flex gap-2">
-                        <button class="p-chip" data-group="medication" data-val="yes">Yes</button>
-                        <button class="p-chip" data-group="medication" data-val="no">No</button>
-                    </div>
-                </div>
-
-                <div class="mb-7">
-                    <div class="flex items-center justify-between mb-3">
-                        <label class="p-label" style="margin-bottom:0">Sleep Quality</label>
-                        <span id="p-sleep-disp" class="text-sm font-mono text-white/40 tracking-widest">6 / 10</span>
-                    </div>
-                    <input id="p-sleep" class="p-slider" type="range" min="1" max="10" value="6" step="1">
-                    <div class="flex justify-between mt-1.5">
-                        <span class="text-sm text-white/20">Poor</span>
-                        <span class="text-sm text-white/20">Excellent</span>
-                    </div>
-                </div>
-
-                <div class="mb-7">
-                    <label class="p-label" for="p-meds-note">Medication or Health Notes <span class="p-label-note">(optional)</span></label>
-                    <div class="p-field">
-                        <textarea id="p-meds-note" rows="2" placeholder="e.g. taking SSRIs, managing chronic back pain…"></textarea>
-                    </div>
-                </div>
-
-            </div><!-- /step 2 -->
-
-            <!-- STEP 3 · Emotional Landscape ──────────────────────── -->
-            <div class="step-panel" data-panel="2">
-
-                <div class="mb-7">
-                    <label class="p-label">Current Emotional State <span class="p-label-note">(up to 3)</span></label>
-                    <div class="flex flex-wrap gap-2">
-                        <button class="p-chip" data-group="emotions" data-multi="3" data-val="anxious">Anxious</button>
-                        <button class="p-chip" data-group="emotions" data-multi="3" data-val="depressed">Depressed</button>
-                        <button class="p-chip" data-group="emotions" data-multi="3" data-val="stressed">Stressed</button>
-                        <button class="p-chip" data-group="emotions" data-multi="3" data-val="calm">Calm</button>
-                        <button class="p-chip" data-group="emotions" data-multi="3" data-val="sad">Sad</button>
-                        <button class="p-chip" data-group="emotions" data-multi="3" data-val="angry">Angry</button>
-                        <button class="p-chip" data-group="emotions" data-multi="3" data-val="fatigued">Fatigued</button>
-                        <button class="p-chip" data-group="emotions" data-multi="3" data-val="peaceful">At Peace</button>
-                        <button class="p-chip" data-group="emotions" data-multi="3" data-val="numb">Emotionally Numb</button>
-                    </div>
-                </div>
-
-                <div class="mb-7">
-                    <label class="p-label">Treatment Goals <span class="p-label-note">(all that apply)</span></label>
-                    <div class="flex flex-wrap gap-2">
-                        <button class="p-chip" data-group="goals" data-multi="1" data-val="relax">Relaxation</button>
-                        <button class="p-chip" data-group="goals" data-multi="1" data-val="focus">Focus &amp; Clarity</button>
-                        <button class="p-chip" data-group="goals" data-multi="1" data-val="emotion-reg">Emotional Regulation</button>
-                        <button class="p-chip" data-group="goals" data-multi="1" data-val="trauma">Trauma Healing</button>
-                        <button class="p-chip" data-group="goals" data-multi="1" data-val="energy">Energy Boost</button>
-                        <button class="p-chip" data-group="goals" data-multi="1" data-val="sleep">Sleep Improvement</button>
-                        <button class="p-chip" data-group="goals" data-multi="1" data-val="confidence">Self-Confidence</button>
-                    </div>
-                </div>
-
-                <div class="mb-7">
-                    <label class="p-label">Emotional Fluctuation Pattern <span class="p-label-note">(when it's most intense)</span></label>
-                    <div class="flex flex-wrap gap-2">
-                        <button class="p-chip" data-group="fluctuation" data-multi="1" data-val="morning">Morning Peak</button>
-                        <button class="p-chip" data-group="fluctuation" data-multi="1" data-val="afternoon">Afternoon Peak</button>
-                        <button class="p-chip" data-group="fluctuation" data-multi="1" data-val="night">Nighttime Peak</button>
-                        <button class="p-chip" data-group="fluctuation" data-multi="1" data-val="random">Unpredictable</button>
-                        <button class="p-chip" data-group="fluctuation" data-multi="1" data-val="stable">Generally Stable</button>
-                    </div>
-                </div>
-
-            </div><!-- /step 3 -->
-
-            <!-- STEP 4 · Music Preferences ─────────────────────────── -->
-            <div class="step-panel" data-panel="3">
-
-                <div class="mb-7">
-                    <label class="p-label">Preferred Music Styles <span class="p-label-note">(all that apply)</span></label>
-                    <div class="flex flex-wrap gap-2">
-                        <button class="p-chip" data-group="styles" data-multi="1" data-val="classical">Classical</button>
-                        <button class="p-chip" data-group="styles" data-multi="1" data-val="nature">Nature Sounds</button>
-                        <button class="p-chip" data-group="styles" data-multi="1" data-val="electronic">Electronic</button>
-                        <button class="p-chip" data-group="styles" data-multi="1" data-val="jazz">Jazz</button>
-                        <button class="p-chip" data-group="styles" data-multi="1" data-val="meditation">Meditation</button>
-                        <button class="p-chip" data-group="styles" data-multi="1" data-val="ambient">Ambient</button>
-                        <button class="p-chip" data-group="styles" data-multi="1" data-val="folk">Folk</button>
-                        <button class="p-chip" data-group="styles" data-multi="1" data-val="instrumental">Pure Instrumental</button>
-                        <button class="p-chip" data-group="styles" data-multi="1" data-val="binaural">Binaural Beats</button>
-                    </div>
-                </div>
-
-                <div class="mb-7">
-                    <label class="p-label" for="p-sensitive">Sounds to Avoid <span class="p-label-note">(triggers or discomfort)</span></label>
-                    <div class="p-field">
-                        <textarea id="p-sensitive" rows="3" placeholder="e.g. high-pitched tones, heavy percussion, lyrics in certain languages…"></textarea>
-                    </div>
-                </div>
-
-                <div class="mb-7">
-                    <div class="flex items-center justify-between mb-3">
-                        <label class="p-label" style="margin-bottom:0">Rhythm Preference</label>
-                        <span id="p-rhythm-disp" class="text-sm font-mono text-white/40 tracking-widest">Balanced</span>
-                    </div>
-                    <input id="p-rhythm" class="p-slider" type="range" min="1" max="5" value="3" step="1">
-                    <div class="flex justify-between mt-1.5">
-                        <span class="text-sm text-white/20">Slow &amp; Soothing</span>
-                        <span class="text-sm text-white/20">Fast &amp; Activating</span>
-                    </div>
-                </div>
-
-                <div class="mb-7">
-                    <label class="p-label">Volume Sensitivity</label>
-                    <div class="flex flex-wrap gap-2">
-                        <button class="p-chip" data-group="volume" data-val="soft">Prefer Soft</button>
-                        <button class="p-chip" data-group="volume" data-val="moderate">Moderate</button>
-                        <button class="p-chip" data-group="volume" data-val="immersive">Immersive &amp; Full</button>
-                    </div>
-                </div>
-
-            </div><!-- /step 4 -->
-
-            <!-- STEP 5 · Treatment History ─────────────────────────── -->
-            <div class="step-panel" data-panel="4">
-
-                <div class="mb-7">
-                    <label class="p-label">Previous Therapy Experience</label>
-                    <div class="flex gap-2">
-                        <button class="p-chip" data-group="prevTherapy" data-val="yes">Yes</button>
-                        <button class="p-chip" data-group="prevTherapy" data-val="no">No</button>
-                        <button class="p-chip" data-group="prevTherapy" data-val="unsure">Unsure</button>
-                    </div>
-                </div>
-
-                <div class="mb-7">
-                    <label class="p-label">Types of Therapy Tried <span class="p-label-note">(all that apply)</span></label>
-                    <div class="flex flex-wrap gap-2">
-                        <button class="p-chip" data-group="therapyTypes" data-multi="1" data-val="music-therapy">Music Therapy</button>
-                        <button class="p-chip" data-group="therapyTypes" data-multi="1" data-val="counseling">Counseling</button>
-                        <button class="p-chip" data-group="therapyTypes" data-multi="1" data-val="meditation">Meditation</button>
-                        <button class="p-chip" data-group="therapyTypes" data-multi="1" data-val="cbt">CBT</button>
-                        <button class="p-chip" data-group="therapyTypes" data-multi="1" data-val="somatic">Somatic Therapy</button>
-                        <button class="p-chip" data-group="therapyTypes" data-multi="1" data-val="other">Other</button>
-                    </div>
-                </div>
-
-                <div class="mb-7">
-                    <label class="p-label">Sessions Completed (approximate)</label>
-                    <div class="flex gap-2 flex-wrap">
-                        <button class="p-chip" data-group="sessions" data-val="0">None yet</button>
-                        <button class="p-chip" data-group="sessions" data-val="1-5">1 – 5</button>
-                        <button class="p-chip" data-group="sessions" data-val="6-20">6 – 20</button>
-                        <button class="p-chip" data-group="sessions" data-val="21+">21 +</button>
-                    </div>
-                </div>
-
-                <div class="mb-7">
-                    <label class="p-label">Overall Effectiveness of Past Therapy</label>
-                    <div class="flex gap-2 flex-wrap">
-                        <button class="p-chip" data-group="effectiveness" data-val="excellent">Excellent</button>
-                        <button class="p-chip" data-group="effectiveness" data-val="good">Good</button>
-                        <button class="p-chip" data-group="effectiveness" data-val="fair">Fair</button>
-                        <button class="p-chip" data-group="effectiveness" data-val="poor">Poor</button>
-                        <button class="p-chip" data-group="effectiveness" data-val="na">N / A</button>
-                    </div>
-                </div>
-
-                <div class="mb-7">
-                    <label class="p-label" for="p-notes">Feedback & Additional Notes <span class="p-label-note">(for your therapist)</span></label>
-                    <div class="p-field">
-                        <textarea id="p-notes" rows="4" placeholder="Describe past experiences, what worked, what didn't, or anything your therapist should know…"></textarea>
-                    </div>
-                </div>
-
-            </div><!-- /step 5 -->
-
-        </div><!-- /scroll -->
-
-        <!-- ── Footer Navigation ──────────────────────────────────── -->
-        <div class="px-9 py-7 flex-shrink-0 border-t border-white/5 flex items-center justify-between">
-
-            <button id="p-prev" class="text-xs font-light px-6 py-3 rounded-full border border-white/10 text-white/38 hover:text-white hover:border-white/28 transition-all duration-300 flex items-center gap-2" style="opacity:0;pointer-events:none;">
-                <iconify-icon icon="lucide:arrow-left" width="13"></iconify-icon>
-                Back
-            </button>
-
-            <!-- Completion dots (right side) -->
-            <div class="flex items-center gap-5">
-                <button id="p-next" class="text-xs font-light px-8 py-3 rounded-full bg-white/10 border border-white/20 text-white hover:bg-white/18 transition-all duration-300 flex items-center gap-2">
-                    Continue
-                    <iconify-icon icon="lucide:arrow-right" width="13"></iconify-icon>
-                </button>
-            </div>
-
-        </div>
-
-    </div><!-- /card -->
 </div><!-- /modal -->
 
 
@@ -3179,7 +3403,7 @@
             }
         } else {
             bullets.push('No wrist snapshot yet — reasoning uses your check-in, mode, and profile only.');
-            engineLine = 'Add vitals (Demo Case or Vitals modal) to unlock biometric tempo and safeguards.';
+            engineLine = 'Add vitals (Demo Case or Vitals workspace) to unlock biometric tempo and safeguards.';
         }
 
         if (demoCaseId && !demoNarr) {
@@ -3524,26 +3748,23 @@
     };
 
     function openHistoryModal() {
-        const modal = document.getElementById('history-modal');
-        const card = document.getElementById('history-card');
-        if (!modal) return;
+        if (typeof window.showSomaView === 'function') window.showSomaView('history');
+    }
+
+    function closeHistoryModal() {
+        if (typeof window.showSomaView === 'function') window.showSomaView('session');
+    }
+
+    window.somaOnEnterHistoryView = function () {
         setHistoryInsightView(false);
         renderHistoryList();
-        modal.style.opacity = '1';
-        modal.style.pointerEvents = 'auto';
+        const card = document.getElementById('history-card');
         if (card) {
             card.style.animation = 'none';
             void card.offsetWidth;
             card.style.animation = 'modal-in 0.5s cubic-bezier(0.16,1,0.3,1) both';
         }
-    }
-
-    function closeHistoryModal() {
-        const modal = document.getElementById('history-modal');
-        if (!modal) return;
-        modal.style.opacity = '0';
-        modal.style.pointerEvents = 'none';
-    }
+    };
 
     function setHistoryInsightView(open) {
         historyInsightOpen = !!open;
@@ -3890,9 +4111,7 @@
     }
 
     function initHistoryDom() {
-        document.getElementById('history-btn')?.addEventListener('click', openHistoryModal);
         document.getElementById('history-close')?.addEventListener('click', closeHistoryModal);
-        document.getElementById('history-backdrop')?.addEventListener('click', closeHistoryModal);
         document.getElementById('history-insight-entry')?.addEventListener('click', () => setHistoryInsightView(true));
         document.getElementById('history-insight-back')?.addEventListener('click', () => setHistoryInsightView(false));
         document.querySelectorAll('.hist-filter').forEach(b => {
@@ -4045,33 +4264,39 @@
     function clearKey()        { localStorage.removeItem(LS_KEY); }
     function syncKeyIndicator() {
         const has = !!getKey();
-        apikeyDot.classList.toggle('hidden', !has);
+        if (apikeyDot) apikeyDot.classList.toggle('hidden', !has);
         if (tuneBtnLabel) {
             tuneBtnLabel.textContent = has ? 'Start session' : 'Start guided session';
         }
     }
 
-    // ── API Key Modal ─────────────────────────────────────────────────────
-    function openApiKeyModal() {
+    // ── API Key (Settings workspace) ─────────────────────────────────────
+    const apikeyCard = document.getElementById('apikey-card');
+
+    function primeApiKeyPanel() {
         apikeyInput.value = getKey();
-        apikeyCard.style.animation = 'none';
-        void apikeyCard.offsetWidth;
-        apikeyCard.style.animation = 'modal-in 0.5s cubic-bezier(0.16,1,0.3,1) both';
-        apikeyModal.style.opacity        = '1';
-        apikeyModal.style.pointerEvents  = 'auto';
-        setTimeout(() => apikeyInput.focus(), 120);
+        if (apikeyCard) {
+            apikeyCard.style.animation = 'none';
+            void apikeyCard.offsetWidth;
+            apikeyCard.style.animation = 'modal-in 0.5s cubic-bezier(0.16,1,0.3,1) both';
+        }
+        if (apikeyModal) {
+            apikeyModal.style.opacity = '1';
+            apikeyModal.style.pointerEvents = 'auto';
+        }
+        setTimeout(() => apikeyInput && apikeyInput.focus(), 120);
     }
     function closeApiKeyModal() {
-        apikeyModal.style.opacity       = '0';
-        apikeyModal.style.pointerEvents = 'none';
+        if (typeof window.showSomaView === 'function') window.showSomaView('session');
     }
 
-    const apikeyCard = document.getElementById('apikey-card');
-    apikeyOpenBtn.addEventListener('click', openApiKeyModal);
-    apikeyClose.addEventListener('click', closeApiKeyModal);
-    apikeyBackdrop.addEventListener('click', closeApiKeyModal);
+    window.somaOnEnterSettingsView = primeApiKeyPanel;
+
+    apikeyClose?.addEventListener('click', closeApiKeyModal);
+    apikeyBackdrop?.addEventListener('click', closeApiKeyModal);
     document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && apikeyModal.style.pointerEvents !== 'none') closeApiKeyModal();
+        const sv = document.getElementById('settings-view');
+        if (e.key === 'Escape' && sv && !sv.hidden) closeApiKeyModal();
     });
     apikeySaveBtn.addEventListener('click', () => {
         const k = apikeyInput.value.trim();
@@ -4424,7 +4649,7 @@
             const msg = err.message || 'Unknown error';
             if (msg.includes('401') || msg.toLowerCase().includes('unauthorized')) {
                 window.showToast('Invalid API key — please update it');
-                openApiKeyModal();
+                if (typeof window.showSomaView === 'function') window.showSomaView('settings');
             } else if (msg.includes('429') || msg.toLowerCase().includes('rate')) {
                 window.showToast('Rate limited — try a Demo Case for instant playback, or wait briefly.');
             } else {
@@ -4645,27 +4870,21 @@
     const multiSets = {};
 
     // ── Open / Close ─────────────────────────────────────────────────
-    function openModal() {
-        modal.style.opacity = '1';
-        modal.style.pointerEvents = 'auto';
-        // Re-trigger card entrance
+    function primeProfileCard() {
         card.style.animation = 'none';
         void card.offsetWidth;
         card.style.animation = 'modal-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) both';
     }
+    window.somaOnEnterProfileView = primeProfileCard;
 
     function closeModal() {
-        modal.style.opacity = '0';
-        modal.style.pointerEvents = 'none';
+        if (typeof window.showSomaView === 'function') window.showSomaView('session');
     }
-
-    openBtn.addEventListener('click', openModal);
     closeBtn.addEventListener('click', closeModal);
-    backdrop.addEventListener('click', closeModal);
-
-    // Keyboard ESC
+    backdrop?.addEventListener('click', closeModal);
     document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && modal.style.pointerEvents !== 'none') closeModal();
+        const pv = document.getElementById('profile-view');
+        if (e.key === 'Escape' && pv && !pv.hidden) closeModal();
     });
 
     // ── Step navigation ───────────────────────────────────────────────
@@ -5684,23 +5903,22 @@
     const gridEl   = document.getElementById('vitals-grid');
 
     // ── Open / Close ──────────────────────────────────────────────────────
-    function openModal() {
+    function primeVitalsCard() {
         card.style.animation = 'none';
         void card.offsetWidth;
         card.style.animation = 'modal-in 0.5s cubic-bezier(0.16,1,0.3,1) both';
-        modal.style.opacity = '1';
-        modal.style.pointerEvents = 'auto';
     }
+    window.somaOnEnterVitalsView = primeVitalsCard;
+
     function closeModal() {
-        modal.style.opacity = '0';
-        modal.style.pointerEvents = 'none';
+        if (typeof window.showSomaView === 'function') window.showSomaView('session');
     }
 
-    openBtn.addEventListener('click', openModal);
     closeBtn.addEventListener('click', closeModal);
-    backdrop.addEventListener('click', closeModal);
+    backdrop?.addEventListener('click', closeModal);
     document.addEventListener('keydown', e => {
-        if (e.key === 'Escape' && modal.style.pointerEvents !== 'none') closeModal();
+        const vv = document.getElementById('vitals-view');
+        if (e.key === 'Escape' && vv && !vv.hidden) closeModal();
     });
 
     // ── Middleware Layer 2 calculations (mirroring Python logic) ──────────
