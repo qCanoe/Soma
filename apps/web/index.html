@@ -1319,8 +1319,9 @@
             <div id="soma-workspace" role="main" aria-label="Soma workspace" class="soma-workspace flex flex-1 min-w-0 min-h-0 flex-col overflow-hidden pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
                 <div id="session-view" class="soma-view soma-view-active flex flex-col flex-1 min-h-0 overflow-y-auto overscroll-y-contain px-4 sm:px-6 py-6 md:py-7" role="region" aria-labelledby="session-heading">
                     <h2 id="session-heading" class="sr-only">Session workspace</h2>
-                    <div class="session-station w-full max-w-[min(100%,72rem)] mx-auto grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(280px,26rem)] gap-8 lg:gap-12 lg:items-start">
-                        <div class="session-station__inputs flex flex-col w-full min-w-0 lg:max-w-[42rem] xl:max-w-none">
+                    <!-- Single-column session: check-in flows into player (classic vertical scroll, no split sidebar). -->
+                    <div class="session-station w-full max-w-3xl mx-auto flex flex-col gap-12 md:gap-14 lg:gap-16">
+                        <div class="session-station__inputs flex flex-col w-full min-w-0">
 
         <!-- Demo Cases Bar -->
         <div id="demo-cases-bar" class="w-full max-w-2xl mb-8 flex flex-col gap-2">
@@ -1365,7 +1366,7 @@
 
         <!-- Intent Input Area -->
         <div class="w-full max-w-3xl mb-10 lg:mb-12 flex flex-col gap-6">
-            <h1 class="font-display text-4xl md:text-[2.65rem] text-center lg:text-left mb-4 font-medium text-white/90 tracking-wide animate-stagger-1 leading-tight">
+            <h1 class="font-display text-4xl md:text-[2.65rem] text-center mb-4 font-medium text-white/90 tracking-wide animate-stagger-1 leading-tight">
                 How are you feeling <i class="text-white/50">today?</i>
             </h1>
             
@@ -1433,7 +1434,7 @@
             </div>
 
             <!-- Interpreting Label -->
-            <div id="interpreting-label" class="flex items-center justify-center lg:justify-start gap-2 mt-1 overflow-hidden" style="opacity:0">
+            <div id="interpreting-label" class="flex items-center justify-center gap-2 mt-1 overflow-hidden" style="opacity:0">
                 <span class="text-xs text-white/25 uppercase tracking-[0.3em] font-medium flex-shrink-0">Interpreting as</span>
                 <span id="interpreting-text" class="text-sm text-white/60 font-light tracking-wide"></span>
             </div>
@@ -1464,9 +1465,9 @@
         </div>
                         </div><!-- /.session-station__inputs -->
 
-                        <div class="session-station__playback flex flex-col w-full min-w-0 items-center lg:items-stretch gap-6 lg:sticky lg:top-4 self-start">
+                        <div class="session-station__playback flex flex-col w-full min-w-0 items-center gap-8">
         <!-- Player Card -->
-        <div class="w-full max-w-lg relative group animate-stagger-4 mx-auto lg:mx-0">
+        <div class="w-full max-w-lg relative group animate-stagger-4 mx-auto">
             <div class="relative glass-panel rounded-[2.5rem] p-10 flex flex-col items-center">
                 <!-- Top Bar -->
                 <div class="w-full flex justify-between items-start mb-8">
@@ -1576,7 +1577,7 @@
         </div>
 
         <!-- Session parameters: details so touch devices can expand without hover -->
-        <div id="session-controls-panel" class="w-full max-w-lg mx-auto lg:max-w-none">
+        <div id="session-controls-panel" class="w-full max-w-lg mx-auto">
         <details class="session-params-details group/params w-full overflow-hidden transition-[border-color,box-shadow] duration-300">
             <summary class="px-5 sm:px-8 py-5 flex items-center justify-between cursor-pointer gap-3 select-none text-left">
                 <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm font-light text-white/60">
