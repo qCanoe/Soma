@@ -5,6 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soma</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontSize: {
+                        xs: ['0.8125rem', { lineHeight: '1.25rem' }],
+                        sm: ['0.9375rem', { lineHeight: '1.45rem' }],
+                        base: ['1rem', { lineHeight: '1.6rem' }],
+                        lg: ['1.0625rem', { lineHeight: '1.6rem' }],
+                        xl: ['1.125rem', { lineHeight: '1.7rem' }],
+                        '2xl': ['1.375rem', { lineHeight: '1.875rem' }],
+                        '3xl': ['1.75rem', { lineHeight: '2.125rem' }],
+                        '4xl': ['2rem', { lineHeight: '2.25rem' }],
+                    },
+                },
+            },
+        };
+    </script>
     <script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
@@ -20,6 +38,8 @@
             background-color: #030305;
             color: #e2e8f0;
             font-family: 'Outfit', sans-serif;
+            font-size: 1rem;
+            line-height: 1.55;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
@@ -454,7 +474,7 @@
         .p-chip {
             padding: 0.5rem 1.2rem;
             border-radius: 9999px;
-            font-size: 0.76rem;
+            font-size: 0.8125rem;
             font-weight: 300;
             letter-spacing: 0.06em;
             border: 1px solid rgba(255,255,255,0.07);
@@ -497,7 +517,7 @@
             width: 100%;
             background: transparent;
             color: rgba(255,255,255,0.88);
-            font-size: 0.95rem;
+            font-size: 0.9375rem;
             letter-spacing: 0.02em;
             outline: none;
             caret-color: white;
@@ -510,7 +530,7 @@
         /* Profile label */
         .p-label {
             display: block;
-            font-size: 0.68rem;
+            font-size: 0.6875rem;
             text-transform: uppercase;
             letter-spacing: 0.22em;
             font-weight: 500;
@@ -521,7 +541,7 @@
             text-transform: none;
             letter-spacing: normal;
             font-weight: 300;
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             color: rgba(255,255,255,0.18);
         }
 
@@ -656,14 +676,14 @@
             background: linear-gradient(160deg, rgba(255,255,255,0.065) 0%, rgba(255,255,255,0.025) 100%);
         }
         .v-card-label {
-            font-size: 0.6rem;
+            font-size: 0.625rem;
             text-transform: uppercase;
             letter-spacing: 0.22em;
             font-weight: 500;
             color: rgba(255,255,255,0.28);
         }
         .v-card-value {
-            font-size: 1.65rem;
+            font-size: 1.625rem;
             font-weight: 300;
             color: rgba(255,255,255,0.92);
             letter-spacing: -0.02em;
@@ -671,13 +691,13 @@
             font-family: 'Outfit', sans-serif;
         }
         .v-card-unit {
-            font-size: 0.7rem;
+            font-size: 0.75rem;
             color: rgba(255,255,255,0.35);
             font-weight: 300;
             letter-spacing: 0.04em;
         }
         .v-card-sub {
-            font-size: 0.68rem;
+            font-size: 0.75rem;
             font-weight: 300;
             color: rgba(255,255,255,0.3);
             letter-spacing: 0.03em;
@@ -688,7 +708,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.3rem;
-            font-size: 0.6rem;
+            font-size: 0.625rem;
             text-transform: uppercase;
             letter-spacing: 0.15em;
             font-weight: 500;
@@ -779,7 +799,7 @@
             display: inline-flex;
             align-items: center;
             gap: 0.4rem;
-            font-size: 0.6rem;
+            font-size: 0.625rem;
             text-transform: uppercase;
             letter-spacing: 0.2em;
             color: rgba(255,255,255,0.22);
@@ -826,19 +846,19 @@
             box-shadow: 0 0 18px rgba(255,255,255,0.05);
         }
         .demo-case-btn .case-id {
-            font-size: 0.6rem;
+            font-size: 0.625rem;
             letter-spacing: 0.2em;
             text-transform: uppercase;
             opacity: 0.5;
             font-weight: 500;
         }
         .demo-case-btn .case-name {
-            font-size: 0.78rem;
+            font-size: 0.8125rem;
             font-weight: 400;
             letter-spacing: 0.02em;
         }
         .demo-case-btn .case-tag {
-            font-size: 0.62rem;
+            font-size: 0.6875rem;
             font-weight: 300;
             opacity: 0.45;
             letter-spacing: 0.03em;
@@ -856,7 +876,7 @@
 
         /* ── Soma session / history UI tokens (stage 1) ─────────────────── */
         .soma-section-label {
-            font-size: 10px;
+            font-size: 0.6875rem;
             letter-spacing: 0.28em;
             text-transform: uppercase;
             color: rgba(255,255,255,0.25);
@@ -874,7 +894,7 @@
             align-items: center;
             padding: 0.35rem 0.75rem;
             border-radius: 9999px;
-            font-size: 10px;
+            font-size: 0.6875rem;
             letter-spacing: 0.06em;
             border: 1px solid rgba(255,255,255,0.08);
             color: rgba(255,255,255,0.45);
@@ -892,7 +912,7 @@
             gap: 0.35rem;
             padding: 0.5rem 1rem;
             border-radius: 9999px;
-            font-size: 11px;
+            font-size: 0.75rem;
             font-weight: 500;
             letter-spacing: 0.04em;
             border: 1px solid rgba(255,255,255,0.18);
@@ -905,7 +925,7 @@
             border-color: rgba(255,255,255,0.28);
         }
         .soma-action-ghost {
-            font-size: 10px;
+            font-size: 0.6875rem;
             letter-spacing: 0.12em;
             text-transform: uppercase;
             color: rgba(255,255,255,0.32);
@@ -914,16 +934,91 @@
         .soma-action-ghost:hover {
             color: rgba(255,255,255,0.55);
         }
-        #reason-panel-body.is-collapsed #reason-bullets,
-        #reason-panel-body.is-collapsed #reason-pills {
-            display: none;
+        #reason-panel-body {
+            max-height: 42rem;
+            opacity: 1;
+            overflow: hidden;
+            transform: translateY(0);
+            transform-origin: top;
+            transition:
+                max-height 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.22s ease,
+                transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+            will-change: max-height, opacity, transform;
+        }
+        #reason-panel-body.is-collapsed {
+            max-height: 0;
+            opacity: 0;
+            pointer-events: none;
+            transform: translateY(-0.35rem);
+        }
+        #reason-toggle,
+        #reason-details-toggle {
+            position: relative;
+        }
+        #reason-toggle::after,
+        #reason-details-toggle::after {
+            content: "";
+            display: inline-block;
+            width: 0.36rem;
+            height: 0.36rem;
+            margin-left: 0.4rem;
+            border-right: 1px solid currentColor;
+            border-bottom: 1px solid currentColor;
+            transform: translateY(-0.08rem) rotate(45deg);
+            transition: transform 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        #reason-toggle[aria-expanded="true"]::after,
+        #reason-details-toggle[aria-expanded="true"]::after {
+            transform: translateY(0.05rem) rotate(-135deg);
+        }
+        #reason-details-panel {
+            max-height: 0;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(-0.3rem);
+            transition:
+                max-height 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+                opacity 0.22s ease,
+                transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        #reason-details-panel.is-open {
+            max-height: 28rem;
+            overflow-y: auto;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        #history-insight-entry {
+            transition:
+                border-color 0.22s ease,
+                background 0.22s ease,
+                transform 0.22s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+        #history-insight-entry:hover {
+            border-color: rgba(255,255,255,0.16);
+            background: rgba(255,255,255,0.055);
+            transform: translateY(-1px);
+        }
+        #history-insight-view {
+            animation: history-insight-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+        }
+        @keyframes history-insight-in {
+            from { opacity: 0; transform: translateX(0.75rem); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            #reason-panel-body,
+            #reason-details-panel,
+            #reason-toggle::after,
+            #reason-details-toggle::after,
+            #history-insight-entry {
+                transition-duration: 0.01ms !important;
+            }
+            #history-insight-view { animation: none !important; }
         }
         #history-list-scroll::-webkit-scrollbar { width: 0; }
 
-        /* Demo / disclaimers */
-        .soma-footer-disclaimer {
-            border-top: 1px solid rgba(255, 255, 255, 0.06);
-        }
+        /* Demo */
         .soma-demo-hint {
             border-left: 2px solid rgba(251, 191, 36, 0.25);
         }
@@ -984,9 +1079,9 @@
         <!-- Demo Cases Bar -->
         <div id="demo-cases-bar" class="w-full max-w-2xl mb-8 flex flex-col gap-2">
             <div class="flex items-center gap-3 mb-1">
-                <span class="text-[10px] text-white/25 uppercase tracking-[0.28em] font-medium">Demo Cases</span>
+                <span class="text-xs text-white/25 uppercase tracking-[0.28em] font-medium">Demo Cases</span>
                 <div class="flex-1 h-px bg-white/[0.04]"></div>
-                <span class="text-[10px] text-white/18 font-light tracking-wide">Click to load a patient profile</span>
+                <span class="text-xs text-white/18 font-light tracking-wide">Click to load a patient profile</span>
             </div>
             <div id="demo-cases-scroll">
                 <button class="demo-case-btn" data-case="case_001">
@@ -1015,7 +1110,7 @@
                     <span class="case-tag">45 · Existential Anxiety</span>
                 </button>
             </div>
-            <p class="soma-demo-hint mt-2 px-3 py-2 rounded-xl bg-white/[0.03] text-[10px] text-white/38 font-light leading-relaxed tracking-wide">
+            <p class="soma-demo-hint mt-2 px-3 py-2 rounded-xl bg-white/[0.03] text-xs text-white/38 font-light leading-relaxed tracking-wide">
                 <strong class="text-white/55 font-medium">Stable demo:</strong> use Demo Cases for instant cached audio.
                 Optional: header <strong class="text-white/55">API Key</strong> for live Suno (network dependent).
                 See <span class="text-white/45">docs/demo-script.md</span> for a 4-minute walkthrough.
@@ -1023,7 +1118,7 @@
         </div>
 
         <!-- Intent Input Area -->
-        <div class="w-full max-w-2xl mb-16 flex flex-col gap-6">
+        <div class="w-full max-w-3xl mb-16 flex flex-col gap-6">
             <h1 class="font-display text-4xl md:text-5xl text-center mb-4 font-medium text-white/90 tracking-wide animate-stagger-1">
                 How are you feeling <i class="text-white/50">today?</i>
             </h1>
@@ -1037,32 +1132,64 @@
                 </button>
             </div>
 
-            <!-- Chips -->
-            <div class="flex flex-col gap-5 mt-4 animate-stagger-3 w-full">
-                <!-- Row 1 -->
-                <div class="flex items-center justify-center gap-3 flex-wrap">
-                    <span class="text-[10px] text-white/30 uppercase tracking-[0.3em] font-medium mr-2">Mode</span>
-                    <button data-mode="focus"   class="mode-chip px-5 py-2 rounded-full text-xs font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Deep Focus</button>
-                    <button data-mode="calm"    class="mode-chip px-5 py-2 rounded-full text-xs font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Calm Down</button>
-                    <button data-mode="sleep"   class="mode-chip px-5 py-2 rounded-full text-xs font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Drift to Sleep</button>
-                    <button data-mode="anxious" class="mode-chip px-5 py-2 rounded-full text-xs font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Anxiety Relief</button>
-                    <button data-mode="ground"  class="mode-chip px-5 py-2 rounded-full text-xs font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Grounding</button>
-                    <button data-mode="energy"  class="mode-chip px-5 py-2 rounded-full text-xs font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Energy Boost</button>
-                    <button data-mode="trauma"  class="mode-chip px-5 py-2 rounded-full text-xs font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Trauma Gentle</button>
+            <!-- Chips: grid locks label + chip columns so Mode/Vibe and both chip bands share one rhythm -->
+            <div class="intent-chip-matrix mt-4 animate-stagger-3 w-full grid grid-cols-[5rem_minmax(0,1fr)] gap-x-5 gap-y-6 items-start">
+                <div class="intent-chip-matrix__label pt-2.5">
+                    <span class="block text-xs text-white/30 uppercase tracking-[0.22em] font-medium leading-tight text-left">Mode</span>
                 </div>
-                <!-- Row 2 -->
-                <div class="flex items-center justify-center gap-3 flex-wrap">
-                    <span class="text-[10px] text-white/30 uppercase tracking-[0.3em] font-medium mr-2">Vibe</span>
-                    <button data-vibe="anxious"    class="vibe-chip px-5 py-2 rounded-full text-xs font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Anxious</button>
-                    <button data-vibe="overwhelmed" class="vibe-chip px-5 py-2 rounded-full text-xs font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Overwhelmed</button>
-                    <button data-vibe="creative"   class="vibe-chip px-5 py-2 rounded-full text-xs font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Creative Flow</button>
+                <div class="intent-chip-matrix__band flex flex-col gap-2 min-w-0">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button data-mode="focus"   class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Deep Focus</button>
+                        <button data-mode="calm"    class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Calm Down</button>
+                        <button data-mode="sleep"   class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Drift to Sleep</button>
+                        <button data-mode="anxious" class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Anxiety Relief</button>
+                        <button data-mode="ground"  class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Grounding</button>
+                        <button type="button" data-more-toggle="mode" aria-expanded="false" aria-controls="mode-more-panel" class="px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/10 bg-white/[0.035] text-white/45 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">
+                            <span data-more-label>More</span>
+                        </button>
+                    </div>
+                    <div id="mode-more-panel" data-more-panel="mode" class="hidden flex flex-wrap items-center gap-2">
+                        <button data-mode="energy"  class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Energy Boost</button>
+                        <button data-mode="trauma"  class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Trauma Gentle</button>
+                        <button data-mode="clarity" class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Morning Clarity</button>
+                        <button data-mode="release" class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Emotional Release</button>
+                        <button data-mode="breath"  class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Breath Reset</button>
+                        <button data-mode="body"    class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Body Scan</button>
+                        <button data-mode="study"   class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Study Flow</button>
+                        <button data-mode="restore" class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Deep Restore</button>
+                        <button data-mode="still"   class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Still Mind</button>
+                        <button data-mode="warm"    class="mode-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Warm Hold</button>
+                    </div>
+                </div>
+                <div class="intent-chip-matrix__label border-t border-white/[0.06] pt-3">
+                    <span class="block text-xs text-white/30 uppercase tracking-[0.22em] font-medium leading-tight text-left">Vibe</span>
+                </div>
+                <div class="intent-chip-matrix__band flex flex-col gap-2 min-w-0 border-t border-white/[0.06] pt-3">
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button data-vibe="anxious"     class="vibe-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Anxious</button>
+                        <button data-vibe="overwhelmed" class="vibe-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Overwhelmed</button>
+                        <button data-vibe="creative"    class="vibe-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Creative Flow</button>
+                        <button data-vibe="lonely"      class="vibe-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Lonely</button>
+                        <button data-vibe="tense"       class="vibe-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Tense</button>
+                        <button type="button" data-more-toggle="vibe" aria-expanded="false" aria-controls="vibe-more-panel" class="px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/10 bg-white/[0.035] text-white/45 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">
+                            <span data-more-label>More</span>
+                        </button>
+                    </div>
+                    <div id="vibe-more-panel" data-more-panel="vibe" class="hidden flex flex-wrap items-center gap-2">
+                        <button data-vibe="hopeful"     class="vibe-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Hopeful</button>
+                        <button data-vibe="tender"      class="vibe-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Tender</button>
+                        <button data-vibe="spacious"    class="vibe-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Spacious</button>
+                        <button data-vibe="rainy"       class="vibe-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Rainy Night</button>
+                        <button data-vibe="drained"     class="vibe-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Drained</button>
+                        <button data-vibe="grateful"    class="vibe-chip px-4 py-2 rounded-full text-sm font-light tracking-wider border border-white/5 bg-transparent text-white/50 hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">Grateful</button>
+                    </div>
                 </div>
             </div>
 
             <!-- Interpreting Label -->
             <div id="interpreting-label" class="flex items-center justify-center gap-2 mt-1 overflow-hidden" style="opacity:0">
-                <span class="text-[10px] text-white/25 uppercase tracking-[0.3em] font-medium flex-shrink-0">Interpreting as</span>
-                <span id="interpreting-text" class="text-[11px] text-white/60 font-light tracking-wide"></span>
+                <span class="text-xs text-white/25 uppercase tracking-[0.3em] font-medium flex-shrink-0">Interpreting as</span>
+                <span id="interpreting-text" class="text-sm text-white/60 font-light tracking-wide"></span>
             </div>
 
             <div id="reason-panel" class="w-full soma-panel-soft px-5 py-4 flex flex-col gap-3 transition-opacity duration-300">
@@ -1070,14 +1197,22 @@
                     <div class="flex flex-col gap-1 min-w-0">
                         <span class="soma-section-label">Why Soma chose this</span>
                         <p id="reason-title" class="text-sm text-white/80 font-light tracking-wide leading-snug">Adjust your check-in — we’ll explain each session.</p>
-                        <p id="reason-engine-line" class="hidden text-[10px] text-emerald-200/55 font-light tracking-wide leading-snug"></p>
+                        <p id="reason-engine-line" class="hidden text-xs text-emerald-200/55 font-light tracking-wide leading-snug"></p>
                     </div>
-                    <button type="button" id="reason-toggle" class="soma-action-ghost flex-shrink-0">Hide</button>
+                    <button type="button" id="reason-toggle" class="soma-action-ghost flex-shrink-0" aria-expanded="true" aria-controls="reason-panel-body">Hide</button>
                 </div>
                 <div id="reason-panel-body" class="reason-collapsible flex flex-col gap-3">
-                    <ul id="reason-bullets" class="list-none space-y-2 text-[11px] text-white/45 font-light leading-relaxed pl-0">
+                    <ul id="reason-bullets" class="list-none space-y-2 text-sm text-white/45 font-light leading-relaxed pl-0">
                     </ul>
                     <div id="reason-pills" class="flex flex-wrap gap-2"></div>
+                    <div id="reason-details-wrap" class="hidden flex flex-col gap-2 pt-2 mt-1 border-t border-white/[0.06]">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button type="button" id="reason-details-toggle" class="soma-action-ghost" aria-expanded="false" aria-controls="reason-details-panel">Why details</button>
+                            <button type="button" id="reason-prompt-copy" class="soma-action-ghost hidden">Copy prompt</button>
+                        </div>
+                        <div id="reason-details-panel" class="flex flex-col gap-3 text-xs text-white/40 font-light leading-relaxed">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1088,17 +1223,17 @@
                 <!-- Top Bar -->
                 <div class="w-full flex justify-between items-start mb-8">
                     <div class="flex flex-col">
-                        <span class="text-[10px] text-white/40 uppercase tracking-[0.3em] font-medium mb-2">Now Resonating</span>
+                        <span class="text-xs text-white/40 uppercase tracking-[0.3em] font-medium mb-2">Now Resonating</span>
                         <h2 id="player-title" class="text-3xl text-white flex items-center gap-3 font-display italic tracking-wide">
                             Deep Focus
                         </h2>
                         <!-- Suno generated track badge -->
                         <div id="suno-track-badge" class="mt-1.5 flex items-center gap-1.5 opacity-0 translate-y-1 pointer-events-none">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400/80 flex-shrink-0"></span>
-                            <span id="suno-track-title" class="text-[10px] text-white/40 font-light tracking-wide truncate max-w-[180px]">AI Generated</span>
+                            <span id="suno-track-title" class="text-xs text-white/40 font-light tracking-wide truncate max-w-[180px]">AI Generated</span>
                         </div>
                         <div id="session-strip" class="mt-3 w-full max-w-[280px] soma-panel-soft px-3 py-2.5 flex flex-wrap items-center gap-2 opacity-90">
-                            <span id="session-status-label" class="text-[10px] text-white/35 uppercase tracking-widest">Session · idle</span>
+                            <span id="session-status-label" class="text-xs text-white/35 uppercase tracking-widest">Session · idle</span>
                             <button type="button" id="end-session-btn" class="soma-action-ghost hidden">End Session</button>
                         </div>
                     </div>
@@ -1159,14 +1294,14 @@
                         <!-- Hover time tooltip -->
                         <div id="progress-tooltip" class="absolute bottom-full mb-2.5 -translate-x-1/2 pointer-events-none whitespace-nowrap" style="left:0;opacity:0;transition:opacity 0.15s ease;">
                             <div class="px-2.5 py-1 rounded-lg border border-white/10" style="background:rgba(8,8,12,0.80);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
-                                <span id="progress-tooltip-time" class="font-mono text-[10px] text-white/72 tracking-widest">00:00</span>
+                                <span id="progress-tooltip-time" class="font-mono text-xs text-white/72 tracking-widest">00:00</span>
                             </div>
                         </div>
                     </div>
                     <div class="flex justify-between items-center">
                         <span id="time-elapsed" class="text-xs font-mono text-white/30">15:00</span>
                         <button id="freq-toggle" class="flex items-center gap-1.5 group/freq cursor-pointer">
-                            <span id="player-subtext" class="text-[10px] text-white/40 font-light tracking-widest uppercase group-hover/freq:text-white/65 transition-colors duration-300">Binaural · 40Hz</span>
+                            <span id="player-subtext" class="text-xs text-white/40 font-light tracking-widest uppercase group-hover/freq:text-white/65 transition-colors duration-300">Binaural · 40Hz</span>
                             <iconify-icon icon="lucide:info" width="10" class="text-white/18 group-hover/freq:text-white/45 transition-colors duration-300 flex-shrink-0"></iconify-icon>
                         </button>
                         <span id="time-total" class="text-xs font-mono text-white/30">45:00</span>
@@ -1180,11 +1315,11 @@
                             </div>
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 mb-1.5">
-                                    <span id="freq-wave" class="text-[10px] text-white/32 uppercase tracking-[0.18em] font-medium">Gamma Wave</span>
-                                    <span class="text-white/15 text-[10px] select-none">·</span>
-                                    <span id="freq-hz" class="text-[10px] font-mono text-white/28 tracking-wider">40 Hz</span>
+                                    <span id="freq-wave" class="text-xs text-white/32 uppercase tracking-[0.18em] font-medium">Gamma Wave</span>
+                                    <span class="text-white/15 text-xs select-none">·</span>
+                                    <span id="freq-hz" class="text-xs font-mono text-white/28 tracking-wider">40 Hz</span>
                                 </div>
-                                <p id="freq-desc" class="text-[11px] text-white/42 font-light leading-relaxed"></p>
+                                <p id="freq-desc" class="text-sm text-white/42 font-light leading-relaxed"></p>
                             </div>
                         </div>
                     </div>
@@ -1192,14 +1327,6 @@
             </div>
         </div>
 
-        <footer class="soma-footer-disclaimer w-full max-w-2xl mt-10 pt-6 pb-2 flex flex-col gap-2 text-center" role="contentinfo">
-            <p class="text-[10px] text-white/28 font-light leading-relaxed px-4">
-                <strong class="text-white/45 font-medium">Wellness only.</strong> Soma supports relaxation and mood regulation through music listening; it does not diagnose, treat, cure, or prevent any disease. Consult a qualified clinician for health concerns.
-            </p>
-            <p class="text-[10px] text-white/22 font-light leading-relaxed px-4">
-                Demo vitals may be illustrative. Real integrations require explicit consent for HealthKit-type data.
-            </p>
-        </footer>
     </main>
 
     <!-- Controls Drawer (Floating Island) -->
@@ -1225,7 +1352,7 @@
                     
                     <!-- Intensity -->
                     <div class="flex-1">
-                        <div class="text-[10px] text-white/30 uppercase tracking-[0.2em] font-medium mb-5">Intensity</div>
+                        <div class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium mb-5">Intensity</div>
                         <div class="flex justify-between items-center gap-2">
                             <button data-intensity="1" class="intensity-btn w-8 h-8 rounded-full border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">1</button>
                             <div class="h-px flex-1 bg-white/5"></div>
@@ -1239,7 +1366,7 @@
                     
                     <!-- Duration -->
                     <div class="flex-1">
-                        <div class="text-[10px] text-white/30 uppercase tracking-[0.2em] font-medium mb-5">Duration</div>
+                        <div class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium mb-5">Duration</div>
                         <div class="flex gap-2">
                             <button data-duration="15"  class="duration-btn flex-1 py-2 rounded-xl border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">15m</button>
                             <button data-duration="30"  class="duration-btn flex-1 py-2 rounded-xl border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">30m</button>
@@ -1249,7 +1376,7 @@
 
                     <!-- Environment -->
                     <div class="flex-1">
-                        <div class="text-[10px] text-white/30 uppercase tracking-[0.2em] font-medium mb-5">Environment</div>
+                        <div class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium mb-5">Environment</div>
                         <div class="flex gap-2">
                             <button data-env="None"  class="env-btn flex-1 py-2 rounded-xl border border-white/5 bg-transparent text-white/40 text-xs hover:border-white/20 hover:text-white transition-all cursor-pointer select-none">None</button>
                             <button data-env="Rain"  class="env-btn flex-1 py-2 rounded-xl border border-white/20 bg-white/10 text-white text-xs shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-all cursor-pointer select-none">Rain</button>
@@ -1302,15 +1429,15 @@
                 <div class="flex flex-col gap-2">
                     <div class="flex items-center gap-3">
                         <div class="v-live-dot"></div>
-                        <span class="text-[10px] text-white/30 uppercase tracking-[0.28em] font-medium">Biometric Monitor</span>
+                        <span class="text-xs text-white/30 uppercase tracking-[0.28em] font-medium">Biometric Monitor</span>
                     </div>
-                    <h2 id="vitals-title" class="font-display text-[2rem] text-white/90 italic tracking-wide leading-tight">No Data</h2>
+                    <h2 id="vitals-title" class="font-display text-3xl text-white/90 italic tracking-wide leading-tight">No Data</h2>
                     <div class="flex items-center gap-3 mt-0.5">
                         <span class="v-source">
                             <iconify-icon icon="lucide:watch" width="10"></iconify-icon>
                             Apple Watch · HealthKit
                         </span>
-                        <span id="vitals-timestamp" class="text-[10px] text-white/18 font-light tracking-wide"></span>
+                        <span id="vitals-timestamp" class="text-xs text-white/18 font-light tracking-wide"></span>
                     </div>
                 </div>
                 <button id="vitals-close" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0">
@@ -1321,12 +1448,12 @@
 
         <!-- Mock HealthKit prototype (web only; maps to /api/healthkit/mock/run when API available) -->
         <div class="px-9 pb-3 flex-shrink-0 flex flex-wrap gap-2 items-center border-b border-white/[0.06]">
-            <span class="text-[9px] text-white/25 uppercase tracking-widest">Prototype</span>
-            <button type="button" id="mock-hk-connect" class="text-[11px] font-light px-3 py-1.5 rounded-full border border-white/15 bg-white/[0.04] text-white/70 hover:bg-white/10 hover:text-white transition-all">Connect mock HealthKit</button>
-            <button type="button" id="mock-hk-next" disabled class="text-[11px] font-light px-3 py-1.5 rounded-full border border-white/10 bg-transparent text-white/35 transition-all">Next sample</button>
-            <span id="mock-hk-status" class="text-[10px] text-white/30 font-light tracking-wide ml-1 min-w-0 flex-1">Disconnected · start FastAPI (see README) for full MindWave sync</span>
+            <span class="text-xs text-white/25 uppercase tracking-widest">Prototype</span>
+            <button type="button" id="mock-hk-connect" class="text-sm font-light px-3 py-1.5 rounded-full border border-white/15 bg-white/[0.04] text-white/70 hover:bg-white/10 hover:text-white transition-all">Connect mock HealthKit</button>
+            <button type="button" id="mock-hk-next" disabled class="text-sm font-light px-3 py-1.5 rounded-full border border-white/10 bg-transparent text-white/35 transition-all">Next sample</button>
+            <span id="mock-hk-status" class="text-xs text-white/30 font-light tracking-wide ml-1 min-w-0 flex-1">Disconnected · start FastAPI (see README) for full MindWave sync</span>
         </div>
-        <p class="px-9 pb-3 text-[10px] text-white/22 font-light leading-relaxed">Synthetic vitals for demos only — not a medical readout. Real use requires explicit consent and clinical oversight where applicable.</p>
+        <p class="px-9 pb-3 text-xs text-white/22 font-light leading-relaxed">Synthetic vitals for demos only — not a medical readout. Real use requires explicit consent and clinical oversight where applicable.</p>
 
         <!-- Scrollable content -->
         <div id="vitals-scroll" class="flex-1 overflow-y-auto px-9 pb-8" style="-webkit-overflow-scrolling:touch;">
@@ -1381,13 +1508,13 @@
                                     <circle id="v-stress-ring-fill" class="ring-fill" cx="29" cy="29" r="22" fill="none" stroke-width="4.5" stroke="rgba(251,191,36,0.7)" stroke-dasharray="138.2" stroke-dashoffset="138.2"/>
                                 </svg>
                                 <div class="v-stress-center">
-                                    <span id="v-stress-num" class="font-light text-white/90" style="line-height:1;font-size:1.1rem">—</span>
-                                    <span class="text-[8px] text-white/28 uppercase tracking-widest">/10</span>
+                                    <span id="v-stress-num" class="font-light text-white/90" style="line-height:1;font-size:1.125rem">—</span>
+                                    <span class="text-xs text-white/28 uppercase tracking-widest">/10</span>
                                 </div>
                             </div>
                             <div class="flex flex-col gap-1 min-w-0 flex-1 overflow-hidden">
                                 <span id="v-stress-label" class="text-sm font-light text-white/60 leading-snug">—</span>
-                                <span id="v-stress-status" class="v-status" style="font-size:0.55rem;padding:0.18rem 0.5rem;white-space:nowrap;"></span>
+                                <span id="v-stress-status" class="v-status" style="font-size:0.625rem;padding:0.2rem 0.5rem;white-space:nowrap;"></span>
                             </div>
                         </div>
                     </div>
@@ -1437,25 +1564,25 @@
                         <span class="v-card-label">Body Motion</span>
                         <div class="flex flex-col gap-1.5 mt-2">
                             <div class="flex items-center gap-2">
-                                <span class="text-[9px] text-white/28 font-mono w-3">X</span>
+                                <span class="text-xs text-white/28 font-mono w-3">X</span>
                                 <div class="flex-1 h-1 rounded-full bg-white/6 overflow-hidden">
                                     <div id="v-motion-x" class="h-full rounded-full bg-white/35 transition-all duration-700" style="width:0%"></div>
                                 </div>
-                                <span id="v-motion-x-val" class="text-[9px] font-mono text-white/30 w-7 text-right">—</span>
+                                <span id="v-motion-x-val" class="text-xs font-mono text-white/30 w-7 text-right">—</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="text-[9px] text-white/28 font-mono w-3">Y</span>
+                                <span class="text-xs text-white/28 font-mono w-3">Y</span>
                                 <div class="flex-1 h-1 rounded-full bg-white/6 overflow-hidden">
                                     <div id="v-motion-y" class="h-full rounded-full bg-white/35 transition-all duration-700" style="width:0%"></div>
                                 </div>
-                                <span id="v-motion-y-val" class="text-[9px] font-mono text-white/30 w-7 text-right">—</span>
+                                <span id="v-motion-y-val" class="text-xs font-mono text-white/30 w-7 text-right">—</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="text-[9px] text-white/28 font-mono w-3">Z</span>
+                                <span class="text-xs text-white/28 font-mono w-3">Z</span>
                                 <div class="flex-1 h-1 rounded-full bg-white/6 overflow-hidden">
                                     <div id="v-motion-z" class="h-full rounded-full bg-white/35 transition-all duration-700" style="width:0%"></div>
                                 </div>
-                                <span id="v-motion-z-val" class="text-[9px] font-mono text-white/30 w-7 text-right">—</span>
+                                <span id="v-motion-z-val" class="text-xs font-mono text-white/30 w-7 text-right">—</span>
                             </div>
                         </div>
                         <span id="v-motion-status" class="v-status mt-2"></span>
@@ -1478,28 +1605,28 @@
                     </div>
                     <div class="grid grid-cols-2 gap-x-6 gap-y-2">
                         <div class="flex items-center justify-between border-b border-white/[0.04] pb-2">
-                            <span class="text-[10px] text-white/30 font-light">Target Entrainment BPM</span>
-                            <span id="v-target-bpm" class="text-[11px] font-mono text-white/65">—</span>
+                            <span class="text-xs text-white/30 font-light">Target Entrainment BPM</span>
+                            <span id="v-target-bpm" class="text-sm font-mono text-white/65">—</span>
                         </div>
                         <div class="flex items-center justify-between border-b border-white/[0.04] pb-2">
-                            <span class="text-[10px] text-white/30 font-light">Sympathetic Load</span>
-                            <span id="v-sympathetic" class="text-[11px] font-mono text-white/65">—</span>
+                            <span class="text-xs text-white/30 font-light">Sympathetic Load</span>
+                            <span id="v-sympathetic" class="text-sm font-mono text-white/65">—</span>
                         </div>
                         <div class="flex items-center justify-between border-b border-white/[0.04] pb-2">
-                            <span class="text-[10px] text-white/30 font-light">HRV Status</span>
-                            <span id="v-hrv-analysis" class="text-[11px] font-mono text-white/65">—</span>
+                            <span class="text-xs text-white/30 font-light">HRV Status</span>
+                            <span id="v-hrv-analysis" class="text-sm font-mono text-white/65">—</span>
                         </div>
                         <div class="flex items-center justify-between border-b border-white/[0.04] pb-2">
-                            <span class="text-[10px] text-white/30 font-light">Acoustic Texture</span>
-                            <span id="v-texture" class="text-[11px] font-mono text-white/65">—</span>
+                            <span class="text-xs text-white/30 font-light">Acoustic Texture</span>
+                            <span id="v-texture" class="text-sm font-mono text-white/65">—</span>
                         </div>
                         <div class="flex items-center justify-between pb-1">
-                            <span class="text-[10px] text-white/30 font-light">Instrument Set</span>
-                            <span id="v-instruments" class="text-[11px] font-mono text-white/65">—</span>
+                            <span class="text-xs text-white/30 font-light">Instrument Set</span>
+                            <span id="v-instruments" class="text-sm font-mono text-white/65">—</span>
                         </div>
                         <div class="flex items-center justify-between pb-1">
-                            <span class="text-[10px] text-white/30 font-light">Noise Safeguard</span>
-                            <span id="v-safeguard" class="text-[11px] font-mono text-white/65">—</span>
+                            <span class="text-xs text-white/30 font-light">Noise Safeguard</span>
+                            <span id="v-safeguard" class="text-sm font-mono text-white/65">—</span>
                         </div>
                     </div>
                 </div>
@@ -1525,7 +1652,7 @@
                     </div>
                     <span class="text-white/90 font-display italic text-xl tracking-wide">Suno API Key</span>
                 </div>
-                <p class="text-[11px] text-white/30 font-light leading-relaxed mt-1">
+                <p class="text-sm text-white/30 font-light leading-relaxed mt-1">
                     <strong class="text-amber-200/80 font-medium">Demo only.</strong> Key lives in this browser (localStorage) and is sent directly to the Suno-compatible API — not to a first-party Soma backend. Production builds should proxy generation server-side (<span class="text-white/40">session-api-contract § Suno proxy</span>).
                 </p>
             </div>
@@ -1539,7 +1666,7 @@
             <input id="apikey-input" type="password" placeholder="sk-..." autocomplete="off" spellcheck="false">
         </div>
         <!-- Info row -->
-        <div class="flex items-center gap-2 text-[10px] text-white/22 font-light">
+        <div class="flex items-center gap-2 text-xs text-white/22 font-light">
             <iconify-icon icon="lucide:external-link" width="11" class="flex-shrink-0"></iconify-icon>
             <a href="https://sunoapi.org/api-key" target="_blank" class="hover:text-white/55 transition-colors">Get an API key at sunoapi.org/api-key</a>
         </div>
@@ -1561,7 +1688,7 @@
             <div>
                 <span class="soma-section-label block mb-2">Session complete</span>
                 <h2 class="font-display text-2xl text-white/90 italic tracking-wide">How was it for you?</h2>
-                <p id="feedback-session-summary" class="text-[11px] text-white/32 font-light mt-2 leading-relaxed"></p>
+                <p id="feedback-session-summary" class="text-sm text-white/32 font-light mt-2 leading-relaxed"></p>
             </div>
             <button type="button" id="feedback-close" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0">
                 <iconify-icon icon="lucide:x" width="15"></iconify-icon>
@@ -1569,11 +1696,11 @@
         </div>
         <div class="px-8 pb-8 flex flex-col gap-5 max-h-[min(72vh,520px)] overflow-y-auto" style="-webkit-overflow-scrolling:touch;">
             <div>
-                <span class="text-[10px] text-white/30 uppercase tracking-[0.2em] font-medium block mb-2">Calm right now (1–5)</span>
+                <span class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium block mb-2">Calm right now (1–5)</span>
                 <div id="fb-calm-group" class="flex flex-wrap gap-2"></div>
             </div>
             <div>
-                <span class="text-[10px] text-white/30 uppercase tracking-[0.2em] font-medium block mb-2">Did this help?</span>
+                <span class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium block mb-2">Did this help?</span>
                 <div class="flex flex-wrap gap-2">
                     <button type="button" class="soma-pill fb-help" data-help="helped">Helped</button>
                     <button type="button" class="soma-pill fb-help soma-pill-active" data-help="neutral">Not sure</button>
@@ -1581,7 +1708,7 @@
                 </div>
             </div>
             <div>
-                <span class="text-[10px] text-white/30 uppercase tracking-[0.2em] font-medium block mb-2">Sound fit</span>
+                <span class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium block mb-2">Sound fit</span>
                 <div class="flex flex-wrap gap-2">
                     <button type="button" class="soma-pill fb-sound soma-pill-active" data-sound="good">Good</button>
                     <button type="button" class="soma-pill fb-sound" data-sound="too_fast">Too fast</button>
@@ -1591,7 +1718,7 @@
                 </div>
             </div>
             <div>
-                <label class="text-[10px] text-white/30 uppercase tracking-[0.2em] font-medium block mb-2" for="fb-notes">Note (optional)</label>
+                <label class="text-xs text-white/30 uppercase tracking-[0.2em] font-medium block mb-2" for="fb-notes">Note (optional)</label>
                 <textarea id="fb-notes" rows="3" class="w-full rounded-2xl bg-white/[0.04] border border-white/10 text-white/80 text-sm font-light px-4 py-3 placeholder:text-white/20 focus:outline-none focus:border-white/20 resize-none" placeholder="Anything you want to remember…"></textarea>
             </div>
             <div class="flex gap-3 pt-1">
@@ -1608,27 +1735,41 @@
 <div id="history-modal" class="fixed inset-0 z-[111] flex items-center justify-center" style="opacity:0;pointer-events:none;">
     <div id="history-backdrop" class="absolute inset-0 bg-black/65 backdrop-blur-sm cursor-pointer"></div>
     <div id="history-card" class="relative glass-panel rounded-[2.5rem] w-full max-w-lg mx-5 flex flex-col shadow-[0_40px_80px_rgba(0,0,0,0.65)]" style="height:min(88vh,640px);border:1px solid rgba(255,255,255,0.1);">
-        <div class="px-8 pt-8 pb-4 flex items-start justify-between flex-shrink-0">
-            <div>
+        <div class="px-8 pt-8 pb-4 flex items-start justify-between gap-4 flex-shrink-0">
+            <div class="min-w-0 flex-1">
                 <span class="soma-section-label block mb-2">Your sessions</span>
                 <h2 class="font-display text-2xl text-white/90 italic tracking-wide">History</h2>
-                <p id="history-summary-line" class="text-[11px] text-white/32 font-light mt-2">—</p>
-                <div id="history-insights" class="hidden mt-3 p-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] text-left space-y-1.5"></div>
+                <p id="history-summary-line" class="text-sm text-white/32 font-light mt-2">—</p>
+                <button type="button" id="history-insight-entry" class="hidden mt-3 w-full p-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] text-left">
+                    <span class="flex items-center justify-between gap-3">
+                        <span class="min-w-0">
+                            <span class="block text-xs text-white/40 uppercase tracking-[0.22em]">History insight</span>
+                            <span id="history-insight-entry-summary" class="block text-sm text-white/58 font-light mt-1 truncate">Open trend panel</span>
+                        </span>
+                        <span class="text-xs text-white/32 uppercase tracking-[0.14em] flex-shrink-0">Open →</span>
+                    </span>
+                </button>
             </div>
             <button type="button" id="history-close" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0">
                 <iconify-icon icon="lucide:x" width="15"></iconify-icon>
             </button>
         </div>
-        <div class="px-8 pb-3 flex flex-wrap gap-2 flex-shrink-0">
-            <button type="button" class="soma-pill soma-pill-active hist-filter" data-filter="all">All</button>
-            <button type="button" class="soma-pill hist-filter" data-filter="calm">Calm</button>
-            <button type="button" class="soma-pill hist-filter" data-filter="focus">Focus</button>
-            <button type="button" class="soma-pill hist-filter" data-filter="sleep">Sleep</button>
-            <button type="button" class="soma-pill hist-filter" data-filter="helped">Helped</button>
+        <div id="history-list-view" class="flex flex-col flex-1 min-h-0">
+            <div class="px-8 pb-3 flex flex-wrap gap-2 flex-shrink-0">
+                <button type="button" class="soma-pill soma-pill-active hist-filter" data-filter="all">All</button>
+                <button type="button" class="soma-pill hist-filter" data-filter="calm">Calm</button>
+                <button type="button" class="soma-pill hist-filter" data-filter="focus">Focus</button>
+                <button type="button" class="soma-pill hist-filter" data-filter="sleep">Sleep</button>
+                <button type="button" class="soma-pill hist-filter" data-filter="helped">Helped</button>
+            </div>
+            <div id="history-list-scroll" class="flex-1 overflow-y-auto px-8 pb-8 min-h-0">
+                <div id="history-list" class="flex flex-col gap-2"></div>
+                <p id="history-empty" class="text-center text-sm text-white/25 py-12 font-light">No completed sessions yet. Finish a session and save feedback.</p>
+            </div>
         </div>
-        <div id="history-list-scroll" class="flex-1 overflow-y-auto px-8 pb-8 min-h-0">
-            <div id="history-list" class="flex flex-col gap-2"></div>
-            <p id="history-empty" class="text-center text-[11px] text-white/25 py-12 font-light">No completed sessions yet. Finish a session and save feedback.</p>
+        <div id="history-insight-view" class="hidden flex-col flex-1 min-h-0 px-8 pb-8">
+            <button type="button" id="history-insight-back" class="soma-action-ghost self-start mb-4">← Back to history</button>
+            <div id="history-insights" class="flex-1 p-4 rounded-3xl border border-white/[0.08] bg-white/[0.03] text-left space-y-1.5 overflow-y-auto min-h-0"></div>
         </div>
     </div>
 </div>
@@ -1649,7 +1790,7 @@
             <div class="flex items-start justify-between mb-5">
                 <div>
                     <span class="p-label" style="margin-bottom:.45rem">Therapy Profile</span>
-                    <h2 id="p-step-title" class="font-display text-[2.1rem] text-white/90 italic tracking-wide leading-tight">Basic Information</h2>
+                    <h2 id="p-step-title" class="font-display text-[2.25rem] text-white/90 italic tracking-wide leading-tight">Basic Information</h2>
                 </div>
                 <button id="profile-close" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0">
                     <iconify-icon icon="lucide:x" width="15"></iconify-icon>
@@ -1663,7 +1804,7 @@
                 <div class="sdot h-1.5 rounded-full bg-white/13" style="width:8px"  data-sdot="2"></div>
                 <div class="sdot h-1.5 rounded-full bg-white/13" style="width:8px"  data-sdot="3"></div>
                 <div class="sdot h-1.5 rounded-full bg-white/13" style="width:8px"  data-sdot="4"></div>
-                <span id="p-step-counter" class="ml-3 text-[11px] font-mono text-white/22 tracking-widest">01 / 05</span>
+                <span id="p-step-counter" class="ml-3 text-sm font-mono text-white/22 tracking-widest">01 / 05</span>
             </div>
         </div>
 
@@ -1743,12 +1884,12 @@
                 <div class="mb-7">
                     <div class="flex items-center justify-between mb-3">
                         <label class="p-label" style="margin-bottom:0">Sleep Quality</label>
-                        <span id="p-sleep-disp" class="text-[11px] font-mono text-white/40 tracking-widest">6 / 10</span>
+                        <span id="p-sleep-disp" class="text-sm font-mono text-white/40 tracking-widest">6 / 10</span>
                     </div>
                     <input id="p-sleep" class="p-slider" type="range" min="1" max="10" value="6" step="1">
                     <div class="flex justify-between mt-1.5">
-                        <span class="text-[11px] text-white/20">Poor</span>
-                        <span class="text-[11px] text-white/20">Excellent</span>
+                        <span class="text-sm text-white/20">Poor</span>
+                        <span class="text-sm text-white/20">Excellent</span>
                     </div>
                 </div>
 
@@ -1833,12 +1974,12 @@
                 <div class="mb-7">
                     <div class="flex items-center justify-between mb-3">
                         <label class="p-label" style="margin-bottom:0">Rhythm Preference</label>
-                        <span id="p-rhythm-disp" class="text-[11px] font-mono text-white/40 tracking-widest">Balanced</span>
+                        <span id="p-rhythm-disp" class="text-sm font-mono text-white/40 tracking-widest">Balanced</span>
                     </div>
                     <input id="p-rhythm" class="p-slider" type="range" min="1" max="5" value="3" step="1">
                     <div class="flex justify-between mt-1.5">
-                        <span class="text-[11px] text-white/20">Slow &amp; Soothing</span>
-                        <span class="text-[11px] text-white/20">Fast &amp; Activating</span>
+                        <span class="text-sm text-white/20">Slow &amp; Soothing</span>
+                        <span class="text-sm text-white/20">Fast &amp; Activating</span>
                     </div>
                 </div>
 
@@ -2014,16 +2155,116 @@
             freqIcon:       'lucide:feather',
             freqDesc:       'Sub-delta frequencies gently regulate the autonomic nervous system, creating safety for trauma processing without overwhelming the stress response.',
         },
+        clarity: {
+            title:          'Morning Clarity',
+            subtext:        'Alpha-Mu · 12Hz',
+            interpretation: 'Morning · Clear · Alpha-mu · Gentle lift',
+            recordSpeed:    '5s',
+            glowColor:      'rgba(125, 211, 252, 0.16)',
+            freqTitle:      'Alpha-Mu Wave',
+            freqHz:         '12 Hz',
+            freqIcon:       'lucide:sunrise',
+            freqDesc:       'Low-beta and alpha-mu pacing supports alert calm: bright enough for planning and decision-making, but restrained enough to avoid a stress spike.',
+        },
+        release: {
+            title:          'Emotional Release',
+            subtext:        'Theta-Alpha · 8Hz',
+            interpretation: 'Emotional · Spacious · Cathartic · Safe release',
+            recordSpeed:    '11s',
+            glowColor:      'rgba(251, 113, 133, 0.14)',
+            freqTitle:      'Theta-Alpha Bridge',
+            freqHz:         '8 Hz',
+            freqIcon:       'lucide:droplets',
+            freqDesc:       'The theta-alpha bridge creates room for feeling without flooding. It favors slow harmonic movement, softened attacks, and gradual emotional discharge.',
+        },
+        breath: {
+            title:          'Breath Reset',
+            subtext:        'Coherent · 0.1Hz',
+            interpretation: 'Breath · Coherent · 6 breaths/min · Parasympathetic',
+            recordSpeed:    '14s',
+            glowColor:      'rgba(94, 234, 212, 0.13)',
+            freqTitle:      'Coherent Breathing',
+            freqHz:         '0.1 Hz',
+            freqIcon:       'lucide:wind',
+            freqDesc:       'A six-breaths-per-minute envelope supports heart-rate variability training and downshifts the body through predictable inhale-exhale phrasing.',
+        },
+        body: {
+            title:          'Body Scan',
+            subtext:        'Sensorimotor · 13Hz',
+            interpretation: 'Body · Somatic · Sensorimotor · Tension map',
+            recordSpeed:    '10s',
+            glowColor:      'rgba(216, 180, 254, 0.13)',
+            freqTitle:      'Sensorimotor Rhythm',
+            freqHz:         '13 Hz',
+            freqIcon:       'lucide:scan',
+            freqDesc:       'Sensorimotor rhythm encourages calm body awareness and steady attention, helping the listener notice tension patterns without chasing thoughts.',
+        },
+        study: {
+            title:          'Study Flow',
+            subtext:        'SMR · 14Hz',
+            interpretation: 'Study · Reading · Steady attention · Low distraction',
+            recordSpeed:    '4s',
+            glowColor:      'rgba(96, 165, 250, 0.14)',
+            freqTitle:      'Sensorimotor Rhythm',
+            freqHz:         '14 Hz',
+            freqIcon:       'lucide:book-open',
+            freqDesc:       'SMR-range pacing supports sustained attention for reading and problem-solving — alert enough to engage, steady enough to resist jitter.',
+        },
+        restore: {
+            title:          'Deep Restore',
+            subtext:        'Theta · 5Hz',
+            interpretation: 'Restore · NSDR · Nap · Nervous system recovery',
+            recordSpeed:    '16s',
+            glowColor:      'rgba(129, 140, 248, 0.15)',
+            freqTitle:      'Deep Theta',
+            freqHz:         '5 Hz',
+            freqIcon:       'lucide:battery-charging',
+            freqDesc:       'Slower theta envelopes mimic restorative rest and non-sleep deep relaxation — helpful when you need recovery without full overnight sleep.',
+        },
+        still: {
+            title:          'Still Mind',
+            subtext:        'Alpha · 9Hz',
+            interpretation: 'Still · Mindfulness · Mental quiet · Open awareness',
+            recordSpeed:    '13s',
+            glowColor:      'rgba(148, 163, 184, 0.12)',
+            freqTitle:      'Mid Alpha',
+            freqHz:         '9 Hz',
+            freqIcon:       'lucide:circle-dot',
+            freqDesc:       'Mid-alpha states soften mental chatter while staying awake — a calm baseline for breath awareness and open-field meditation.',
+        },
+        warm: {
+            title:          'Warm Hold',
+            subtext:        'Alpha · 11Hz',
+            interpretation: 'Warm · Comfort · Self-compassion · Safe belonging',
+            recordSpeed:    '8s',
+            glowColor:      'rgba(251, 182, 146, 0.14)',
+            freqTitle:      'Warm Alpha',
+            freqHz:         '11 Hz',
+            freqIcon:       'lucide:heart',
+            freqDesc:       'Slightly brighter alpha carries emotional warmth — supportive pads and gentle harmonic motion can evoke care without overstimulation.',
+        },
     };
 
     const VIBE_LABELS = {
-        anxious:    'Grounding',
-        overwhelmed:'Decompression',
-        creative:   'Generative flow',
+        anxious:     'Grounding',
+        overwhelmed: 'Decompression',
+        creative:    'Generative flow',
+        lonely:      'Held company',
+        tense:       'Tension softening',
+        hopeful:     'Hopeful lift',
+        tender:      'Tender care',
+        spacious:    'More space',
+        rainy:       'Rainy night',
+        drained:     'Gentle recharge',
+        grateful:    'Gratitude warmth',
     };
 
     // Speed multiplier per mode — higher = slower / more hypnotic
-    const EQ_SPEED_FACTOR = { focus: 0.62, calm: 1.45, sleep: 3.20, anxious: 1.10, ground: 1.80, energy: 0.45, trauma: 4.50 };
+    const EQ_SPEED_FACTOR = {
+        focus: 0.62, calm: 1.45, sleep: 3.20, anxious: 1.10, ground: 1.80, energy: 0.45, trauma: 4.50,
+        clarity: 0.80, release: 1.55, breath: 2.05, body: 1.25,
+        study: 0.72, restore: 2.95, still: 1.22, warm: 1.05,
+    };
 
     // Tailwind class sets for chips (all classes must already exist in DOM so CDN generates them)
     const ON  = ['border-white/20', 'bg-white/10', 'text-white', 'shadow-[0_0_15px_rgba(255,255,255,0.05)]'];
@@ -2121,6 +2362,31 @@
         }
     }
 
+    function setMoreExpanded(group, expanded) {
+        const panel = document.querySelector(`[data-more-panel="${group}"]`);
+        const toggle = document.querySelector(`[data-more-toggle="${group}"]`);
+        if (!panel || !toggle) return;
+
+        panel.classList.toggle('hidden', !expanded);
+        toggle.setAttribute('aria-expanded', String(expanded));
+
+        const label = toggle.querySelector('[data-more-label]');
+        if (label) label.textContent = expanded ? 'Less' : 'More';
+    }
+
+    function revealMorePanelForChip(btn) {
+        const panel = btn?.closest('[data-more-panel]');
+        if (panel?.dataset.morePanel) setMoreExpanded(panel.dataset.morePanel, true);
+    }
+
+    document.querySelectorAll('[data-more-toggle]').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const group = btn.dataset.moreToggle;
+            const expanded = btn.getAttribute('aria-expanded') === 'true';
+            setMoreExpanded(group, !expanded);
+        });
+    });
+
     function flashInterpText() {
         interpText.classList.remove('interp-flash');
         void interpText.offsetWidth;            // reflow to restart animation
@@ -2160,7 +2426,7 @@
             'background:rgba(15,15,18,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);' +
             'border:1px solid rgba(255,255,255,0.14);border-radius:9999px;' +
             'padding:0.6rem 1.4rem;display:flex;align-items:center;gap:0.5rem;' +
-            'color:rgba(255,255,255,0.75);font-size:0.7rem;letter-spacing:0.1em;font-family:Outfit,sans-serif;';
+            'color:rgba(255,255,255,0.75);font-size:0.75rem;letter-spacing:0.1em;font-family:Outfit,sans-serif;';
         t.innerHTML = '<iconify-icon icon="lucide:check-circle-2" width="14" style="color:rgba(255,255,255,0.5)"></iconify-icon> ' + msg;
         document.body.appendChild(t);
         setTimeout(() => {
@@ -2441,6 +2707,7 @@
         // Cycle to next mode
         const nextMode = MODE_KEYS[(MODE_KEYS.indexOf(currentMode) + 1) % MODE_KEYS.length];
         document.querySelectorAll('.mode-chip').forEach(b => setChipActive(b, b.dataset.mode === nextMode));
+            revealMorePanelForChip(document.querySelector(`.mode-chip[data-mode="${nextMode}"]`));
         currentMode = nextMode;
         applyMode(nextMode);
         refreshInterpretation();
@@ -2483,6 +2750,8 @@
         selectedVibes = new Set();
         document.querySelectorAll('.mode-chip').forEach(b => setChipActive(b, b.dataset.mode === 'focus'));
         document.querySelectorAll('.vibe-chip').forEach(b => setChipActive(b, false));
+        setMoreExpanded('mode', false);
+        setMoreExpanded('vibe', false);
         // Reset drawer controls
         currentIntensity = 3;
         currentDuration  = 45;
@@ -2540,6 +2809,8 @@
         setChipActive(b, b.dataset.mode === currentMode));
     document.querySelectorAll('.vibe-chip').forEach(b =>
         setChipActive(b, selectedVibes.has(b.dataset.vibe)));
+    revealMorePanelForChip(document.querySelector(`.mode-chip[data-mode="${currentMode}"]`));
+    document.querySelectorAll('.vibe-chip.text-white').forEach(revealMorePanelForChip);
 
     // Apply initial mode to card and interpretation label
     applyMode(currentMode);
@@ -2605,17 +2876,36 @@
         ground:  'Earthy acoustic ambient, Schumann resonance 7.83Hz, grounding tones, organic and natural feel',
         energy:  'Uplifting energetic electronic, beta wave 18Hz, motivating beats, no lyrics, bright and activating',
         trauma:  'Ultra-gentle infra-low ambient, 0.5Hz rhythm, very soft and tender, safe soundscape, minimal',
+        clarity: 'Clear morning ambient, alpha-mu 12Hz pacing, luminous soft synths, clean piano motifs, focused but gentle, no vocals',
+        release: 'Emotional release soundscape, theta-alpha 8Hz bridge, slow cinematic pads, soft strings, warm catharsis, no sharp attacks',
+        breath:  'Breath-guided ambient music, coherent 0.1Hz breathing envelope, six breaths per minute, soft waves and rounded pulses, no percussion',
+        body:    'Somatic body scan ambient, sensorimotor 13Hz rhythm, grounded low drones, tactile textures, calm body awareness, no vocals',
+        study:   'Study-friendly ambient, SMR ~14Hz pacing, minimal melodic hooks, steady midrange texture, no vocals, low distraction',
+        restore: 'Restorative theta ~5Hz ambient, NSDR nap texture, very soft pads, slow harmonic drift, healing calm, no percussion',
+        still:   'Mindfulness ambient, mid-alpha ~9Hz, spacious silence between phrases, subtle drones, mental quiet, no vocals',
+        warm:    'Warm compassionate ambient, alpha ~11Hz, soft choral pads, gentle harmonic warmth, soothing and held, no vocals',
     };
     const VIBE_SUFFIXES = {
-        anxious:    ', grounding elements, stabilizing',
-        overwhelmed:', decompressing, open space sound',
-        creative:   ', generative flow, evolving textures',
+        anxious:     ', grounding elements, stabilizing',
+        overwhelmed: ', decompressing, open space sound',
+        creative:    ', generative flow, evolving textures',
+        lonely:      ', warm close-mic textures, gently companioned',
+        tense:       ', softened tension, rounded attacks, slow-release movement',
+        hopeful:     ', subtle lift, bright but gentle harmonic bloom',
+        tender:      ', intimate soft textures, caring and unguarded',
+        spacious:    ', wide stereo space, airy pauses, sparse arrangement',
+        rainy:       ', rainy night ambience, muffled room tone, cozy distance',
+        drained:     ', fatigue-aware softness, minimal layering, slow harmonic recharge without hype',
+        grateful:    ', quietly uplifting gratitude tone, warm consonance, gentle harmonic bloom without grandeur',
     };
 
     let historyFilter = 'all';
+    let historyInsightOpen = false;
     let fbCalmAfter = 3;
     let fbHelp = 'neutral';
     let fbSound = 'good';
+    /** Last prompt text shown in Reason details (for copy). */
+    let reasonPanelPromptText = '';
 
     function isoNow() { return new Date().toISOString(); }
     function uid() { return 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2, 9); }
@@ -2739,10 +3029,96 @@
         return out;
     }
 
+    function getPromptPreviewForReason(input, rec, pipe) {
+        if (pipe && pipe.prompt && pipe.prompt.length > 40) {
+            return pipe.prompt.slice(0, 500);
+        }
+        let prompt = MODE_PROMPTS[input.mode] || MODE_PROMPTS.focus;
+        (input.vibes || []).forEach(v => { if (VIBE_SUFFIXES[v]) prompt += VIBE_SUFFIXES[v]; });
+        if (input.freeText) prompt = input.freeText.slice(0, 200) + '. ' + prompt;
+        const extra = (rec.strategyPills || []).slice(0, 4).join(', ');
+        if (extra) prompt += ' Session emphasis: ' + extra + '.';
+        return prompt.slice(0, 500);
+    }
+
+    function buildReasonDetails(input, profile, vitals, pipe, recStub) {
+        const inputsUsed = [];
+        inputsUsed.push(input.freeText
+            ? 'Check-in words: present (anchors the wellness listening goal).'
+            : 'Check-in words: none — mode + profile drive the framing.');
+        const vibeLine = (input.vibes && input.vibes.length)
+            ? ('Mode / vibes: ' + input.mode + ' · ' + input.vibes.join(', '))
+            : ('Mode / vibes: ' + input.mode + ' (no vibe chips selected).');
+        inputsUsed.push(vibeLine);
+        inputsUsed.push(profile.sensitive && String(profile.sensitive).trim()
+            ? ('Profile “sensitive to sounds”: ' + String(profile.sensitive).trim())
+            : 'Profile sensitivity: not set (defaults to gentle dynamics bias when profile is sparse).');
+        if (vitals && vitals.heartRate != null) {
+            const bits = ['HR ' + vitals.heartRate + ' bpm'];
+            if (vitals.hrv != null) bits.push('HRV ' + vitals.hrv);
+            if (vitals.respiratoryRate != null) bits.push('RR ' + vitals.respiratoryRate);
+            inputsUsed.push('Vitals snapshot: ' + bits.join(' · ') + '.');
+        } else {
+            inputsUsed.push('Vitals snapshot: not attached — reasoning skips biometric tempo.');
+        }
+        inputsUsed.push('Planner context: intensity ' + input.intensity + ', ~' + input.durationMin + ' min, environment “' + (input.environment || 'None') + '”.');
+
+
+        const mindwaveOutput = [];
+        if (!(vitals && vitals.heartRate != null)) {
+            mindwaveOutput.push('No HR in snapshot — MindWave biometric layer inactive for this pass.');
+        } else if (pipe) {
+            mindwaveOutput.push('Target BPM: ~' + pipe.targetBpm + '.');
+            if (pipe.arousal != null && pipe.arousal !== '') mindwaveOutput.push('Arousal signal: ' + pipe.arousal + '.');
+            mindwaveOutput.push('Stress band: ' + (pipe.stressState || 'unknown') + '.');
+            mindwaveOutput.push('Recovery priority: ' + (pipe.recoveryPriority || 'unknown') + '.');
+            if (pipe.trend != null && String(pipe.trend).trim()) mindwaveOutput.push('Trend: ' + pipe.trend + '.');
+            const inst = Array.isArray(pipe.instrumentSet) ? pipe.instrumentSet : [];
+            if (inst.length) mindwaveOutput.push('Instrument emphasis (trimmed): ' + inst.slice(0, 10).join(', ') + '.');
+        } else {
+            const mw = computeMw(vitals);
+            mindwaveOutput.push('Heuristic BPM: ~' + mw.targetBpm + ' (until local pipeline returns processed_params).');
+            if (mw.hrvStatus) mindwaveOutput.push('HRV read (preview): ' + mw.hrvStatus + '.');
+            if (mw.texture) mindwaveOutput.push('Texture bias (preview): ' + mw.texture + '.');
+            mindwaveOutput.push('Run mock HealthKit → /api pipeline to swap this block for live MindWave output.');
+        }
+
+
+        const safetyConstraints = [];
+        if (vitals && vitals.heartRate != null && pipe) {
+            const sg = formatSafeguardPills(pipe);
+            sg.forEach(s => safetyConstraints.push('MindWave safeguard: avoid ' + s + '.'));
+            if (!sg.length) safetyConstraints.push('MindWave safeguards: baseline only (no extra transient / HF / percussion bans flagged).');
+        } else if (vitals && vitals.heartRate != null && !pipe) {
+            const mw = computeMw(vitals);
+            if (mw.safeguard && mw.safeguard !== 'all_clear') {
+                safetyConstraints.push('Preview safeguard: ' + mw.safeguard + '.');
+            } else safetyConstraints.push('Preview safeguards: all clear.');
+        } else safetyConstraints.push('Biometric safeguards idle — add vitals to evaluate transient / spectral rules.');
+        if (profile.sensitive && String(profile.sensitive).trim()) {
+            safetyConstraints.push('Profile sound sensitivity: favor softer attacks and forgiving spectral balance.');
+        }
+        if (vitals && vitals.ambientNoise != null && vitals.ambientNoise > 70) {
+            safetyConstraints.push('Ambient noise elevated — damp sharp attacks and piercing highs.');
+        } else if (vitals && vitals.ambientNoise != null) {
+            safetyConstraints.push('Ambient noise moderate (' + vitals.ambientNoise + ' dBA).');
+        }
+
+        const promptPreview = getPromptPreviewForReason(input, recStub, pipe);
+        return {
+            inputsUsed,
+            mindwaveOutput,
+            safetyConstraints,
+            promptPreview,
+        };
+    }
+
     function buildRecommendation(input, profile, vitals, demoCaseId) {
         const modeNice = {
             focus: 'focus and concentration', calm: 'calm regulation', sleep: 'sleep support',
             anxious: 'anxiety relief', ground: 'grounding', energy: 'gentle activation', trauma: 'gentle nervous-system support',
+            clarity: 'morning clarity', release: 'emotional release', breath: 'breath regulation', body: 'somatic body awareness',
+            study: 'study-friendly attention', restore: 'deep restorative rest', still: 'quiet mindfulness', warm: 'warm emotional holding',
         };
         const title = 'Soma recommends a session shaped for ' + (modeNice[input.mode] || 'your check-in') + '.';
         const bullets = [];
@@ -2814,26 +3190,21 @@
         const MAX_BULLETS = 5;
         while (bullets.length > MAX_BULLETS) bullets.pop();
 
+        const recStub = { strategyPills: pills.slice(0, 8) };
+        const details = buildReasonDetails(input, profile, vitals, pipe, recStub);
+
         return {
             title,
             reasonBullets: bullets,
             strategyPills: pills.slice(0, 8),
             prompt: '',
             engineLine: engineLine || undefined,
+            details,
         };
     }
 
     function buildStoredPrompt(input, rec) {
-        const pipe = getPipelineInsights();
-        if (pipe && pipe.prompt && pipe.prompt.length > 40) {
-            return pipe.prompt.slice(0, 500);
-        }
-        let prompt = MODE_PROMPTS[input.mode] || MODE_PROMPTS.focus;
-        (input.vibes || []).forEach(v => { if (VIBE_SUFFIXES[v]) prompt += VIBE_SUFFIXES[v]; });
-        if (input.freeText) prompt = input.freeText.slice(0, 200) + '. ' + prompt;
-        const extra = (rec.strategyPills || []).slice(0, 4).join(', ');
-        if (extra) prompt += ' Session emphasis: ' + extra + '.';
-        return prompt.slice(0, 500);
+        return getPromptPreviewForReason(input, rec, getPipelineInsights());
     }
 
     function renderReasonPanel(rec) {
@@ -2841,6 +3212,15 @@
         const engEl = document.getElementById('reason-engine-line');
         const ul = document.getElementById('reason-bullets');
         const pills = document.getElementById('reason-pills');
+        const detailWrap = document.getElementById('reason-details-wrap');
+        const detailPanel = document.getElementById('reason-details-panel');
+        const detailToggle = document.getElementById('reason-details-toggle');
+        const copyBtn = document.getElementById('reason-prompt-copy');
+
+        if (rec && rec.details && rec.prompt) {
+            rec.details.promptPreview = String(rec.prompt).slice(0, 500);
+        }
+
         if (titleEl) titleEl.textContent = rec.title || '';
         if (engEl) {
             if (rec.engineLine) {
@@ -2868,6 +3248,57 @@
                 pills.appendChild(span);
             });
         }
+
+        reasonPanelPromptText = '';
+        if (detailWrap) detailWrap.classList.add('hidden');
+        if (detailPanel) {
+            detailPanel.innerHTML = '';
+            detailPanel.classList.remove('is-open');
+        }
+        if (detailToggle) {
+            detailToggle.textContent = 'Why details';
+            detailToggle.setAttribute('aria-expanded', 'false');
+        }
+        if (copyBtn) {
+            copyBtn.classList.add('hidden');
+            copyBtn.textContent = 'Copy prompt';
+        }
+
+        if (!rec || !rec.details || !detailWrap || !detailPanel) return;
+
+        const d = rec.details;
+        const preview = (rec.prompt && String(rec.prompt).trim())
+            ? String(rec.prompt).slice(0, 500)
+            : (d.promptPreview || '');
+        reasonPanelPromptText = preview;
+
+        function addSection(heading, lines) {
+            const h = document.createElement('div');
+            h.className = 'text-xs uppercase tracking-[0.2em] text-white/32 mt-1';
+            h.textContent = heading;
+            detailPanel.appendChild(h);
+            lines.forEach(line => {
+                const p = document.createElement('p');
+                p.className = 'pl-2 border-l border-white/[0.08] text-white/44 leading-relaxed';
+                p.textContent = line;
+                detailPanel.appendChild(p);
+            });
+        }
+
+        addSection('Inputs used', d.inputsUsed || []);
+        addSection('MindWave output', d.mindwaveOutput || []);
+        addSection('Safety constraints', d.safetyConstraints || []);
+        const ph = document.createElement('div');
+        ph.className = 'text-xs uppercase tracking-[0.2em] text-white/32 mt-1';
+        ph.textContent = 'Prompt preview (≤500 chars)';
+        detailPanel.appendChild(ph);
+        const pre = document.createElement('pre');
+        pre.className = 'whitespace-pre-wrap break-words text-white/50 text-xs leading-relaxed max-h-36 overflow-y-auto pl-2 border-l border-white/[0.08] font-mono';
+        pre.textContent = preview || '(empty — start session to bind stored prompt)';
+        detailPanel.appendChild(pre);
+
+        detailWrap.classList.remove('hidden');
+        if (copyBtn && preview) copyBtn.classList.remove('hidden');
     }
 
     function updateSessionStrip() {
@@ -3096,6 +3527,7 @@
         const modal = document.getElementById('history-modal');
         const card = document.getElementById('history-card');
         if (!modal) return;
+        setHistoryInsightView(false);
         renderHistoryList();
         modal.style.opacity = '1';
         modal.style.pointerEvents = 'auto';
@@ -3113,40 +3545,198 @@
         modal.style.pointerEvents = 'none';
     }
 
-    function renderHistoryInsights() {
-        const box = document.getElementById('history-insights');
-        if (!box) return;
-        const all = listSessions().filter(s => s.status === 'completed' && s.feedback);
-        if (!all.length) {
-            box.innerHTML = '';
-            box.classList.add('hidden');
-            return;
+    function setHistoryInsightView(open) {
+        historyInsightOpen = !!open;
+        const listView = document.getElementById('history-list-view');
+        const insightView = document.getElementById('history-insight-view');
+        if (listView) {
+            listView.classList.toggle('hidden', historyInsightOpen);
+            listView.classList.toggle('flex', !historyInsightOpen);
         }
-        const helped = all.filter(r => r.feedback.helpfulness === 'helped').length;
-        const pct = Math.round((helped / all.length) * 100);
+        if (insightView) {
+            insightView.classList.toggle('hidden', !historyInsightOpen);
+            insightView.classList.toggle('flex', historyInsightOpen);
+        }
+        if (historyInsightOpen) renderHistoryInsights();
+    }
+
+    function sessionSubmittedAtMs(s) {
+        const t = s.feedback && s.feedback.submittedAt;
+        if (!t) return 0;
+        const d = new Date(t).getTime();
+        return isNaN(d) ? 0 : d;
+    }
+
+    function computeHistoryStats(rawSessions) {
+        const all = rawSessions.filter(s => s.status === 'completed' && s.feedback);
+        if (!all.length) return null;
+
+        const n = all.length;
+        const helpedCount = all.filter(r => r.feedback.helpfulness === 'helped').length;
+        const helpedRate = Math.round((helpedCount / n) * 100);
+
+        const calmVals = [];
+        all.forEach(s => {
+            const c = s.feedback && s.feedback.calmAfter;
+            if (typeof c === 'number' && !isNaN(c)) calmVals.push(c);
+        });
+        const avgCalmAfter = calmVals.length
+            ? Math.round((calmVals.reduce((a, b) => a + b, 0) / calmVals.length) * 10) / 10
+            : null;
+
+        const byTime = all.slice().sort((a, b) => sessionSubmittedAtMs(b) - sessionSubmittedAtMs(a));
+        const lastSession = byTime[0];
+        let lastCalm = null;
+        if (lastSession && lastSession.feedback && typeof lastSession.feedback.calmAfter === 'number' && !isNaN(lastSession.feedback.calmAfter)) {
+            lastCalm = lastSession.feedback.calmAfter;
+        }
+
         const counts = {};
         all.forEach(r => {
             const k = r.feedback.soundFit || 'unknown';
             counts[k] = (counts[k] || 0) + 1;
         });
-        const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
-        const top = sorted[0];
-        let tip = 'Use these patterns to tweak Intensity, Mode, or Profile “sounds to avoid” next time.';
-        if (top && top[0] === 'too_fast') tip = 'Several entries rated “too fast” — bias Calm/Sleep or lower Intensity.';
-        else if (top && top[0] === 'too_busy') tip = '“Too busy” showing up — try Calm, lighter Intensity, or softer profile notes.';
-        else if (top && top[0] === 'too_sharp') tip = 'Sharp timbres flagged — reinforce sensitive listening prefs in Profile.';
-        else if (top && top[0] === 'disliked') tip = 'Style mismatch — rotate Mode/Vibes or widen preferred styles in Profile.';
+        const sortedFit = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+        const topSoundFit = sortedFit.length ? { key: sortedFit[0][0], count: sortedFit[0][1] } : null;
 
-        const topFit = escapeHtml(top ? top[0] : '');
-        const tipEsc = escapeHtml(tip);
+        const modeMap = {};
+        all.forEach(r => {
+            const m = (r.input && r.input.mode) || 'unknown';
+            if (!modeMap[m]) modeMap[m] = { n: 0, helped: 0 };
+            modeMap[m].n++;
+            if (r.feedback.helpfulness === 'helped') modeMap[m].helped++;
+        });
+        const modeHelpedRates = Object.entries(modeMap).map(([mode, v]) => ({
+            mode,
+            n: v.n,
+            helped: v.helped,
+            rate: v.n ? Math.round((v.helped / v.n) * 100) : 0,
+        }));
+
+        let bestMode = null;
+        modeHelpedRates.forEach(row => {
+            if (row.n < 1) return;
+            if (!bestMode || row.rate > bestMode.rate || (row.rate === bestMode.rate && row.n > bestMode.n)) {
+                bestMode = { mode: row.mode, rate: row.rate, n: row.n };
+            }
+        });
+
+        let lastComparedToAvg = null;
+        if (lastCalm != null && avgCalmAfter != null) {
+            if (lastCalm > avgCalmAfter) lastComparedToAvg = 'above';
+            else if (lastCalm < avgCalmAfter) lastComparedToAvg = 'below';
+            else lastComparedToAvg = 'at';
+        }
+
+        return {
+            n,
+            helpedCount,
+            helpedRate,
+            avgCalmAfter,
+            lastCalm,
+            topSoundFit,
+            soundFitCounts: counts,
+            modeHelpedRates,
+            bestMode,
+            lastComparedToAvg,
+        };
+    }
+
+    function buildNextAdjustment(stats) {
+        if (!stats) return 'Log a few more completed sessions with feedback to unlock tailored nudges.';
+        const parts = [];
+        const top = stats.topSoundFit;
+        if (top) {
+            if (top.key === 'too_fast') {
+                parts.push('Try Calm or Sleep next, or lower Intensity — “too fast” is the top sound-fit flag.');
+            } else if (top.key === 'too_busy') {
+                parts.push('Bias Calm, simplify vibes, or drop Intensity — “too busy” leads your notes.');
+            } else if (top.key === 'too_sharp') {
+                parts.push('Update Profile “sounds to avoid” + softer timbre prefs — “too sharp” keeps appearing.');
+            } else if (top.key === 'disliked') {
+                parts.push('Rotate Mode/Vibes or widen preferred styles — “disliked” suggests a style mismatch.');
+            } else if (top.key === 'good') {
+                parts.push('Sound-fit mostly “good” — keep the current template family and fine-tune Intensity only.');
+            } else {
+                parts.push('Review sound-fit “' + top.key + '” when it repeats — pair with Mode/Profile tweaks.');
+            }
+        } else {
+            parts.push('Keep submitting sound-fit chips so Soma can spot recurring friction.');
+        }
+        if (stats.bestMode && stats.bestMode.n >= 2 && stats.bestMode.rate >= 50) {
+            parts.push('Mode “' + stats.bestMode.mode + '” shows ~' + stats.bestMode.rate + '% helped over ' + stats.bestMode.n + ' runs — reuse when your state matches.');
+        }
+        return parts.join(' ');
+    }
+
+    function formatTrackSource(src) {
+        if (!src) return 'unknown';
+        if (src === 'cached_demo') return 'cached demo';
+        if (src === 'guided_fallback') return 'guided timer';
+        if (src === 'suno') return 'suno';
+        return String(src);
+    }
+
+    function renderHistoryInsights() {
+        const box = document.getElementById('history-insights');
+        const entry = document.getElementById('history-insight-entry');
+        const entrySummary = document.getElementById('history-insight-entry-summary');
+        if (!box) return;
+        const stats = computeHistoryStats(listSessions());
+        if (!stats) {
+            box.innerHTML = '';
+            box.classList.add('hidden');
+            if (entry) entry.classList.add('hidden');
+            if (historyInsightOpen) setHistoryInsightView(false);
+            return;
+        }
+
+        if (entry) entry.classList.remove('hidden');
+        if (entrySummary) {
+            const calm = stats.avgCalmAfter != null ? ' · avg calm ' + stats.avgCalmAfter + '/5' : '';
+            const best = stats.bestMode ? ' · best ' + stats.bestMode.mode : '';
+            entrySummary.textContent = stats.helpedCount + '/' + stats.n + ' helped · ' + stats.helpedRate + '%' + calm + best;
+        }
+
+        let trendCalm = '';
+        if (stats.avgCalmAfter != null) {
+            trendCalm = 'Average calm-after (1–5): ' + stats.avgCalmAfter + '.';
+            if (stats.lastCalm != null && stats.lastComparedToAvg) {
+                const word = stats.lastComparedToAvg === 'above' ? 'above' : stats.lastComparedToAvg === 'below' ? 'below' : 'at';
+                trendCalm += ' Latest session ' + stats.lastCalm + '/5 — ' + word + ' your average.';
+            }
+        } else {
+            trendCalm = 'Calm ratings missing — rate calm-after on a few more sessions to see averages.';
+        }
+
+        let bestFitHtml = '';
+        if (stats.bestMode) {
+            bestFitHtml += '<div>Top helped rate: <span class="text-white/70">' + escapeHtml(stats.bestMode.mode) + '</span> · ~' + stats.bestMode.rate + '% over ' + stats.bestMode.n + '.</div>';
+        }
+        if (stats.topSoundFit) {
+            bestFitHtml += '<div>Most common sound-fit: <span class="text-white/70">' + escapeHtml(stats.topSoundFit.key) + '</span> ×' + stats.topSoundFit.count + '.</div>';
+        }
+        if (!bestFitHtml) bestFitHtml = '<div class="text-white/38">Need more feedback rows to rank modes.</div>';
+
+        const nextEsc = escapeHtml(buildNextAdjustment(stats));
 
         box.innerHTML =
-            '<div class="text-[10px] text-white/40 uppercase tracking-[0.22em]">Insights (all saved sessions)</div>' +
-            '<div class="text-[11px] text-white/75 font-light">' + helped + ' / ' + all.length + ' marked <span class="text-emerald-200/80">helped</span> · ' + pct + '%</div>' +
-            (top
-                ? '<div class="text-[10px] text-white/45">Most common sound note: <span class="text-white/70">' + topFit + '</span> (' + top[1] + ')</div>'
-                : '') +
-            '<div class="text-[10px] text-white/38 leading-relaxed">' + tipEsc + '</div>';
+            '<div class="text-xs text-white/40 uppercase tracking-[0.22em] mb-2">Insights (all completed + feedback)</div>' +
+            '<div class="flex flex-col gap-3">' +
+            '<div>' +
+            '<div class="text-xs text-white/32 uppercase tracking-[0.15em] mb-1">Outcome trend</div>' +
+            '<div class="text-sm text-white/75 font-light">' + stats.helpedCount + ' / ' + stats.n + ' marked <span class="text-emerald-200/80">helped</span> · ' + stats.helpedRate + '%</div>' +
+            '<div class="text-xs text-white/42 leading-relaxed">' + escapeHtml(trendCalm) + '</div>' +
+            '</div>' +
+            '<div>' +
+            '<div class="text-xs text-white/32 uppercase tracking-[0.15em] mb-1">Best fit</div>' +
+            '<div class="text-xs text-white/45 leading-relaxed flex flex-col gap-1">' + bestFitHtml + '</div>' +
+            '</div>' +
+            '<div>' +
+            '<div class="text-xs text-white/32 uppercase tracking-[0.15em] mb-1">Next adjustment</div>' +
+            '<div class="text-xs text-white/38 leading-relaxed">' + nextEsc + '</div>' +
+            '</div>' +
+            '</div>';
         box.classList.remove('hidden');
     }
 
@@ -3174,8 +3764,17 @@
             const title = row.track?.title || row.recommendation?.title || row.id;
             const dt = row.feedback?.submittedAt ? new Date(row.feedback.submittedAt).toLocaleString() : '';
             const calm = row.feedback?.calmAfter != null ? `Calm ${row.feedback.calmAfter}/5` : '';
-            wrap.innerHTML = '<div class="flex justify-between gap-2"><span class="text-xs text-white/75 font-light truncate">' + escapeHtml(title) + '</span><span class="text-[10px] text-white/28 flex-shrink-0">' + escapeHtml(dt) + '</span></div>' +
-                '<div class="text-[10px] text-white/35">' + escapeHtml(calm) + ' · ' + escapeHtml(row.feedback?.helpfulness || '') + '</div>' +
+            const modeLbl = row.input?.mode || '—';
+            const srcLbl = formatTrackSource(row.track?.source);
+            const fitLbl = row.feedback?.soundFit || '—';
+            const badgeRow = '<div class="flex flex-wrap gap-1.5">' +
+                '<span class="soma-pill text-xs py-0.5 px-2 tracking-wide">' + escapeHtml(modeLbl) + '</span>' +
+                '<span class="soma-pill text-xs py-0.5 px-2 tracking-wide opacity-85">' + escapeHtml(srcLbl) + '</span>' +
+                '<span class="soma-pill text-xs py-0.5 px-2 tracking-wide opacity-85">' + escapeHtml(fitLbl) + '</span>' +
+                '</div>';
+            wrap.innerHTML = '<div class="flex justify-between gap-2"><span class="text-xs text-white/75 font-light truncate">' + escapeHtml(title) + '</span><span class="text-xs text-white/28 flex-shrink-0">' + escapeHtml(dt) + '</span></div>' +
+                badgeRow +
+                '<div class="text-xs text-white/35">' + escapeHtml(calm) + ' · ' + escapeHtml(row.feedback?.helpfulness || '') + '</div>' +
                 '<div class="flex flex-wrap gap-2 mt-1">' +
                 '<button type="button" class="hist-replay soma-action-ghost" data-id="' + row.id + '">Replay</button>' +
                 '<button type="button" class="hist-template soma-action-ghost" data-id="' + row.id + '">Use as template</button>' +
@@ -3235,12 +3834,12 @@
                     if (gentle) gentle.click();
                 }
                 adjustNote = fb.soundFit === 'too_fast'
-                    ? 'Template applied · eased intensity (last session felt fast).'
-                    : 'Template applied · lightest intensity (last mix felt busy).';
+                    ? 'Template applied · auto: Intensity eased one step for “too fast”. Consider Calm/Sleep mode next.'
+                    : 'Template applied · auto: jumped to Lightest intensity for “too busy”. Prefer Calm + fewer layering vibes.';
             } else if (fb.soundFit === 'too_sharp') {
-                adjustNote = 'Template applied · prior note: sharp timbres — stay in softer modes / update Profile sensitivities.';
+                adjustNote = 'Template applied · unchanged intensity; add sharper timbre notes under Profile sensitivities.';
             } else if (fb.soundFit === 'disliked') {
-                adjustNote = 'Template applied · try shifting mode or genres in Profile if style was off.';
+                adjustNote = 'Template applied · try a different Mode/Vibe combo or widen preferred genres in Profile.';
             }
         }
 
@@ -3294,6 +3893,8 @@
         document.getElementById('history-btn')?.addEventListener('click', openHistoryModal);
         document.getElementById('history-close')?.addEventListener('click', closeHistoryModal);
         document.getElementById('history-backdrop')?.addEventListener('click', closeHistoryModal);
+        document.getElementById('history-insight-entry')?.addEventListener('click', () => setHistoryInsightView(true));
+        document.getElementById('history-insight-back')?.addEventListener('click', () => setHistoryInsightView(false));
         document.querySelectorAll('.hist-filter').forEach(b => {
             b.addEventListener('click', () => {
                 historyFilter = b.dataset.filter || 'all';
@@ -3308,7 +3909,29 @@
         const t = document.getElementById('reason-toggle');
         if (!body || !t) return;
         body.classList.toggle('is-collapsed');
-        t.textContent = body.classList.contains('is-collapsed') ? 'Show' : 'Hide';
+        const open = !body.classList.contains('is-collapsed');
+        t.textContent = open ? 'Hide' : 'Show';
+        t.setAttribute('aria-expanded', String(open));
+        body.setAttribute('aria-hidden', String(!open));
+    });
+
+    document.getElementById('reason-details-toggle')?.addEventListener('click', () => {
+        const panel = document.getElementById('reason-details-panel');
+        const btn = document.getElementById('reason-details-toggle');
+        if (!panel || !btn) return;
+        const open = panel.classList.toggle('is-open');
+        btn.textContent = open ? 'Hide details' : 'Why details';
+        btn.setAttribute('aria-expanded', String(open));
+    });
+
+    document.getElementById('reason-prompt-copy')?.addEventListener('click', async () => {
+        if (!reasonPanelPromptText) return;
+        try {
+            await navigator.clipboard.writeText(reasonPanelPromptText);
+            if (window.showToast) window.showToast('Prompt copied to clipboard.');
+        } catch (_) {
+            if (window.showToast) window.showToast('Copy blocked — select prompt text manually.');
+        }
     });
 
     document.getElementById('end-session-btn')?.addEventListener('click', () => {
@@ -3359,11 +3982,27 @@
         ground:  'Earthy acoustic ambient, Schumann resonance 7.83Hz, grounding tones, organic and natural feel',
         energy:  'Uplifting energetic electronic, beta wave 18Hz, motivating beats, no lyrics, bright and activating',
         trauma:  'Ultra-gentle infra-low ambient, 0.5Hz rhythm, very soft and tender, safe soundscape, minimal',
+        clarity: 'Clear morning ambient, alpha-mu 12Hz pacing, luminous soft synths, clean piano motifs, focused but gentle, no vocals',
+        release: 'Emotional release soundscape, theta-alpha 8Hz bridge, slow cinematic pads, soft strings, warm catharsis, no sharp attacks',
+        breath:  'Breath-guided ambient music, coherent 0.1Hz breathing envelope, six breaths per minute, soft waves and rounded pulses, no percussion',
+        body:    'Somatic body scan ambient, sensorimotor 13Hz rhythm, grounded low drones, tactile textures, calm body awareness, no vocals',
+        study:   'Study-friendly ambient, SMR ~14Hz pacing, minimal melodic hooks, steady midrange texture, no vocals, low distraction',
+        restore: 'Restorative theta ~5Hz ambient, NSDR nap texture, very soft pads, slow harmonic drift, healing calm, no percussion',
+        still:   'Mindfulness ambient, mid-alpha ~9Hz, spacious silence between phrases, subtle drones, mental quiet, no vocals',
+        warm:    'Warm compassionate ambient, alpha ~11Hz, soft choral pads, gentle harmonic warmth, soothing and held, no vocals',
     };
     const VIBE_SUFFIXES = {
-        anxious:    ', grounding elements, stabilizing',
-        overwhelmed:', decompressing, open space sound',
-        creative:   ', generative flow, evolving textures',
+        anxious:     ', grounding elements, stabilizing',
+        overwhelmed: ', decompressing, open space sound',
+        creative:    ', generative flow, evolving textures',
+        lonely:      ', warm close-mic textures, gently companioned',
+        tense:       ', softened tension, rounded attacks, slow-release movement',
+        hopeful:     ', subtle lift, bright but gentle harmonic bloom',
+        tender:      ', intimate soft textures, caring and unguarded',
+        spacious:    ', wide stereo space, airy pauses, sparse arrangement',
+        rainy:       ', rainy night ambience, muffled room tone, cozy distance',
+        drained:     ', fatigue-aware softness, minimal layering, slow harmonic recharge without hype',
+        grateful:    ', quietly uplifting gratitude tone, warm consonance, gentle harmonic bloom without grandeur',
     };
 
     // ── DOM refs ──────────────────────────────────────────────────────────
@@ -3408,7 +4047,7 @@
         const has = !!getKey();
         apikeyDot.classList.toggle('hidden', !has);
         if (tuneBtnLabel) {
-            tuneBtnLabel.textContent = has ? 'Start session · live AI' : 'Start guided session';
+            tuneBtnLabel.textContent = has ? 'Start session' : 'Start guided session';
         }
     }
 
@@ -4187,7 +4826,7 @@
             'background:rgba(15,15,18,0.65);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);' +
             'border:1px solid rgba(255,255,255,0.14);border-radius:9999px;' +
             'padding:0.6rem 1.4rem;display:flex;align-items:center;gap:0.5rem;' +
-            'color:rgba(255,255,255,0.75);font-size:0.7rem;letter-spacing:0.1em;font-family:Outfit,sans-serif;';
+            'color:rgba(255,255,255,0.75);font-size:0.75rem;letter-spacing:0.1em;font-family:Outfit,sans-serif;';
         t.innerHTML = '<iconify-icon icon="lucide:check-circle-2" width="14" style="color:rgba(255,255,255,0.5)"></iconify-icon> ' + msg;
         document.body.appendChild(t);
         setTimeout(() => {
@@ -4548,6 +5187,8 @@
         const modeNice = {
             focus: 'focus and concentration', calm: 'calm regulation', sleep: 'sleep support',
             anxious: 'anxiety relief', ground: 'grounding', energy: 'gentle activation', trauma: 'gentle nervous-system support',
+            clarity: 'morning clarity', release: 'emotional release', breath: 'breath regulation', body: 'somatic body awareness',
+            study: 'study-friendly attention', restore: 'deep restorative rest', still: 'quiet mindfulness', warm: 'warm emotional holding',
         };
         const name = (c.profile && c.profile.name) || 'Demo';
         const bullets = [];
@@ -4937,6 +5578,8 @@
         const map = {
             focus: 'focus', calm: 'calm', sleep: 'sleep', anxious: 'calm',
             ground: 'grounding', energy: 'focus', trauma: 'grounding',
+            clarity: 'focus', release: 'calm', breath: 'calm', body: 'grounding',
+            study: 'focus', restore: 'sleep', still: 'calm', warm: 'calm',
         };
         const out = { therapy_goal: map[c.mode] || 'calm' };
         const age = c.profile && c.profile.age != null ? parseInt(String(c.profile.age), 10) : NaN;
