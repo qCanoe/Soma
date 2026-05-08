@@ -12,3 +12,4 @@ __pycache__/
 
 # Git worktrees (isolated working directories)
 .worktrees/
+docs/
