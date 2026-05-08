@@ -919,6 +919,14 @@
             display: none;
         }
         #history-list-scroll::-webkit-scrollbar { width: 0; }
+
+        /* Demo / disclaimers */
+        .soma-footer-disclaimer {
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .soma-demo-hint {
+            border-left: 2px solid rgba(251, 191, 36, 0.25);
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-white/20 selection:text-white overflow-hidden flex flex-col h-screen">
@@ -1007,6 +1015,11 @@
                     <span class="case-tag">45 · Existential Anxiety</span>
                 </button>
             </div>
+            <p class="soma-demo-hint mt-2 px-3 py-2 rounded-xl bg-white/[0.03] text-[10px] text-white/38 font-light leading-relaxed tracking-wide">
+                <strong class="text-white/55 font-medium">Stable demo:</strong> use Demo Cases for instant cached audio.
+                Optional: header <strong class="text-white/55">API Key</strong> for live Suno (network dependent).
+                See <span class="text-white/45">docs/demo-script.md</span> for a 4-minute walkthrough.
+            </p>
         </div>
 
         <!-- Intent Input Area -->
@@ -1020,7 +1033,7 @@
                        class="min-w-0 flex-1 bg-transparent py-5 pl-8 pr-3 text-white/90 placeholder:text-white/30 focus:outline-none text-lg font-normal tracking-wide caret-white selection:bg-white/20">
                 <button id="tune-btn" type="button" class="mr-3 flex h-10 flex-shrink-0 items-center gap-2 rounded-full border border-white/5 bg-white/10 px-6 text-sm font-medium text-white backdrop-blur-md transition-all hover:scale-105 hover:bg-white/20">
                     <iconify-icon id="tune-icon" icon="lucide:sparkles" width="16"></iconify-icon>
-                    <span id="tune-label">Start Session</span>
+                    <span id="tune-label">Start guided session</span>
                 </button>
             </div>
 
@@ -1057,6 +1070,7 @@
                     <div class="flex flex-col gap-1 min-w-0">
                         <span class="soma-section-label">Why Soma chose this</span>
                         <p id="reason-title" class="text-sm text-white/80 font-light tracking-wide leading-snug">Adjust your check-in — we’ll explain each session.</p>
+                        <p id="reason-engine-line" class="hidden text-[10px] text-emerald-200/55 font-light tracking-wide leading-snug"></p>
                     </div>
                     <button type="button" id="reason-toggle" class="soma-action-ghost flex-shrink-0">Hide</button>
                 </div>
@@ -1177,6 +1191,15 @@
                 </div>
             </div>
         </div>
+
+        <footer class="soma-footer-disclaimer w-full max-w-2xl mt-10 pt-6 pb-2 flex flex-col gap-2 text-center" role="contentinfo">
+            <p class="text-[10px] text-white/28 font-light leading-relaxed px-4">
+                <strong class="text-white/45 font-medium">Wellness only.</strong> Soma supports relaxation and mood regulation through music listening; it does not diagnose, treat, cure, or prevent any disease. Consult a qualified clinician for health concerns.
+            </p>
+            <p class="text-[10px] text-white/22 font-light leading-relaxed px-4">
+                Demo vitals may be illustrative. Real integrations require explicit consent for HealthKit-type data.
+            </p>
+        </footer>
     </main>
 
     <!-- Controls Drawer (Floating Island) -->
@@ -1301,8 +1324,9 @@
             <span class="text-[9px] text-white/25 uppercase tracking-widest">Prototype</span>
             <button type="button" id="mock-hk-connect" class="text-[11px] font-light px-3 py-1.5 rounded-full border border-white/15 bg-white/[0.04] text-white/70 hover:bg-white/10 hover:text-white transition-all">Connect mock HealthKit</button>
             <button type="button" id="mock-hk-next" disabled class="text-[11px] font-light px-3 py-1.5 rounded-full border border-white/10 bg-transparent text-white/35 transition-all">Next sample</button>
-            <span id="mock-hk-status" class="text-[10px] text-white/30 font-light tracking-wide ml-1 min-w-0 flex-1">Disconnected · local demo; run uvicorn to sync pipeline</span>
+            <span id="mock-hk-status" class="text-[10px] text-white/30 font-light tracking-wide ml-1 min-w-0 flex-1">Disconnected · start FastAPI (see README) for full MindWave sync</span>
         </div>
+        <p class="px-9 pb-3 text-[10px] text-white/22 font-light leading-relaxed">Synthetic vitals for demos only — not a medical readout. Real use requires explicit consent and clinical oversight where applicable.</p>
 
         <!-- Scrollable content -->
         <div id="vitals-scroll" class="flex-1 overflow-y-auto px-9 pb-8" style="-webkit-overflow-scrolling:touch;">
@@ -1501,7 +1525,9 @@
                     </div>
                     <span class="text-white/90 font-display italic text-xl tracking-wide">Suno API Key</span>
                 </div>
-                <p class="text-[11px] text-white/30 font-light leading-relaxed mt-1">Your key is stored only in your browser and never sent to any server other than Suno.</p>
+                <p class="text-[11px] text-white/30 font-light leading-relaxed mt-1">
+                    <strong class="text-amber-200/80 font-medium">Demo only.</strong> Key lives in this browser (localStorage) and is sent directly to the Suno-compatible API — not to a first-party Soma backend. Production builds should proxy generation server-side (<span class="text-white/40">session-api-contract § Suno proxy</span>).
+                </p>
             </div>
             <button id="apikey-close" class="w-8 h-8 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/40 hover:text-white hover:bg-white/10 transition-all">
                 <iconify-icon icon="lucide:x" width="14"></iconify-icon>
@@ -1587,6 +1613,7 @@
                 <span class="soma-section-label block mb-2">Your sessions</span>
                 <h2 class="font-display text-2xl text-white/90 italic tracking-wide">History</h2>
                 <p id="history-summary-line" class="text-[11px] text-white/32 font-light mt-2">—</p>
+                <div id="history-insights" class="hidden mt-3 p-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] text-left space-y-1.5"></div>
             </div>
             <button type="button" id="history-close" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0">
                 <iconify-icon icon="lucide:x" width="15"></iconify-icon>
@@ -2669,6 +2696,30 @@
         };
     }
 
+    /** JSON from POST /api/healthkit/mock/run or /api/pipeline/run — matches music_ai_module output. */
+    function getPipelineInsights() {
+        const data = window.__somaLastPipelineResult;
+        if (!data || !data.processed_params) return null;
+        const pp = data.processed_params;
+        const st = pp.state || {};
+        const ms = pp.music_strategy || {};
+        const rhythm = pp.rhythm || {};
+        const tb = rhythm.target_bpm != null ? rhythm.target_bpm : ms.tempo_bpm;
+        if (tb == null) return null;
+        return {
+            targetBpm: tb,
+            arousal: st.arousal_score,
+            stressState: st.stress_state,
+            recoveryPriority: st.recovery_priority,
+            trend: st.trend,
+            instrumentSet: ms.instrument_set || [],
+            forbidSharp: !!ms.forbid_sharp_transients,
+            forbidHi: !!ms.forbid_high_freq_peaks,
+            forbidPerc: !!ms.forbid_percussive_hits,
+            prompt: typeof data.prompt === 'string' ? data.prompt : '',
+        };
+    }
+
     function computeMw(v) {
         if (typeof window.somaComputeMiddleware === 'function') return window.somaComputeMiddleware(v);
         return {
@@ -2680,6 +2731,14 @@
         };
     }
 
+    function formatSafeguardPills(pipe) {
+        const out = [];
+        if (pipe.forbidSharp) out.push('no sharp attacks');
+        if (pipe.forbidHi) out.push('no piercing highs');
+        if (pipe.forbidPerc) out.push('no percussion');
+        return out;
+    }
+
     function buildRecommendation(input, profile, vitals, demoCaseId) {
         const modeNice = {
             focus: 'focus and concentration', calm: 'calm regulation', sleep: 'sleep support',
@@ -2689,37 +2748,86 @@
         const bullets = [];
         const pills = [];
 
+        let engineLine = '';
+
+        const demoNarr = (typeof window.__somaDemoNarrative === 'string' && window.__somaDemoNarrative.trim())
+            ? window.__somaDemoNarrative.trim()
+            : '';
+        if (demoNarr) bullets.push(demoNarr);
+
         if (input.freeText) {
-            bullets.push('Your words anchor the session — they are woven into the listening goal (wellness support, not medical advice).');
+            bullets.push('Your words anchor the session — they guide the listening goal (wellness support, not medical advice).');
         }
         if (profile.sensitive) {
             bullets.push('Your profile asks for careful dynamics — we bias toward soft onsets and gentle timbres.');
         }
+
+        const pipe = vitals && vitals.heartRate != null ? getPipelineInsights() : null;
+
         if (vitals && vitals.heartRate != null) {
-            const mw = computeMw(vitals);
-            pills.push(mw.targetBpm + ' BPM target');
             pills.push(input.intensity <= 2 ? 'lighter intensity' : input.intensity >= 4 ? 'full intensity' : 'medium intensity');
+
+            if (pipe) {
+                const ar = typeof pipe.arousal === 'number' ? pipe.arousal.toFixed(0) : String(pipe.arousal ?? '');
+                pills.push(pipe.targetBpm + ' BPM (MindWave)');
+                pills.push('arousal ' + ar);
+                pills.push(String(pipe.stressState || '') + ' stress');
+                pills.push('recover: ' + String(pipe.recoveryPriority || ''));
+                if (pipe.instrumentSet.length) pills.push(pipe.instrumentSet.slice(0, 4).join(', '));
+                const sg = formatSafeguardPills(pipe);
+                if (sg.length) pills.push('safeguards · ' + sg.join(', '));
+
+                bullets.push(
+                    'MindWave engine: stress band ' + (pipe.stressState || '?') +
+                    ', recovery priority ' + (pipe.recoveryPriority || '?') +
+                    ', target tempo near ' + pipe.targetBpm + ' BPM (entrainment + safety constraints).'
+                );
+                engineLine = 'Synced with MindWave pipeline (Python Layer 2–3) via local API — same rules as apps/api.';
+            } else {
+                const mw = computeMw(vitals);
+                pills.push(mw.targetBpm + ' BPM (preview)');
+                const tex = (mw.texture || '').split('+')[0].trim();
+                if (tex) pills.push(tex);
+                if (mw.safeguard && mw.safeguard !== 'all_clear') pills.push('safeguards on');
+                bullets.push('Start uvicorn + connect mock vitals or load a Demo Case to sync full MindWave output.');
+                engineLine = 'Preview mode · run local FastAPI (/api/healthkit/mock/run) for full biometric strategy.';
+            }
+
             if (vitals.hrv != null && vitals.hrv < 40) {
-                bullets.push('HRV is below the calm threshold — softer texture and continuous pad reduce perceived threat.');
+                bullets.push('HRV reads below our calm threshold — continuous pad / softer motion reduces perceived threat.');
             } else if (vitals.hrv != null) {
-                bullets.push('HRV looks resilient — we can keep the arrangement more open.');
+                bullets.push('HRV looks resilient — textures can stay a little more open.');
             }
             if (vitals.ambientNoise != null && vitals.ambientNoise > 70) {
-                bullets.push('Ambient noise is elevated — safeguards prioritize reducing sharp transients.');
+                bullets.push('Ambient noise is elevated — extra safeguards against sharp transients.');
             }
-            const tex = (mw.texture || '').split('+')[0].trim();
-            if (tex) pills.push(tex);
-            if (mw.safeguard && mw.safeguard !== 'all_clear') pills.push('safeguards on');
         } else {
-            bullets.push('No Apple Watch snapshot yet — recommendations use your check-in, mode, and profile only.');
+            bullets.push('No wrist snapshot yet — reasoning uses your check-in, mode, and profile only.');
+            engineLine = 'Add vitals (Demo Case or Vitals modal) to unlock biometric tempo and safeguards.';
         }
-        if (demoCaseId) bullets.push('Demo case loaded — vitals and profile illustrate a teaching scenario.');
+
+        if (demoCaseId && !demoNarr) {
+            bullets.push('Demo case — profile + vitals illustrate a guided teaching scenario.');
+        }
         if (input.environment && input.environment !== 'None') pills.push(input.environment.toLowerCase() + ' ambience');
-        while (bullets.length > 3) bullets.pop();
-        return { title, reasonBullets: bullets, strategyPills: pills.slice(0, 6), prompt: '' };
+
+        const MAX_BULLETS = 5;
+        while (bullets.length > MAX_BULLETS) bullets.pop();
+
+        return {
+            title,
+            reasonBullets: bullets,
+            strategyPills: pills.slice(0, 8),
+            prompt: '',
+            engineLine: engineLine || undefined,
+        };
     }
 
     function buildStoredPrompt(input, rec) {
+        const pipe = getPipelineInsights();
+        if (pipe && pipe.prompt && pipe.prompt.length > 40) {
+            return pipe.prompt.slice(0, 500);
+        }
         let prompt = MODE_PROMPTS[input.mode] || MODE_PROMPTS.focus;
         (input.vibes || []).forEach(v => { if (VIBE_SUFFIXES[v]) prompt += VIBE_SUFFIXES[v]; });
         if (input.freeText) prompt = input.freeText.slice(0, 200) + '. ' + prompt;
@@ -2730,9 +2838,19 @@
 
     function renderReasonPanel(rec) {
         const titleEl = document.getElementById('reason-title');
+        const engEl = document.getElementById('reason-engine-line');
         const ul = document.getElementById('reason-bullets');
         const pills = document.getElementById('reason-pills');
         if (titleEl) titleEl.textContent = rec.title || '';
+        if (engEl) {
+            if (rec.engineLine) {
+                engEl.textContent = rec.engineLine;
+                engEl.classList.remove('hidden');
+            } else {
+                engEl.textContent = '';
+                engEl.classList.add('hidden');
+            }
+        }
         if (ul) {
             ul.innerHTML = '';
             (rec.reasonBullets || []).forEach(t => {
@@ -2840,7 +2958,7 @@
             window.somaPlayerApi.setTotalFromMinutes(act.input.durationMin);
             window.somaPlayerApi.startFakePlayback();
         }
-        if (window.showToast) window.showToast('Timer session — add an API key for AI music.');
+        if (window.showToast) window.showToast('Guided timer session — waveform + countdown, no AI audio. Demo Cases give instant curated tracks; add API Key for optional live Suno.');
     };
 
     window.somaStartDemoSession = function (caseId, c) {
@@ -2865,7 +2983,11 @@
         };
         const vit = snapshotVitals();
         const rec = buildRecommendation(input, profile, vit, caseId);
-        rec.prompt = (c.sunoPrompt || buildStoredPrompt(input, rec)).slice(0, 500);
+        const pipe = getPipelineInsights();
+        const promptBase = pipe && pipe.prompt && pipe.prompt.length > 40
+            ? pipe.prompt
+            : ((c.sunoPrompt || buildStoredPrompt(input, rec)));
+        rec.prompt = promptBase.slice(0, 500);
         const active = {
             id: uid(),
             createdAt: isoNow(),
@@ -2991,6 +3113,43 @@
         modal.style.pointerEvents = 'none';
     }
 
+    function renderHistoryInsights() {
+        const box = document.getElementById('history-insights');
+        if (!box) return;
+        const all = listSessions().filter(s => s.status === 'completed' && s.feedback);
+        if (!all.length) {
+            box.innerHTML = '';
+            box.classList.add('hidden');
+            return;
+        }
+        const helped = all.filter(r => r.feedback.helpfulness === 'helped').length;
+        const pct = Math.round((helped / all.length) * 100);
+        const counts = {};
+        all.forEach(r => {
+            const k = r.feedback.soundFit || 'unknown';
+            counts[k] = (counts[k] || 0) + 1;
+        });
+        const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]);
+        const top = sorted[0];
+        let tip = 'Use these patterns to tweak Intensity, Mode, or Profile “sounds to avoid” next time.';
+        if (top && top[0] === 'too_fast') tip = 'Several entries rated “too fast” — bias Calm/Sleep or lower Intensity.';
+        else if (top && top[0] === 'too_busy') tip = '“Too busy” showing up — try Calm, lighter Intensity, or softer profile notes.';
+        else if (top && top[0] === 'too_sharp') tip = 'Sharp timbres flagged — reinforce sensitive listening prefs in Profile.';
+        else if (top && top[0] === 'disliked') tip = 'Style mismatch — rotate Mode/Vibes or widen preferred styles in Profile.';
+
+        const topFit = escapeHtml(top ? top[0] : '');
+        const tipEsc = escapeHtml(tip);
+
+        box.innerHTML =
+            '<div class="text-[10px] text-white/40 uppercase tracking-[0.22em]">Insights (all saved sessions)</div>' +
+            '<div class="text-[11px] text-white/75 font-light">' + helped + ' / ' + all.length + ' marked <span class="text-emerald-200/80">helped</span> · ' + pct + '%</div>' +
+            (top
+                ? '<div class="text-[10px] text-white/45">Most common sound note: <span class="text-white/70">' + topFit + '</span> (' + top[1] + ')</div>'
+                : '') +
+            '<div class="text-[10px] text-white/38 leading-relaxed">' + tipEsc + '</div>';
+        box.classList.remove('hidden');
+    }
+
     function renderHistoryList() {
         const list = document.getElementById('history-list');
         const empty = document.getElementById('history-empty');
@@ -3026,6 +3185,7 @@
         list.querySelectorAll('.hist-replay').forEach(btn => btn.addEventListener('click', () => replayHistory(btn.dataset.id)));
         list.querySelectorAll('.hist-template').forEach(btn => btn.addEventListener('click', () => templateHistory(btn.dataset.id)));
         list.querySelectorAll('.hist-del').forEach(btn => btn.addEventListener('click', () => deleteHistory(btn.dataset.id)));
+        renderHistoryInsights();
     }
 
     function escapeHtml(s) {
@@ -3061,10 +3221,33 @@
         const modeBtn = document.querySelector('.mode-chip[data-mode="' + row.input.mode + '"]');
         if (modeBtn) modeBtn.click();
         window.__somaDemoCaseId = null;
+        window.__somaDemoNarrative = '';
+
+        let adjustNote = '';
+        const fb = row.feedback;
+        if (fb && fb.soundFit) {
+            if (fb.soundFit === 'too_fast' || fb.soundFit === 'too_busy') {
+                if (fb.soundFit === 'too_busy') {
+                    const light = document.querySelector('.intensity-btn[data-intensity="1"]');
+                    if (light) light.click();
+                } else {
+                    const gentle = document.querySelector('.intensity-btn[data-intensity="2"]');
+                    if (gentle) gentle.click();
+                }
+                adjustNote = fb.soundFit === 'too_fast'
+                    ? 'Template applied · eased intensity (last session felt fast).'
+                    : 'Template applied · lightest intensity (last mix felt busy).';
+            } else if (fb.soundFit === 'too_sharp') {
+                adjustNote = 'Template applied · prior note: sharp timbres — stay in softer modes / update Profile sensitivities.';
+            } else if (fb.soundFit === 'disliked') {
+                adjustNote = 'Template applied · try shifting mode or genres in Profile if style was off.';
+            }
+        }
+
         setActive(null);
         refreshDraft();
         closeHistoryModal();
-        if (window.showToast) window.showToast('Template applied');
+        if (window.showToast) window.showToast(adjustNote || 'Template applied');
     }
 
     function deleteHistory(id) {
@@ -3224,6 +3407,9 @@
     function syncKeyIndicator() {
         const has = !!getKey();
         apikeyDot.classList.toggle('hidden', !has);
+        if (tuneBtnLabel) {
+            tuneBtnLabel.textContent = has ? 'Start session · live AI' : 'Start guided session';
+        }
     }
 
     // ── API Key Modal ─────────────────────────────────────────────────────
@@ -3601,9 +3787,12 @@
                 window.showToast('Invalid API key — please update it');
                 openApiKeyModal();
             } else if (msg.includes('429') || msg.toLowerCase().includes('rate')) {
-                window.showToast('Rate limit reached — try again shortly');
+                window.showToast('Rate limited — try a Demo Case for instant playback, or wait briefly.');
             } else {
-                window.showToast('Generation failed: ' + msg.slice(0, 60));
+                window.showToast(
+                    'Generation issue: ' + msg.slice(0, 72) + (msg.length > 72 ? '…' : '') +
+                    ' — Try Demo Cases for instant audio, or guided session (no key).'
+                );
             }
         } finally {
             generationActive = false;
@@ -4124,6 +4313,8 @@
                 stressScore:        8,
                 baselineHR:         65,
             },
+            demoNarrative:
+                'Post-work tension with low HRV: lower entrainment tempo, continuous pad, and neo-soul warmth without sharp attacks — matches the cached “Midnight Window Seat” teaching track.',
         },
         case_002: {
             profile: {
@@ -4171,6 +4362,8 @@
                 stressScore:        5,
                 baselineHR:         68,
             },
+            demoNarrative:
+                'Sleep + sound sensitivity: very slow BPM, acoustic legato, no percussion, minimized transients — pairs with “Moonlight Between Breaths”.',
         },
         case_003: {
             profile: {
@@ -4218,6 +4411,8 @@
                 stressScore:        7,
                 baselineHR:         62,
             },
+            demoNarrative:
+                'Focus context with moderate arousal: stable tempo band, sparse IDM-ish texture and binaural steadiness — demo track “Pure Function” illustrates concentration use.',
         },
         case_004: {
             profile: {
@@ -4265,6 +4460,8 @@
                 stressScore:        9,
                 baselineHR:         64,
             },
+            demoNarrative:
+                'High stress + burnout risk: grounding recovery priority, supportive neo-soul pad, restrained dynamics — aligns with “Night Shift in Soft Gold”.',
         },
         case_005: {
             profile: {
@@ -4312,6 +4509,8 @@
                 stressScore:        7,
                 baselineHR:         70,
             },
+            demoNarrative:
+                'Reflective calm for dual-role fatigue: slower cinematic bed, soft strings/piano, space for emotional processing — “Autumn Tenure” showcases that arc.',
         },
     };
 
@@ -4338,6 +4537,7 @@
             bloodOxygen: v.bloodOxygen,
             wristTemperature: v.wristTemperature,
             ambientNoise: v.ambientNoise,
+            bodyMotion: v.bodyMotion || { x: 0, y: 0, z: 0 },
             sleepStage: v.sleepStage,
             stressScore: v.stressScore,
             baselineHR: v.baselineHR,
@@ -4350,13 +4550,15 @@
             anxious: 'anxiety relief', ground: 'grounding', energy: 'gentle activation', trauma: 'gentle nervous-system support',
         };
         const name = (c.profile && c.profile.name) || 'Demo';
+        const bullets = [];
+        if (c.demoNarrative) bullets.push(c.demoNarrative);
+        bullets.push('Demo case — ' + name + ' · vitals + profile from the teaching file.');
+        const mi = c.moodInput || '';
+        if (mi) bullets.push(mi.length > 120 ? mi.slice(0, 120) + '…' : mi);
         return {
             title: 'Soma recommends a session shaped for ' + (modeNice[c.mode] || 'your check-in') + '.',
-            reasonBullets: [
-                'Demo case — ' + name + ' · vitals snapshot from case file.',
-                (c.moodInput || '').length > 90 ? (c.moodInput.slice(0, 90) + '…') : (c.moodInput || ''),
-            ],
-            strategyPills: [c.mode, 'demo playback'],
+            reasonBullets: bullets.slice(0, 5),
+            strategyPills: [c.mode, 'cached demo audio'],
             prompt: (c.sunoPrompt || '').slice(0, 500),
         };
     }
@@ -4731,6 +4933,53 @@
     }
 
     // ── Main: load a case ─────────────────────────────────────────────────
+    function buildProfilePayloadForCase(c) {
+        const map = {
+            focus: 'focus', calm: 'calm', sleep: 'sleep', anxious: 'calm',
+            ground: 'grounding', energy: 'focus', trauma: 'grounding',
+        };
+        const out = { therapy_goal: map[c.mode] || 'calm' };
+        const age = c.profile && c.profile.age != null ? parseInt(String(c.profile.age), 10) : NaN;
+        if (!isNaN(age)) out.age = age;
+        return out;
+    }
+
+    function syncPipelineForCase(c) {
+        if (!c || !c.vitals) {
+            window.__somaLastPipelineResult = null;
+            return Promise.resolve(null);
+        }
+        const v = c.vitals;
+        return fetch('/api/healthkit/mock/run', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                vitals: {
+                    heartRate: v.heartRate,
+                    hrv: v.hrv,
+                    respiratoryRate: v.respiratoryRate,
+                    ambientNoise: v.ambientNoise,
+                    bodyMotion: v.bodyMotion || { x: 0, y: 0, z: 0 },
+                    bloodOxygen: v.bloodOxygen,
+                    wristTemperature: v.wristTemperature,
+                    sleepStage: v.sleepStage,
+                    stressScore: v.stressScore,
+                    baselineHR: v.baselineHR,
+                },
+                profile: buildProfilePayloadForCase(c),
+            }),
+        })
+            .then(res => (res.ok ? res.json() : null))
+            .then(data => {
+                window.__somaLastPipelineResult = data || null;
+                return data;
+            })
+            .catch(() => {
+                window.__somaLastPipelineResult = null;
+                return null;
+            });
+    }
+
     function loadCase(caseId) {
         const c = DEMO_CASES[caseId];
         if (!c) return;
@@ -4759,10 +5008,13 @@
         // 6. Update vitals monitor (silently — modal stays closed)
         if (c.vitals) window.loadVitals(c.profile.name, c.vitals);
 
-        if (window.somaStartDemoSession) window.somaStartDemoSession(caseId, c);
+        window.__somaDemoNarrative = c.demoNarrative || '';
 
-        // 7. Toast
-        if (window.showToast) window.showToast(`Loaded: ${c.profile.name} — ${caseId.replace('_','')}`);
+        syncPipelineForCase(c).finally(() => {
+            if (window.somaStartDemoSession) window.somaStartDemoSession(caseId, c);
+            if (window.somaRefreshDraft) window.somaRefreshDraft();
+            if (window.showToast) window.showToast(`Loaded: ${c.profile.name} · ${caseId.replace('_',' ')}`);
+        });
     }
 
     // ── Bind click handlers ───────────────────────────────────────────────
@@ -5139,9 +5391,11 @@
         syncMockPipeline(s.vitals).then(function (data) {
             window.__somaLastPipelineResult = data || null;
             if (data) {
-                setMockStatus('Connected · ' + s.label + ' · pipeline synced (local API)');
+                setMockStatus('Connected · ' + s.label + ' · biometric strategy synced (MindWave API)');
+                if (window.somaRefreshDraft) window.somaRefreshDraft();
             } else {
-                setMockStatus('Connected · ' + s.label + ' · local demo (API unreachable)');
+                setMockStatus('Connected · ' + s.label + ' · heuristic preview · start uvicorn for full MindWave sync');
+                if (window.somaRefreshDraft) window.somaRefreshDraft();
             }
         });
     }
@@ -5162,7 +5416,7 @@
             nextBtn.disabled = true;
             nextBtn.classList.add('opacity-40', 'cursor-not-allowed');
             connectBtn.textContent = 'Connect mock HealthKit';
-            setMockStatus('Disconnected · local demo; run uvicorn to sync pipeline');
+            setMockStatus('Disconnected · heuristic vitals preview · pip install ".[api]" + uvicorn to sync MindWave engine');
             window.__somaLastPipelineResult = null;
         }
     });

@@ -116,7 +116,7 @@ Open the file in a browser (double-click or “Open with Live Server”). Fully 
 | **Suno Generation**   | One-click AI music generation via Suno V5 API with live status polling                                                                         |
 | **Controls Drawer**   | Intensity (1–4) · Duration (15/30/45 min) · Environment (None/Rain/Noise)                                                                      |
 
-**Session flow (stage 1):** Each visit can be a **session** — **Start Session** generates music via Suno when an API key is set, or runs a **timer-only** session without one. A **Why Soma chose this** panel explains the recommendation (check-in, profile, optional Vitals). **End Session** collects **feedback**; **History** stores completed sessions in `localStorage` (`soma-sessions-v1`) for replay and templates. The web demo **auto-injects** five sample completed sessions (one per Demo Case) on first load; see [docs/stage-1-mvp-session-flow.md](docs/stage-1-mvp-session-flow.md). Session JSON shape: [docs/session-api-contract.md](docs/session-api-contract.md).
+**Session flow (stage 1):** Primary action is **Start guided session** (timer + UI) without an API key, or **Start session · live AI** once a demo Suno key is saved. Cached **Demo Cases** give instant playback for pitches. Each visit can end with **feedback**; **History** persists to `localStorage` (`soma-sessions-v1`). See [docs/stage-1-mvp-session-flow.md](docs/stage-1-mvp-session-flow.md), [docs/demo-script.md](docs/demo-script.md) (4-minute presenter script), [docs/session-api-contract.md](docs/session-api-contract.md).
 
 ### Profile Modal
 
