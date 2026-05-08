@@ -47,6 +47,14 @@
         .font-display {
             font-family: 'Cormorant Garamond', serif;
         }
+
+        /* Top bar + sidebar: shared Cormorant wordmark, tightened for italic + circular mark */
+        .soma-wordmark {
+            font-family: 'Cormorant Garamond', serif;
+            font-feature-settings: "liga" 1, "kern" 1;
+            letter-spacing: -0.02em;
+            color: rgb(255 255 255 / 0.88);
+        }
         
         .font-mono {
             font-family: 'JetBrains Mono', monospace;
@@ -1158,6 +1166,10 @@
             outline-offset: 2px;
         }
 
+        #history-insights.w-full .history-insights-prose > section > p {
+            max-width: 52ch;
+        }
+
         /* Demo (no side-stripe accent: use inset ring + tint) */
         .soma-demo-hint {
             border: 1px solid rgba(255, 255, 255, 0.06);
@@ -1269,7 +1281,7 @@
                 <div class="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center bg-white/5 backdrop-blur-md">
                     <iconify-icon icon="solar:soundwave-linear" width="16" class="text-white/80"></iconify-icon>
                 </div>
-                <span class="text-lg font-medium tracking-wide text-white/90 font-display italic">Soma</span>
+                <span class="soma-wordmark text-lg font-semibold leading-none italic">Soma</span>
             </div>
         </header>
 
@@ -1280,7 +1292,7 @@
                         <div class="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center bg-white/5">
                             <iconify-icon icon="solar:soundwave-linear" width="17" class="text-white/80"></iconify-icon>
                         </div>
-                        <span class="text-xl font-medium tracking-wide text-white/90 font-display italic">Soma</span>
+                        <span class="soma-wordmark text-xl font-semibold leading-none italic">Soma</span>
                     </div>
                     <p class="text-[0.65rem] text-white/25 uppercase tracking-[0.28em] font-medium mb-2">Workspace</p>
                     <nav class="flex flex-col gap-1.5" aria-label="Primary">
@@ -1314,122 +1326,10 @@
             <div id="soma-workspace" role="main" aria-label="Soma workspace" class="soma-workspace flex flex-1 min-w-0 min-h-0 flex-col overflow-hidden pb-[calc(4.5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
                 <div id="session-view" class="soma-view soma-view-active flex flex-col flex-1 min-h-0 px-4 sm:px-6 py-6 md:py-7" role="region" aria-labelledby="session-heading">
                     <h2 id="session-heading" class="sr-only">Session workspace</h2>
-                    <!-- Session: player fixed on top; check-in and session params scroll below. -->
-                    <div class="session-station w-full max-w-3xl mx-auto flex flex-col flex-1 min-h-0 gap-8 md:gap-10 lg:gap-12">
-                        <div class="session-station__playback flex flex-col w-full min-w-0 items-center gap-8 flex-shrink-0">
-        <!-- Player Card -->
-        <div class="w-full max-w-lg relative group animate-stagger-4 mx-auto">
-            <div class="relative glass-panel rounded-[2.5rem] p-10 flex flex-col items-center">
-                <!-- Top Bar -->
-                <div class="w-full flex justify-between items-start mb-8">
-                    <div class="flex flex-col">
-                        <span class="text-xs text-white/40 uppercase tracking-[0.3em] font-medium mb-2">Now Resonating</span>
-                        <h2 id="player-title" class="text-3xl text-white flex items-center gap-3 font-display italic tracking-wide">
-                            Deep Focus
-                        </h2>
-                        <!-- Suno generated track badge -->
-                        <div id="suno-track-badge" class="mt-1.5 flex items-center gap-1.5 opacity-0 translate-y-1 pointer-events-none">
-                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400/80 flex-shrink-0"></span>
-                            <span id="suno-track-title" class="text-xs text-white/40 font-light tracking-wide truncate max-w-[180px]">AI Generated</span>
-                        </div>
-                        <div id="session-strip" class="mt-3 w-full max-w-[280px] soma-panel-soft px-3 py-2.5 flex flex-wrap items-center gap-2 opacity-90">
-                            <span id="session-status-label" class="text-xs text-white/35 uppercase tracking-widest">Session · idle</span>
-                            <button type="button" id="end-session-btn" class="soma-action-ghost hidden">End Session</button>
-                        </div>
-                    </div>
-                    <button type="button" id="regen-btn" class="touch-manipulation w-10 h-10 min-w-[2.75rem] min-h-[2.75rem] rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors duration-300">
-                        <iconify-icon id="regen-icon" icon="lucide:refresh-cw" width="16"></iconify-icon>
-                    </button>
-                </div>
-                <!-- Hidden audio element for Suno playback -->
-                <audio id="suno-audio" preload="auto" crossorigin="anonymous" style="display:none"></audio>
-
-                <!-- Minimalist Gramophone Visualizer -->
-                <div id="gramophone-container" class="gramophone-container">
-                    <!-- Glows -->
-                    <div id="gramophone-glow" class="gramophone-glow"></div>
-                    <div class="gramophone-aura"></div>
-                    
-                    <!-- Vinyl Record -->
-                    <div id="gramophone-record" class="gramophone-record">
-                        <div class="record-label">
-                            <div class="record-hole"></div>
-                        </div>
-                    </div>
-
-                    <!-- Floating Notes -->
-                    <div class="music-note note-1"><iconify-icon icon="lucide:music"></iconify-icon></div>
-                    <div class="music-note note-2"><iconify-icon icon="lucide:music-2"></iconify-icon></div>
-                    <div class="music-note note-3"><iconify-icon icon="lucide:music"></iconify-icon></div>
-
-                    <!-- Tonearm Structure -->
-                    <div class="tonearm-container">
-                        <div class="tonearm-base"></div>
-                        <div class="tonearm-arm">
-                            <div class="stylus-head"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Controls -->
-                <div class="flex items-center justify-center gap-10 mb-10 w-full">
-                    <button type="button" id="restart-btn" class="player-ctrl-hit hover:scale-110 duration-300 transition-transform">
-                        <iconify-icon icon="lucide:skip-back" width="24"></iconify-icon>
-                    </button>
-                    <button type="button" id="play-btn" class="w-20 h-20 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-colors duration-300 shadow-[0_0_30px_rgba(255,255,255,0.05)] hover:shadow-[0_0_40px_rgba(255,255,255,0.15)] backdrop-blur-md group touch-manipulation">
-                        <iconify-icon id="play-icon" icon="lucide:pause" width="28" class="group-hover:scale-95 transition-transform"></iconify-icon>
-                    </button>
-                    <button type="button" id="skip-forward-btn" class="player-ctrl-hit hover:scale-110 duration-300 transition-transform">
-                        <iconify-icon icon="lucide:skip-forward" width="24"></iconify-icon>
-                    </button>
-                </div>
-
-                <!-- Progress — waveform bars span the full track width -->
-                <div class="w-full flex flex-col gap-3">
-                    <div id="progress-track" class="relative w-full cursor-pointer select-none group/progress" style="height:44px">
-                        <!-- Bars injected by JS; they ARE the progress indicator -->
-                        <div id="eq-bars" class="absolute inset-0 flex items-end" style="gap:2px"></div>
-                        <!-- Vertical playhead cursor -->
-                        <div id="progress-thumb" class="absolute top-0 bottom-0 w-px bg-white/55 shadow-[0_0_8px_rgba(255,255,255,0.75)] opacity-0 group-hover/progress:opacity-100 pointer-events-none -translate-x-1/2" style="left:33.3%"></div>
-                        <!-- Hover time tooltip -->
-                        <div id="progress-tooltip" class="absolute bottom-full mb-2.5 -translate-x-1/2 pointer-events-none whitespace-nowrap" style="left:0;opacity:0;transition:opacity 0.15s ease;">
-                            <div class="px-2.5 py-1 rounded-lg border border-white/10" style="background:rgba(8,8,12,0.80);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
-                                <span id="progress-tooltip-time" class="font-mono text-xs text-white/72 tracking-widest">00:00</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-center">
-                        <span id="time-elapsed" class="text-xs font-mono text-white/30">15:00</span>
-                        <button type="button" id="freq-toggle" class="touch-manipulation min-h-[2.35rem] min-w-[2.35rem] px-2 -mx-2 flex items-center justify-center gap-1.5 group/freq cursor-pointer rounded-lg border border-transparent hover:border-white/8 hover:bg-white/[0.03] transition-colors duration-300">
-                            <span id="player-subtext" class="text-xs text-white/40 font-light tracking-widest uppercase group-hover/freq:text-white/65 transition-colors duration-300">Binaural · 40Hz</span>
-                            <iconify-icon icon="lucide:info" width="10" class="text-white/18 group-hover/freq:text-white/45 transition-colors duration-300 flex-shrink-0"></iconify-icon>
-                        </button>
-                        <span id="time-total" class="text-xs font-mono text-white/30">45:00</span>
-                    </div>
-
-                    <!-- Frequency Info Card -->
-                    <div id="freq-card" class="w-full overflow-hidden" style="max-height:0;opacity:0;">
-                        <div class="freq-inner flex items-start gap-4">
-                            <div class="flex-shrink-0 w-9 h-9 rounded-full border border-white/8 bg-white/[0.04] flex items-center justify-center mt-0.5">
-                                <iconify-icon id="freq-icon" icon="lucide:brain" width="15" class="text-white/40"></iconify-icon>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center gap-2 mb-1.5">
-                                    <span id="freq-wave" class="text-xs text-white/32 uppercase tracking-[0.18em] font-medium">Gamma Wave</span>
-                                    <span class="text-white/15 text-xs select-none">·</span>
-                                    <span id="freq-hz" class="text-xs font-mono text-white/28 tracking-wider">40 Hz</span>
-                                </div>
-                                <p id="freq-desc" class="text-sm text-white/42 font-light leading-relaxed"></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-                        </div><!-- /.session-station__playback -->
-
-                        <div class="session-station__scroll flex-1 min-h-0 overflow-y-auto overscroll-y-contain min-w-0">
+                    <!-- Session: check-in vs playback screens (exactly one visible). -->
+                    <div class="session-station w-full max-w-3xl mx-auto flex flex-col flex-1 min-h-0 min-w-0">
+                        <div id="session-checkin-screen" class="flex flex-col flex-1 min-h-0 min-w-0" role="region" aria-label="Session check-in">
+                            <div id="session-checkin-scroll" class="flex-1 min-h-0 overflow-y-auto overscroll-y-contain min-w-0 pb-2">
                         <div class="session-station__inputs flex flex-col w-full min-w-0">
         <!-- Demo Cases Bar -->
         <div id="demo-cases-bar" class="w-full max-w-2xl mb-8 flex flex-col gap-2">
@@ -1608,7 +1508,130 @@
         </div>
         </div>
 
-                        </div><!-- /.session-station__scroll -->
+                        </div><!-- /#session-checkin-scroll -->
+                        </div><!-- /#session-checkin-screen -->
+
+                        <div id="session-playback-screen" class="hidden flex flex-col flex-1 min-h-0 min-w-0 items-stretch" role="region" aria-labelledby="session-playback-heading" aria-hidden="true" hidden>
+                            <h3 id="session-playback-heading" class="sr-only">Session playback</h3>
+                            <div class="w-full max-w-lg mx-auto shrink-0 flex justify-start pb-4 pt-0.5 px-1">
+                                <button type="button" id="session-playback-back" class="touch-manipulation inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm font-light text-white/55 hover:bg-white/[0.08] hover:text-white/90 hover:border-white/15 transition-colors">
+                                    <iconify-icon icon="lucide:arrow-left" width="16" class="opacity-75"></iconify-icon>
+                                    <span>Back to edit</span>
+                                </button>
+                            </div>
+                            <div class="flex flex-1 min-h-0 flex-col justify-start sm:justify-center items-center overflow-y-auto overscroll-y-contain min-w-0 w-full px-1 pb-4 gap-8">
+        <!-- Player Card -->
+        <div class="w-full max-w-lg relative group animate-stagger-4 mx-auto shrink-0">
+            <div class="relative glass-panel rounded-[2.5rem] p-10 flex flex-col items-center">
+                <!-- Top Bar -->
+                <div class="w-full flex justify-between items-start mb-8">
+                    <div class="flex flex-col">
+                        <span class="text-xs text-white/40 uppercase tracking-[0.3em] font-medium mb-2">Now Resonating</span>
+                        <h2 id="player-title" class="text-3xl text-white flex items-center gap-3 font-display italic tracking-wide">
+                            Deep Focus
+                        </h2>
+                        <!-- Suno generated track badge -->
+                        <div id="suno-track-badge" class="mt-1.5 flex items-center gap-1.5 opacity-0 translate-y-1 pointer-events-none">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-400/80 flex-shrink-0"></span>
+                            <span id="suno-track-title" class="text-xs text-white/40 font-light tracking-wide truncate max-w-[180px]">AI Generated</span>
+                        </div>
+                        <div id="session-strip" class="mt-3 w-full max-w-[280px] soma-panel-soft px-3 py-2.5 flex flex-wrap items-center gap-2 opacity-90">
+                            <span id="session-status-label" class="text-xs text-white/35 uppercase tracking-widest">Session · idle</span>
+                            <button type="button" id="end-session-btn" class="soma-action-ghost hidden">End Session</button>
+                        </div>
+                    </div>
+                    <button type="button" id="regen-btn" class="touch-manipulation w-10 h-10 min-w-[2.75rem] min-h-[2.75rem] rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors duration-300">
+                        <iconify-icon id="regen-icon" icon="lucide:refresh-cw" width="16"></iconify-icon>
+                    </button>
+                </div>
+                <!-- Hidden audio element for Suno playback -->
+                <audio id="suno-audio" preload="auto" crossorigin="anonymous" style="display:none"></audio>
+
+                <!-- Minimalist Gramophone Visualizer -->
+                <div id="gramophone-container" class="gramophone-container">
+                    <!-- Glows -->
+                    <div id="gramophone-glow" class="gramophone-glow"></div>
+                    <div class="gramophone-aura"></div>
+                    
+                    <!-- Vinyl Record -->
+                    <div id="gramophone-record" class="gramophone-record">
+                        <div class="record-label">
+                            <div class="record-hole"></div>
+                        </div>
+                    </div>
+
+                    <!-- Floating Notes -->
+                    <div class="music-note note-1"><iconify-icon icon="lucide:music"></iconify-icon></div>
+                    <div class="music-note note-2"><iconify-icon icon="lucide:music-2"></iconify-icon></div>
+                    <div class="music-note note-3"><iconify-icon icon="lucide:music"></iconify-icon></div>
+
+                    <!-- Tonearm Structure -->
+                    <div class="tonearm-container">
+                        <div class="tonearm-base"></div>
+                        <div class="tonearm-arm">
+                            <div class="stylus-head"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex items-center justify-center gap-10 mb-10 w-full">
+                    <button type="button" id="restart-btn" class="player-ctrl-hit hover:scale-110 duration-300 transition-transform">
+                        <iconify-icon icon="lucide:skip-back" width="24"></iconify-icon>
+                    </button>
+                    <button type="button" id="play-btn" class="w-20 h-20 rounded-full bg-white/10 border border-white/20 text-white flex items-center justify-center hover:bg-white/20 transition-colors duration-300 shadow-[0_0_30px_rgba(255,255,255,0.05)] hover:shadow-[0_0_40px_rgba(255,255,255,0.15)] backdrop-blur-md group touch-manipulation">
+                        <iconify-icon id="play-icon" icon="lucide:pause" width="28" class="group-hover:scale-95 transition-transform"></iconify-icon>
+                    </button>
+                    <button type="button" id="skip-forward-btn" class="player-ctrl-hit hover:scale-110 duration-300 transition-transform">
+                        <iconify-icon icon="lucide:skip-forward" width="24"></iconify-icon>
+                    </button>
+                </div>
+
+                <!-- Progress — waveform bars span the full track width -->
+                <div class="w-full flex flex-col gap-3">
+                    <div id="progress-track" class="relative w-full cursor-pointer select-none group/progress" style="height:44px">
+                        <!-- Bars injected by JS; they ARE the progress indicator -->
+                        <div id="eq-bars" class="absolute inset-0 flex items-end" style="gap:2px"></div>
+                        <!-- Vertical playhead cursor -->
+                        <div id="progress-thumb" class="absolute top-0 bottom-0 w-px bg-white/55 shadow-[0_0_8px_rgba(255,255,255,0.75)] opacity-0 group-hover/progress:opacity-100 pointer-events-none -translate-x-1/2" style="left:33.3%"></div>
+                        <!-- Hover time tooltip -->
+                        <div id="progress-tooltip" class="absolute bottom-full mb-2.5 -translate-x-1/2 pointer-events-none whitespace-nowrap" style="left:0;opacity:0;transition:opacity 0.15s ease;">
+                            <div class="px-2.5 py-1 rounded-lg border border-white/10" style="background:rgba(8,8,12,0.80);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);">
+                                <span id="progress-tooltip-time" class="font-mono text-xs text-white/72 tracking-widest">00:00</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span id="time-elapsed" class="text-xs font-mono text-white/30">15:00</span>
+                        <button type="button" id="freq-toggle" class="touch-manipulation min-h-[2.35rem] min-w-[2.35rem] px-2 -mx-2 flex items-center justify-center gap-1.5 group/freq cursor-pointer rounded-lg border border-transparent hover:border-white/8 hover:bg-white/[0.03] transition-colors duration-300">
+                            <span id="player-subtext" class="text-xs text-white/40 font-light tracking-widest uppercase group-hover/freq:text-white/65 transition-colors duration-300">Binaural · 40Hz</span>
+                            <iconify-icon icon="lucide:info" width="10" class="text-white/18 group-hover/freq:text-white/45 transition-colors duration-300 flex-shrink-0"></iconify-icon>
+                        </button>
+                        <span id="time-total" class="text-xs font-mono text-white/30">45:00</span>
+                    </div>
+
+                    <!-- Frequency Info Card -->
+                    <div id="freq-card" class="w-full overflow-hidden" style="max-height:0;opacity:0;">
+                        <div class="freq-inner flex items-start gap-4">
+                            <div class="flex-shrink-0 w-9 h-9 rounded-full border border-white/8 bg-white/[0.04] flex items-center justify-center mt-0.5">
+                                <iconify-icon id="freq-icon" icon="lucide:brain" width="15" class="text-white/40"></iconify-icon>
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <span id="freq-wave" class="text-xs text-white/32 uppercase tracking-[0.18em] font-medium">Gamma Wave</span>
+                                    <span class="text-white/15 text-xs select-none">·</span>
+                                    <span id="freq-hz" class="text-xs font-mono text-white/28 tracking-wider">40 Hz</span>
+                                </div>
+                                <p id="freq-desc" class="text-sm text-white/42 font-light leading-relaxed"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+                            </div>
+                        </div>
+
                     </div><!-- /.session-station -->
                 </div><!-- /#session-view -->
 
@@ -1654,12 +1677,12 @@
                                     <p id="history-empty" class="text-center text-sm text-white/30 font-light px-4 py-16 max-w-sm mx-auto leading-relaxed">No completed sessions yet. Finish a session and save feedback.</p>
                                 </div>
                             </div>
-                            <div id="history-insight-view" class="hidden flex-col flex-1 min-h-0 min-w-0 px-5 sm:px-8 pb-8 pt-4">
+                            <div id="history-insight-view" class="hidden flex-col flex-1 min-h-0 min-w-0 w-full px-5 sm:px-8 pb-8 pt-4">
                                 <button type="button" id="history-insight-back" class="soma-action-ghost self-start mb-5 inline-flex items-center gap-2">
                                     <iconify-icon icon="lucide:arrow-left" width="14" class="opacity-70"></iconify-icon>
                                     <span>Back to history</span>
                                 </button>
-                                <div id="history-insights" class="flex-1 min-h-0 py-5 px-5 sm:px-6 sm:py-6 rounded-3xl border border-white/[0.08] bg-white/[0.03] text-left overflow-y-auto overscroll-y-contain"></div>
+                                <div id="history-insights" class="flex-1 min-h-0 min-w-0 w-full py-6 px-5 sm:px-7 sm:py-7 rounded-3xl border border-white/[0.08] bg-white/[0.03] text-left overflow-y-auto overscroll-y-contain"></div>
                             </div>
                         </div>
                     </div>
@@ -2259,7 +2282,44 @@
 (function () {
     'use strict';
     var LS_VIEW = 'soma-active-view';
+    var LS_SESSION_UI = 'soma-session-ui';
     var VIEW_ORDER = ['session', 'history', 'vitals', 'profile', 'settings'];
+
+    function applySessionStep(step) {
+        var checkEl = document.getElementById('session-checkin-screen');
+        var playEl = document.getElementById('session-playback-screen');
+        var backBtn = document.getElementById('session-playback-back');
+        if (!checkEl || !playEl) return;
+        var isPlayback = step === 'playback';
+        checkEl.classList.toggle('hidden', isPlayback);
+        checkEl.hidden = isPlayback;
+        checkEl.setAttribute('aria-hidden', isPlayback ? 'true' : 'false');
+        playEl.classList.toggle('hidden', !isPlayback);
+        playEl.hidden = !isPlayback;
+        playEl.setAttribute('aria-hidden', isPlayback ? 'false' : 'true');
+        try {
+            localStorage.setItem(LS_SESSION_UI, step);
+        } catch (_) {}
+        if (isPlayback && backBtn) {
+            window.requestAnimationFrame(function () {
+                try {
+                    backBtn.focus();
+                } catch (_) {}
+            });
+        }
+    }
+
+    function showSessionStep(step) {
+        if (step !== 'playback' && step !== 'checkin') step = 'checkin';
+        applySessionStep(step);
+    }
+
+    function toggleSessionPlayback(on) {
+        showSessionStep(on ? 'playback' : 'checkin');
+    }
+
+    window.showSessionStep = showSessionStep;
+    window.toggleSessionPlayback = toggleSessionPlayback;
 
     function showSomaView(name, opts) {
         opts = opts || {};
@@ -2305,6 +2365,12 @@
     window.showSomaView = showSomaView;
 
     document.addEventListener('DOMContentLoaded', function () {
+        var backPb = document.getElementById('session-playback-back');
+        if (backPb) {
+            backPb.addEventListener('click', function () {
+                showSessionStep('checkin');
+            });
+        }
         document.body.addEventListener('click', function (e) {
             var t = e.target && e.target.closest('[data-soma-view]');
             if (!t) return;
@@ -2323,6 +2389,12 @@
             if (saved === 'vitals' && typeof window.somaOnEnterVitalsView === 'function') window.somaOnEnterVitalsView();
             if (saved === 'profile' && typeof window.somaOnEnterProfileView === 'function') window.somaOnEnterProfileView();
             if (saved === 'settings' && typeof window.somaOnEnterSettingsView === 'function') window.somaOnEnterSettingsView({});
+            if (saved === 'session') {
+                try {
+                    var su = localStorage.getItem(LS_SESSION_UI);
+                    if (su === 'playback' || su === 'checkin') showSessionStep(su);
+                } catch (_) {}
+            }
         } catch (_) {
             showSomaView('session', { skipExtras: true });
         }
@@ -4109,49 +4181,97 @@
         if (entry) entry.classList.remove('hidden');
         if (entrySummary) {
             const calm = stats.avgCalmAfter != null ? ' · avg calm ' + stats.avgCalmAfter + '/5' : '';
-            const best = stats.bestMode ? ' · best ' + stats.bestMode.mode : '';
-            entrySummary.textContent = stats.helpedCount + '/' + stats.n + ' helped · ' + stats.helpedRate + '%' + calm + best;
+            const when = stats.lastSubmittedLabel ? ' · latest ' + stats.lastSubmittedLabel : '';
+            const best = stats.bestMode ? ' · strongest ' + formatModeLabel(stats.bestMode.mode) : '';
+            entrySummary.textContent = stats.helpedCount + '/' + stats.n + ' helped · ' + stats.helpedRate + '%' + calm + when + best;
         }
 
         let trendCalm = '';
         if (stats.avgCalmAfter != null) {
-            trendCalm = 'Average calm-after (1–5): ' + stats.avgCalmAfter + '.';
+            trendCalm = 'Average calm score (1 to 5): ' + stats.avgCalmAfter + '.';
             if (stats.lastCalm != null && stats.lastComparedToAvg) {
                 const word = stats.lastComparedToAvg === 'above' ? 'above' : stats.lastComparedToAvg === 'below' ? 'below' : 'at';
-                trendCalm += ' Latest session ' + stats.lastCalm + '/5 — ' + word + ' your average.';
+                trendCalm += ' Your newest note is ' + stats.lastCalm + '/5, ' + word + ' that average.';
             }
         } else {
-            trendCalm = 'Calm ratings missing — rate calm-after on a few more sessions to see averages.';
+            trendCalm = 'Add calm scores on a few more sessions so we can show an average here.';
         }
 
-        let bestFitHtml = '';
-        if (stats.bestMode) {
-            bestFitHtml += '<div>Top helped rate: <span class="text-white/70">' + escapeHtml(stats.bestMode.mode) + '</span> · ~' + stats.bestMode.rate + '% over ' + stats.bestMode.n + '.</div>';
+        const sfBits = stats.soundFitSorted.slice(0, 4).map(([key, ct]) => {
+            const pct = Math.round((ct / stats.n) * 100);
+            return escapeHtml(formatSoundFitLabel(key)) + ' ' + ct + '/' + stats.n + ' (' + pct + '%)';
+        });
+        const sfLine = sfBits.length ? sfBits.join(' · ') : 'No sound note yet. Choose a chip after each session to build this view.';
+
+        const modeBits = stats.modeCountsSorted.slice(0, 4).map(row =>
+            escapeHtml(formatModeLabel(row.mode)) + ' ' + row.n
+        );
+        const modeRow = modeBits.length ? modeBits.join(' · ') : '';
+
+        let continuity = '';
+        if (stats.distinctFeedbackDays >= 2 && stats.trackingWindowDays && stats.trackingWindowDays > stats.distinctFeedbackDays) {
+            continuity = 'Feedback appears on ' + stats.distinctFeedbackDays + ' different days, spread across about ' + stats.trackingWindowDays + ' calendar days.';
         }
-        if (stats.topSoundFit) {
-            bestFitHtml += '<div>Most common sound-fit: <span class="text-white/70">' + escapeHtml(stats.topSoundFit.key) + '</span> ×' + stats.topSoundFit.count + '.</div>';
+        if (stats.consecutiveFeedbackDays >= 2 && stats.lastSubmittedLabel) {
+            if (continuity) continuity += ' ';
+            continuity += 'Counting backward from ' + stats.lastSubmittedLabel + ', notes cover ' + stats.consecutiveFeedbackDays + ' calendar days in a row (each day has at least one saved note).';
+        } else if (stats.distinctFeedbackDays === 1 && stats.n >= 2) {
+            if (continuity) continuity += ' ';
+            continuity += 'So far every note shares one calendar day. Spread sessions across more days to spot steadier habits.';
         }
-        if (!bestFitHtml) bestFitHtml = '<div class="text-white/38">Need more feedback rows to rank modes.</div>';
+
+        let extraPattern = '';
+        if (stats.soundFitSorted.length >= 2 && stats.n >= 3) {
+            const second = stats.soundFitSorted[1];
+            const frac = second[1] / stats.n;
+            if (frac >= 0.22) {
+                extraPattern = 'Runner up: ' + escapeHtml(formatSoundFitLabel(second[0])) + ' on ' + second[1] + ' of ' + stats.n + ' notes.';
+            }
+        }
 
         const nextEsc = escapeHtml(buildNextAdjustment(stats));
 
-        box.innerHTML =
-            '<div class="text-xs text-white/40 uppercase tracking-[0.22em] mb-2">Insights (all completed + feedback)</div>' +
-            '<div class="flex flex-col gap-3">' +
-            '<div>' +
-            '<div class="text-xs text-white/32 uppercase tracking-[0.15em] mb-1">Outcome trend</div>' +
-            '<div class="text-sm text-white/75 font-light">' + stats.helpedCount + ' / ' + stats.n + ' marked <span class="text-emerald-200/80">helped</span> · ' + stats.helpedRate + '%</div>' +
-            '<div class="text-xs text-white/42 leading-relaxed">' + escapeHtml(trendCalm) + '</div>' +
-            '</div>' +
-            '<div>' +
-            '<div class="text-xs text-white/32 uppercase tracking-[0.15em] mb-1">Best fit</div>' +
-            '<div class="text-xs text-white/45 leading-relaxed flex flex-col gap-1">' + bestFitHtml + '</div>' +
-            '</div>' +
-            '<div>' +
-            '<div class="text-xs text-white/32 uppercase tracking-[0.15em] mb-1">Next adjustment</div>' +
-            '<div class="text-xs text-white/38 leading-relaxed">' + nextEsc + '</div>' +
-            '</div>' +
+        const outcomeStat =
+            '<div class="flex flex-wrap gap-x-4 gap-y-1.5 text-sm text-white/70 font-light leading-snug">' +
+            '<span><span class="text-white/[0.88] tabular-nums">' + stats.n + '</span> notes</span>' +
+            '<span><span class="text-white/[0.88] tabular-nums">' + stats.helpedRate + '%</span> felt helped</span>' +
+            (stats.lastSubmittedLabel
+                ? '<span>Latest <span class="text-white/[0.88]">' + escapeHtml(stats.lastSubmittedLabel) + '</span></span>'
+                : '') +
             '</div>';
+
+        const patternsModes = modeRow
+            ? '<div class="flex flex-wrap gap-x-3 gap-y-1.5 text-sm text-white/70 font-light leading-snug items-baseline">' +
+              '<span class="text-xs uppercase tracking-widest text-white/35 shrink-0">Modes</span>' +
+              '<span class="min-w-0">' + modeRow + '</span></div>'
+            : '';
+
+        const patternsSound =
+            '<div class="flex flex-wrap gap-x-3 gap-y-1.5 text-sm text-white/70 font-light leading-snug items-baseline">' +
+            '<span class="text-xs uppercase tracking-widest text-white/35 shrink-0">Sound notes</span>' +
+            '<span class="min-w-0">' + sfLine + '</span></div>';
+
+        box.innerHTML =
+            '<div class="history-insights-root w-full min-w-0">' +
+            '<p class="text-sm text-white/[0.88] font-light tracking-tight mb-6">Your feedback snapshot</p>' +
+            '<div class="history-insights-prose flex flex-col gap-6 w-full min-w-0">' +
+            '<section class="min-w-0">' +
+            '<h3 class="text-xs uppercase tracking-widest text-white/35 mb-3">Outcome</h3>' +
+            outcomeStat +
+            '<p class="mt-3 text-sm text-white/70 font-light leading-relaxed">' + escapeHtml(trendCalm) + '</p>' +
+            '</section>' +
+            '<section class="min-w-0">' +
+            '<h3 class="text-xs uppercase tracking-widest text-white/35 mb-3">Patterns</h3>' +
+            patternsModes +
+            '<div class="mt-4">' + patternsSound + '</div>' +
+            (continuity ? '<p class="mt-3 text-sm text-white/70 font-light leading-relaxed">' + escapeHtml(continuity) + '</p>' : '') +
+            (extraPattern ? '<p class="mt-3 text-sm text-white/70 font-light leading-relaxed">' + extraPattern + '</p>' : '') +
+            '</section>' +
+            '<section class="min-w-0">' +
+            '<h3 class="text-xs uppercase tracking-widest text-white/35 mb-3">Next step</h3>' +
+            '<p class="text-sm text-white/70 font-light leading-relaxed">' + nextEsc + '</p>' +
+            '</section>' +
+            '</div></div>';
         box.classList.remove('hidden');
     }
 
@@ -4539,6 +4659,7 @@
         generationActive = false;
         hideOverlay();
         resetTuneBtn();
+        if (typeof window.showSessionStep === 'function') window.showSessionStep('checkin');
         if (window.somaSessionMarkFailed) window.somaSessionMarkFailed();
         window.showToast('Generation cancelled');
     });
@@ -4678,6 +4799,7 @@
 
         // Auto-play
         sunoAudio.play().catch(() => {});
+        if (typeof window.showSessionStep === 'function') window.showSessionStep('playback');
     }
 
     // ── Wire <audio> events to player UI ─────────────────────────────────
@@ -4811,6 +4933,8 @@
         generationActive  = true;
         cancelGeneration  = false;
 
+        if (typeof window.showSessionStep === 'function') window.showSessionStep('playback');
+
         setTuneBtnLoading(true);
         showOverlay('Sending request to Suno…', 'Connecting to API');
 
@@ -4846,6 +4970,7 @@
         } catch (err) {
             if (cancelGeneration) return;
             hideOverlay();
+            if (typeof window.showSessionStep === 'function') window.showSessionStep('checkin');
             if (window.somaSessionMarkFailed) window.somaSessionMarkFailed();
             const msg = err.message || 'Unknown error';
             if (msg.includes('401') || msg.toLowerCase().includes('unauthorized')) {
