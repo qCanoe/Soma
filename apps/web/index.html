@@ -1184,13 +1184,6 @@
             max-width: 52ch;
         }
 
-        /* Demo (no side-stripe accent: use inset ring + tint) */
-        .soma-demo-hint {
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            box-shadow: inset 0 0 0 1px rgba(251, 191, 36, 0.1);
-            background: rgba(255, 247, 237, 0.02);
-        }
-
         /* Inline workspace panels (former full-screen modals) */
         .soma-inline-panel-host {
             display: flex;
@@ -1370,11 +1363,6 @@
                     <span class="case-tag">45 · Existential Anxiety</span>
                 </button>
             </div>
-            <p class="soma-demo-hint mt-2 px-3 py-2 rounded-xl bg-white/[0.03] text-xs text-white/38 font-light leading-relaxed tracking-wide">
-                <strong class="text-white/55 font-medium">Stable demo:</strong> use Demo Cases for instant cached audio.
-                Optional: <strong class="text-white/55">Settings → API Key</strong> for live Suno (network dependent).
-                See <span class="text-white/45">docs/demo-script.md</span> for a 4-minute walkthrough.
-            </p>
         </div>
 
         <!-- Intent Input Area -->
@@ -1666,7 +1654,7 @@
                                         <h2 class="soma-text-on-aura font-display text-2xl md:text-[1.75rem] leading-tight text-white/90 italic tracking-wide">Diagnostic Report</h2>
                                         <p id="report-summary-line" class="text-sm text-white/35 font-light mt-2.5 leading-relaxed">A living read of your sessions, in plain language.</p>
                                     </div>
-                                    <button type="button" id="report-regen" class="touch-manipulation w-11 h-11 min-w-[2.75rem] min-h-[2.75rem] shrink-0 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/55 hover:text-white hover:bg-white/10 transition-colors duration-300" title="Regenerate report" aria-label="Regenerate report">
+                                    <button type="button" id="report-regen" class="touch-manipulation w-11 h-11 min-w-[2.75rem] min-h-[2.75rem] shrink-0 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/55 hover:text-white hover:bg-white/10 hover:border-white/18 active:scale-[0.96] transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" title="Regenerate report" aria-label="Regenerate report">
                                         <iconify-icon id="report-regen-icon" icon="lucide:refresh-cw" width="15"></iconify-icon>
                                     </button>
                                 </div>
@@ -1678,20 +1666,23 @@
                                     <span id="report-meta" class="text-[0.65rem] text-white/35 ml-auto"></span>
                                 </div>
                             </div>
-                            <div id="report-scroll" class="flex-1 overflow-y-auto overscroll-y-contain px-5 sm:px-8 pb-8 pt-4 min-h-0 min-w-0">
-                                <div id="report-empty" class="hidden text-center text-sm text-white/30 font-light px-4 py-16 max-w-sm mx-auto leading-relaxed">
+                            <div id="report-topic-nav-host" class="hidden flex-shrink-0 px-5 sm:px-8 py-2.5 border-b border-white/[0.06] bg-[rgba(10,10,12,0.78)] backdrop-blur-md supports-[backdrop-filter]:bg-[rgba(10,10,12,0.52)]">
+                                <span class="block text-[0.6rem] uppercase tracking-[0.22em] text-white/30 mb-2 font-medium">Jump to</span>
+                                <div id="report-topic-nav" class="flex flex-nowrap gap-2 overflow-x-auto overscroll-x-contain pb-0.5 min-w-0 scroll-smooth"></div>
+                            </div>
+                            <div id="report-scroll" class="flex-1 overflow-y-auto overscroll-y-contain px-5 sm:px-8 pb-8 pt-5 min-h-0 min-w-0">
+                                <div id="report-empty" class="hidden text-center text-sm text-white/30 font-light px-4 py-16 max-w-md mx-auto leading-relaxed">
                                     <span class="block text-white/45 font-light mb-4">Your report needs a little more signal.</span>
                                     Finish <span class="text-white/[0.72] tabular-nums">2</span> sessions and save feedback after each one. Optional: open Vitals so physiology notes reflect your wrist snapshot.
                                 </div>
-                                <div id="report-body" class="hidden flex flex-col gap-4 min-w-0">
+                                <div id="report-body" class="hidden flex flex-col gap-5 min-w-0">
                                     <div id="report-overview" class="min-w-0"></div>
                                     <div id="report-achievements" class="min-w-0"></div>
-                                    <div id="report-topic-nav" class="flex flex-nowrap gap-2 overflow-x-auto overscroll-x-contain pb-1 min-w-0 scroll-smooth -mx-1 px-1"></div>
                                     <div id="report-sections" class="flex flex-col gap-3 min-w-0"></div>
+                                    <p id="report-disclaimer" class="hidden pt-5 mt-1 border-t border-white/[0.05] text-[0.7rem] text-white/30 font-light leading-relaxed text-center max-w-lg mx-auto px-1">
+                                        This report is generated by Soma from your local records to help you understand your own state. It is not a medical diagnosis or treatment advice.
+                                    </p>
                                 </div>
-                                <p id="report-disclaimer" class="hidden mt-6 text-[0.7rem] text-white/30 font-light leading-relaxed text-center max-w-md mx-auto">
-                                    This report is generated by Soma from your local records to help you understand your own state. It is not a medical diagnosis or treatment advice.
-                                </p>
                             </div>
                         </div>
                     </div>
@@ -4670,14 +4661,22 @@
     const LS_REPORT = 'soma-report-v1';
     const LS_OPENAI_KEY = 'moodtune-openai-key';
     const LS_WINDOW = 'soma-report-window';
+    const LS_EXPANDED = 'soma-report-expanded-v1';
     const DEBOUNCE_MS = 700;
 
-    const SECTIONS = [
-        { id: 'snapshot',        title: 'Snapshot',         icon: 'lucide:activity',     blurb: 'Where you are right now.' },
-        { id: 'trends',          title: 'Trends',           icon: 'lucide:trending-up',  blurb: 'How your sessions are landing over time.' },
-        { id: 'patterns',        title: 'Patterns',         icon: 'lucide:shapes',       blurb: 'What modes and feelings recur.' },
-        { id: 'physiology',      title: 'Physiology',       icon: 'lucide:heart-pulse',  blurb: 'Signals from your wrist and your wellbeing.' },
-        { id: 'recommendations', title: 'Recommendations',  icon: 'lucide:compass',      blurb: 'Small next steps tailored to you.' },
+    const TOPICS = [
+        { id: 'trends', navLabel: 'Trends', title: 'Trends', icon: 'lucide:trending-up', blurb: 'How your sessions landed recently.', expandDefault: true },
+        { id: 'patterns', navLabel: 'Patterns', title: 'Patterns', icon: 'lucide:shapes', blurb: 'Modes, vibes, and recurring themes.', expandDefault: false },
+        { id: 'physiology', navLabel: 'Physiology', title: 'Physiology', icon: 'lucide:heart-pulse', blurb: 'What your wrist and tempo cues suggest.', expandDefault: false },
+        { id: 'achievements', navLabel: 'Progress', title: 'Achievements', icon: 'lucide:award', blurb: 'Small wins from staying consistent.', expandDefault: false },
+        { id: 'recommendations', navLabel: 'Next', title: 'Recommendations', icon: 'lucide:compass', blurb: 'Concrete tweaks for your next session.', expandDefault: true },
+    ];
+
+    const MOOD_THEME_RULES = [
+        { id: 'anxiety', label: 'Stress / worry', words: ['anxious', 'worry', 'panic', 'stressed', 'overwhelmed', 'stress'] },
+        { id: 'sleep', label: 'Sleep / rest', words: ['sleep', 'tired', 'insomnia', 'rest', 'wake', 'dream'] },
+        { id: 'focus', label: 'Focus / work', words: ['focus', 'study', 'work', 'thesis', 'deadline', 'exam'] },
+        { id: 'body', label: 'Body / tension', words: ['body', 'tension', 'breath', 'chest', 'head', 'pain'] },
     ];
 
     function api() { return window.somaInternal || {}; }
@@ -4776,6 +4775,173 @@
         };
     }
 
+    function windowLabelFromWin(win) {
+        if (win === '30') return 'Monthly view';
+        if (win === 'all') return 'Full report';
+        return 'Weekly view';
+    }
+
+    function dataQualityFromStats(ws) {
+        if (!ws || ws.n < 2) return 'Sparse';
+        if (ws.n >= 10) return 'Strong';
+        return 'Growing';
+    }
+
+    function extractMoodThemes(completedSessionsInWindow) {
+        const counts = {};
+        MOOD_THEME_RULES.forEach(r => { counts[r.id] = 0; });
+        (completedSessionsInWindow || []).forEach(s => {
+            const input = s.input || {};
+            const fb = s.feedback || {};
+            const text = ((input.freeText || '') + ' ' + (fb.notes || '')).toLowerCase();
+            MOOD_THEME_RULES.forEach(r => {
+                if (r.words.some(w => text.indexOf(w) >= 0)) counts[r.id]++;
+            });
+        });
+        return MOOD_THEME_RULES.map(r => ({
+            id: r.id,
+            label: r.label,
+            count: counts[r.id] || 0,
+        })).filter(t => t.count > 0).sort((a, b) => b.count - a.count);
+    }
+
+    function buildAchievementsList(profile, fullStats, windowStats, allSessions) {
+        const fmtMode = api().formatModeLabel || function (m) {
+            const x = m || '';
+            return x ? x.charAt(0).toUpperCase() + x.slice(1) : '';
+        };
+        const completed = allSessions.filter(s => s.status === 'completed' && s.feedback);
+        const reliefCount = completed.filter(s => s.feedback.helpfulness === 'helped').length;
+        const modes = new Set(completed.map(s => (s.input && s.input.mode) || 'unknown'));
+        modes.delete('unknown');
+        const notesCount = completed.filter(s => (s.feedback.notes || '').trim()).length;
+        const hasProfile = !!(profile && profile.savedAt);
+        const streak = fullStats ? fullStats.consecutiveFeedbackDays : 0;
+        const bm = windowStats && windowStats.bestMode;
+        const fitOk = !!(bm && bm.n >= 2 && bm.rate >= 50);
+
+        return [
+            {
+                id: 'streak',
+                title: streak >= 2 ? (streak + '-day reflection streak') : 'Start a reflection streak',
+                detail: 'Feedback on consecutive days makes trends easier to trust.',
+                met: streak >= 2,
+                hint: streak >= 2 ? '' : (streak ? (streak + ' day(s) so far — keep going') : 'Save feedback after your next session'),
+            },
+            {
+                id: 'completion',
+                title: completed.length >= 5 ? (completed.length + ' sessions with feedback') : 'Log more sessions',
+                detail: 'More notes give clearer patterns without guessing.',
+                met: completed.length >= 5,
+                hint: completed.length >= 5 ? '' : (Math.min(completed.length, 5) + ' / 5 suggested for stability'),
+            },
+            {
+                id: 'relief',
+                title: reliefCount >= 3 ? (reliefCount + ' helpful moments logged') : 'Collect helpful moments',
+                detail: 'Tracking “helped” highlights what actually lands.',
+                met: reliefCount >= 3,
+                hint: reliefCount >= 3 ? '' : (reliefCount + ' so far'),
+            },
+            {
+                id: 'awareness',
+                title: (hasProfile && notesCount >= 1) ? 'Notes attached to sessions' : 'Add profile + session notes',
+                detail: 'Short notes anchor context when you look back.',
+                met: hasProfile && notesCount >= 1,
+                hint: !hasProfile ? 'Complete profile once' : (notesCount ? '' : 'Try one line after your next session'),
+            },
+            {
+                id: 'explore',
+                title: modes.size >= 3 ? ('Explored ' + modes.size + ' modes') : 'Explore modes',
+                detail: 'Trying Calm, Focus, Sleep (for example) reveals fit faster.',
+                met: modes.size >= 3,
+                hint: modes.size >= 3 ? '' : (modes.size + ' / 3 modes tried'),
+            },
+            {
+                id: 'bestfit',
+                title: fitOk ? (fmtMode(bm.mode) + ' looks like a strong fit') : 'Discover your strongest mode',
+                detail: fitOk ? ('About ' + bm.rate + '% helpful across ' + bm.n + ' tries in this view.') : 'Pick one mode twice with feedback to compare.',
+                met: fitOk,
+                hint: '',
+            },
+        ];
+    }
+
+    function buildTopicEvidence(ctx) {
+        const ws = ctx.windowStats;
+        const fs = ctx.fullStats;
+        const fmtMode = api().formatModeLabel || function (m) {
+            const x = m || '';
+            return x ? x.charAt(0).toUpperCase() + x.slice(1) : '';
+        };
+        const fmtFit = api().formatSoundFitLabel || function (k) { return k || ''; };
+
+        const trends = [];
+        if (ws) {
+            trends.push(ws.n + ' sessions with feedback in this window.');
+            trends.push(ws.helpedRate + '% marked helped (' + ws.helpedCount + '/' + ws.n + ').');
+            if (ws.avgCalmAfter != null) trends.push('Avg calm after session: ' + ws.avgCalmAfter + '/5 (this window).');
+            if (fs && fs.avgCalmAfter != null && ws.avgCalmAfter != null && fs.avgCalmAfter !== ws.avgCalmAfter) {
+                trends.push('All-time avg calm: ' + fs.avgCalmAfter + '/5.');
+            }
+            if (ws.distinctFeedbackDays >= 2) {
+                trends.push('Feedback on ' + ws.distinctFeedbackDays + ' different days.');
+                if (ws.consecutiveFeedbackDays >= 2) trends.push('Current streak: ' + ws.consecutiveFeedbackDays + ' consecutive days.');
+            }
+        }
+
+        const patterns = [];
+        if (ws && ws.modeCountsSorted && ws.modeCountsSorted.length) {
+            ws.modeCountsSorted.slice(0, 3).forEach(r => {
+                patterns.push(fmtMode(r.mode) + ': ' + r.n + '× · helped ~' + r.rate + '%');
+            });
+        }
+        if (ws && ws.soundFitSorted && ws.soundFitSorted.length) {
+            ws.soundFitSorted.slice(0, 3).forEach(([k, c]) => {
+                patterns.push('Sound note · ' + fmtFit(k) + ': ' + c + '/' + ws.n);
+            });
+        }
+        const vibeCounts = {};
+        (ctx.recentSessions || []).forEach(r => {
+            (r.vibes || []).forEach(v => { vibeCounts[v] = (vibeCounts[v] || 0) + 1; });
+        });
+        Object.entries(vibeCounts).sort((a, b) => b[1] - a[1]).slice(0, 4).forEach(([v, c]) => {
+            patterns.push('Recent vibe · ' + v + ': ' + c + '×');
+        });
+        (ctx.moodThemes || []).slice(0, 4).forEach(t => {
+            patterns.push('Words hinted · ' + t.label + ': ' + t.count + ' mentions');
+        });
+
+        const physiology = [];
+        const phys = ctx.physiology;
+        if (phys && phys.heartRate != null) {
+            physiology.push('Latest HR snapshot: ' + phys.heartRate + ' bpm (Vitals workspace).');
+            if (phys.hrv != null) physiology.push('HRV SDNN: ' + phys.hrv + ' ms.');
+            if (phys.pipeline && phys.pipeline.targetBpm != null) {
+                physiology.push('MindWave target tempo near ' + phys.pipeline.targetBpm + ' BPM.');
+                if (phys.pipeline.stressState) physiology.push('Stress band: ' + phys.pipeline.stressState + '.');
+                if (phys.pipeline.recoveryPriority) physiology.push('Recovery emphasis: ' + phys.pipeline.recoveryPriority + '.');
+            }
+        } else {
+            physiology.push('No wrist snapshot loaded yet (optional). Open Vitals or a Demo Case.');
+        }
+
+        const achievements = [];
+        (ctx.achievements || []).filter(a => a.met).slice(0, 5).forEach(a => {
+            achievements.push(a.title + ' — ' + a.detail);
+        });
+        if (!achievements.length) achievements.push('Keep saving feedback to unlock progress milestones.');
+
+        const recommendations = [];
+        if (ws && ws.bestMode && ws.bestMode.n >= 2) {
+            recommendations.push('Strongest mode in this view: ' + fmtMode(ws.bestMode.mode) + ' (~' + ws.bestMode.rate + '% helped).');
+        }
+        if (ws && ws.topSoundFit && ws.topSoundFit.key && ws.topSoundFit.key !== 'good') {
+            recommendations.push('Most common sound note: ' + fmtFit(ws.topSoundFit.key) + '.');
+        }
+
+        return { trends, patterns, physiology, achievements, recommendations };
+    }
+
     function buildReportContext() {
         const profile = readProfile();
         const allSessions = readSessions();
@@ -4783,6 +4949,7 @@
         const windowedSessions = filterByWindow(allSessions, win);
         const fullStats = summariseStats(allSessions);
         const windowStats = summariseStats(windowedSessions);
+        const completedInWindow = windowedSessions.filter(s => s.status === 'completed' && s.feedback);
 
         const recent = windowedSessions
             .slice()
@@ -4800,9 +4967,13 @@
             ? window.somaSnapshotVitals()
             : (window.__somaLastVitals || null);
 
+        const moodThemes = extractMoodThemes(completedInWindow);
+        const achievements = buildAchievementsList(profile, fullStats, windowStats, allSessions);
+
         const ctx = {
             generatedAt: new Date().toISOString(),
             window: win,
+            windowLabel: windowLabelFromWin(win),
             identity: {
                 name: profile.name || '',
                 age: profile.age || null,
@@ -4818,11 +4989,15 @@
             counts: {
                 totalSessions: allSessions.length,
                 completedWithFeedback: fullStats ? fullStats.n : 0,
-                inWindow: windowedSessions.length,
+                completedWithFeedbackInWindow: windowStats ? windowStats.n : 0,
+                sessionsTouchedInWindow: windowedSessions.length,
             },
             fullStats: fullStats,
             windowStats: windowStats,
             recentSessions: recent,
+            moodThemes: moodThemes,
+            achievements: achievements,
+            dataQuality: dataQualityFromStats(windowStats),
             physiology: lastVitals ? {
                 heartRate: lastVitals.heartRate,
                 hrv: lastVitals.hrv,
@@ -4840,115 +5015,210 @@
                 } : null,
             } : null,
         };
+        ctx.topicEvidence = buildTopicEvidence(ctx);
         ctx.contextHash = djb2(JSON.stringify({
             n: ctx.counts.completedWithFeedback,
             win: ctx.window,
             last: recent[0] && recent[0].submittedAt,
             profile: ctx.identity,
+            themesSig: (ctx.moodThemes || []).map(t => t.id + ':' + t.count).join(','),
+            achSig: (ctx.achievements || []).map(a => (a.met ? '1' : '0')).join(''),
         }));
         return ctx;
     }
 
-    /* ─── Template narrator (offline) ──────────────────────────────── */
+    /* ─── Template narrator (offline, structured) ───────────────────── */
+
+    function emptySection() {
+        return { summary: '', plainMeaning: '', tryNext: '' };
+    }
 
     function narrateTemplate(ctx) {
-        const out = {};
         const stats = ctx.windowStats || ctx.fullStats;
+        const fs = ctx.fullStats;
         const id = ctx.identity;
-        const fmtMode = api().formatModeLabel || (m => m);
-        const fmtFit = api().formatSoundFitLabel || (k => k);
+        const fmtMode = api().formatModeLabel || function (m) {
+            const x = m || '';
+            return x ? x.charAt(0).toUpperCase() + x.slice(1) : '';
+        };
+        const fmtFit = api().formatSoundFitLabel || function (k) { return k || ''; };
 
         const greet = id.name ? id.name : 'You';
-        const winLabel = ctx.window === 'all' ? 'all your sessions' : ('the last ' + (ctx.window === '30' ? '30' : '7') + ' days');
+        const winHuman = ctx.window === 'all' ? 'your full history' : (ctx.window === '30' ? 'the last 30 days' : 'the last 7 days');
         const recentMode = ctx.recentSessions[0] && ctx.recentSessions[0].mode;
-        const physShort = ctx.physiology && ctx.physiology.heartRate != null
-            ? ('Latest wrist read: HR ' + ctx.physiology.heartRate + ' bpm' +
-               (ctx.physiology.hrv != null ? ', HRV ' + ctx.physiology.hrv : '') + '.')
-            : 'No fresh wrist snapshot. Open Vitals to capture one.';
-        out.snapshot = `${greet}, looking at ${winLabel}: ${stats ? stats.n + ' completed sessions with feedback' : 'no completed sessions yet'}` +
-            (recentMode ? `, most recently a ${fmtMode(recentMode)} session.` : '.') +
-            ' ' + physShort;
-        out.snapshotOneLine = stats
-            ? (stats.n + ' notes · ' + (stats.helpedRate != null ? stats.helpedRate + '% helped' : 'no help rate yet'))
-            : 'Add a few sessions to start the picture.';
+        const winLabelSafe = ctx.windowLabel || windowLabelFromWin(ctx.window || '7');
+
+        const overviewFacts = [];
+        if (stats) {
+            overviewFacts.push({ label: 'Sessions (with feedback)', value: String(stats.n) });
+            overviewFacts.push({ label: 'Felt helped', value: stats.helpedRate + '%' });
+            if (stats.avgCalmAfter != null) overviewFacts.push({ label: 'Avg calm after', value: stats.avgCalmAfter + '/5' });
+        } else {
+            overviewFacts.push({ label: 'Sessions', value: '0' });
+        }
+
+        let headline = greet + ', here is your report for ' + winHuman + '.';
+        let overviewSummary = '';
+        if (stats && stats.bestMode && stats.bestMode.n >= 2 && stats.bestMode.rate >= 50) {
+            headline = greet + ', ' + fmtMode(stats.bestMode.mode) + ' mode is standing out in this view.';
+        }
+        if (stats) {
+            overviewSummary = 'You logged ' + stats.n + ' completed sessions with feedback ' +
+                (winLabelSafe === 'Full report' ? 'overall' : ('within ' + winLabelSafe.toLowerCase())) +
+                '. About ' + stats.helpedRate + '% felt helpful.';
+            if (recentMode) overviewSummary += ' Your latest run used ' + fmtMode(recentMode) + '.';
+            if (ctx.physiology && ctx.physiology.heartRate != null) {
+                overviewSummary += ' Latest wrist HR reads ' + ctx.physiology.heartRate + ' bpm.';
+            }
+        } else {
+            overviewSummary = 'Save feedback after sessions so this overview can summarize how things land.';
+        }
+
+        const sections = {
+            trends: emptySection(),
+            patterns: emptySection(),
+            physiology: emptySection(),
+            achievements: emptySection(),
+            recommendations: emptySection(),
+        };
 
         if (stats) {
-            const calmLine = stats.avgCalmAfter != null
-                ? ('Average calm after a session is ' + stats.avgCalmAfter + '/5' +
-                   (stats.lastCalm != null && stats.lastComparedToAvg
-                       ? '. Your latest is ' + stats.lastCalm + '/5, ' + (stats.lastComparedToAvg === 'above' ? 'above' : stats.lastComparedToAvg === 'below' ? 'below' : 'matching') + ' that.'
-                       : '.'))
-                : 'We need a few more calm scores to draw a curve.';
-            const continuity = stats.distinctFeedbackDays >= 2
-                ? (' You logged feedback on ' + stats.distinctFeedbackDays + ' different days' +
-                   (stats.consecutiveFeedbackDays >= 2 ? ', currently a ' + stats.consecutiveFeedbackDays + '-day streak.' : '.'))
-                : '';
-            out.trends = stats.helpedRate + '% of sessions felt helped (' + stats.helpedCount + ' of ' + stats.n + '). ' + calmLine + continuity;
-            out.trendsOneLine = (stats.helpedRate >= 60 ? 'Mostly steady relief.' :
-                                 stats.helpedRate >= 40 ? 'Some relief, room to refine.' :
-                                                          'Pattern is mixed — worth tweaking the recipe.');
-        } else {
-            out.trends = 'Once you finish two or three sessions and tap a feedback chip, this section turns into your own little chart.';
-            out.trendsOneLine = 'Trend not ready yet.';
-        }
-
-        if (stats && stats.modeCountsSorted && stats.modeCountsSorted.length) {
-            const tops = stats.modeCountsSorted.slice(0, 3)
-                .map(r => fmtMode(r.mode) + ' · ' + r.n + 'x' + (r.n ? ' (' + r.rate + '% helped)' : ''));
-            const sf = stats.soundFitSorted && stats.soundFitSorted.length
-                ? stats.soundFitSorted.slice(0, 3).map(([k, c]) => fmtFit(k) + ' ' + c + '/' + stats.n).join(' · ')
-                : 'no sound notes yet';
-            out.patterns = 'Most-used modes: ' + tops.join(' · ') + '. Sound notes: ' + sf + '.';
-            out.patternsOneLine = stats.bestMode && stats.bestMode.n >= 2
-                ? (fmtMode(stats.bestMode.mode) + ' has the highest hit rate so far.')
-                : 'Modes still in exploration.';
-        } else {
-            out.patterns = 'Try a couple of different modes (Calm, Focus, Sleep…) so we can see which one fits you.';
-            out.patternsOneLine = 'Patterns still forming.';
-        }
-
-        if (ctx.physiology && ctx.physiology.heartRate != null) {
-            const p = ctx.physiology;
-            const bits = ['Heart rate ' + p.heartRate + ' bpm'];
-            if (p.hrv != null) bits.push('HRV ' + p.hrv + ' ms');
-            if (p.respiratoryRate != null) bits.push(p.respiratoryRate + ' br/min');
-            if (p.bloodOxygen != null) bits.push('SpO₂ ' + p.bloodOxygen + '%');
-            if (p.pipeline) {
-                bits.push('target ~' + p.pipeline.targetBpm + ' bpm');
-                if (p.pipeline.stressState) bits.push(p.pipeline.stressState + ' stress');
+            sections.trends.summary = stats.helpedRate + '% of notes felt helpful (' + stats.helpedCount + '/' + stats.n + '). ' +
+                    (stats.avgCalmAfter != null
+                    ? ('Average calm after: ' + stats.avgCalmAfter + '/5.' +
+                       (stats.lastCalm != null && stats.lastComparedToAvg
+                           ? (' Latest calm ' + stats.lastCalm + '/5, ' +
+                               (stats.lastComparedToAvg === 'above' ? 'above' : stats.lastComparedToAvg === 'below' ? 'below' : 'matching') +
+                               ' your average.')
+                           : ''))
+                    : 'Add calm ratings on more sessions to see an average.');
+            if (fs && fs.avgCalmAfter != null && stats.avgCalmAfter != null && fs.avgCalmAfter !== stats.avgCalmAfter) {
+                sections.trends.summary += ' All-time avg calm is ' + fs.avgCalmAfter + '/5.';
             }
-            out.physiology = bits.join(' · ') + '.';
-            out.physiologyOneLine = p.pipeline && p.pipeline.recoveryPriority
-                ? ('Body asking for ' + p.pipeline.recoveryPriority + ' right now.')
-                : 'Body signals look readable.';
+            sections.trends.plainMeaning = '"Felt helped" is your own tap after a session. Calm is your 1 to 5 check-in. Together they show relief trends without diagnosing anything.';
+            sections.trends.tryNext = stats.helpedRate < 45 ? 'Try one softer template next session and note sound-fit chips honestly.'
+                : 'Keep doing what works; change only one knob at a time (mode or intensity).';
+
+            const tops = (stats.modeCountsSorted || []).slice(0, 3).map(r =>
+                fmtMode(r.mode) + ' used ' + r.n + '× (~' + r.rate + '% helped)');
+            const sf = (stats.soundFitSorted || []).slice(0, 3).map(([k, c]) => fmtFit(k) + ': ' + c + '/' + stats.n).join(' · ');
+            sections.patterns.summary = tops.length ? ('Top modes: ' + tops.join('; ') + '. ') : '';
+            sections.patterns.summary += sf ? ('Sound notes: ' + sf + '. ') : 'Keep tagging sound fit after sessions.';
+            if (ctx.moodThemes && ctx.moodThemes.length) {
+                sections.patterns.summary += ' Words leaned toward: ' +
+                    ctx.moodThemes.slice(0, 3).map(t => t.label + ' (' + t.count + ')').join(', ') + '.';
+            } else {
+                sections.patterns.summary += ' Optional: add a short mood note before sessions to spot repeating themes.';
+            }
+            sections.patterns.plainMeaning = 'Modes shape tempo and texture. Sound-fit chips tell us whether the mix matched your nervous system that day.';
+            sections.patterns.tryNext = stats.bestMode && stats.bestMode.n >= 2
+                ? ('Reuse ' + fmtMode(stats.bestMode.mode) + ' when the moment feels similar.')
+                : 'Rotate across two modes you trust and compare notes twice each.';
         } else {
-            out.physiology = 'No biometric snapshot attached. Open Vitals (or pick a Demo Case) to feed Layer 2 of the pipeline.';
-            out.physiologyOneLine = 'Wrist data is optional — the rest of this report still works without it.';
+            sections.trends.summary = 'Once two sessions include feedback, this section shows relief and calm averages.';
+            sections.trends.plainMeaning = 'Trends only reflect what you saved locally.';
+            sections.trends.tryNext = 'Finish another session and submit feedback.';
+            sections.patterns.summary = 'Patterns appear after you try modes and tap sound-fit chips a few times.';
+            sections.patterns.plainMeaning = 'Nothing here replaces clinical assessment.';
+            sections.patterns.tryNext = 'Pick one calm preset and log how it felt.';
         }
 
-        const next = (api().buildNextAdjustment && stats) ? api().buildNextAdjustment(stats)
-            : 'Keep saving feedback after each session — the recommendations get sharper as data grows.';
-        out.recommendations = next;
-        out.recommendationsOneLine = 'Tiny tweak beats a big leap.';
+        const phys = ctx.physiology;
+        if (phys && phys.heartRate != null) {
+            const bits = ['HR ' + phys.heartRate + ' bpm'];
+            if (phys.hrv != null) bits.push('HRV ' + phys.hrv + ' ms');
+            if (phys.respiratoryRate != null) bits.push('breathing ~' + phys.respiratoryRate + '/min');
+            sections.physiology.summary = bits.join(' · ') + '. ';
+            if (phys.pipeline) {
+                sections.physiology.summary += 'MindWave suggests tempo near ' + phys.pipeline.targetBpm + ' BPM';
+                if (phys.pipeline.stressState) sections.physiology.summary += ', stress read as ' + phys.pipeline.stressState;
+                sections.physiology.summary += '.';
+            }
+            sections.physiology.plainMeaning = 'HRV reflects recovery bandwidth (higher often feels steadier). Target BPM is a wellness tempo cue from your snapshot, not a prescription.';
+            sections.physiology.tryNext = phys.pipeline && phys.pipeline.recoveryPriority
+                ? ('Bias toward ' + phys.pipeline.recoveryPriority + ' modes until you feel steadier.')
+                : 'Refresh Vitals before sessions when you want biometric-guided tempo.';
+        } else {
+            sections.physiology.summary = 'No wrist snapshot is loaded. Physiology notes stay neutral until Vitals or a Demo Case provides HR.';
+            sections.physiology.plainMeaning = 'Biometrics guide music pacing here; they are optional for emotional check-ins alone.';
+            sections.physiology.tryNext = 'Open Vitals once per week if you want this section filled in.';
+        }
 
-        out.recommendationPills = [];
+        const met = (ctx.achievements || []).filter(function (a) { return a.met; });
+        sections.achievements.summary = met.length
+            ? ('Unlocked ' + met.length + ' milestones: ' + met.slice(0, 4).map(a => a.title).join('; ') + '.')
+            : 'Stick with tiny reflections — milestones unlock as notes accumulate.';
+        sections.achievements.plainMeaning = 'Achievements reward consistency, not perfection. They never diagnose.';
+        sections.achievements.tryNext = 'Pick one achievement you are closest to and chase it for one week.';
+
+        const nextAdj = (api().buildNextAdjustment && stats) ? api().buildNextAdjustment(stats)
+            : 'Keep submitting feedback so recommendations stay personal.';
+        sections.recommendations.summary = nextAdj;
+        sections.recommendations.plainMeaning = 'These are listening tweaks grounded in your chips and modes.';
+        sections.recommendations.tryNext = 'Change only one setting next session, then compare notes.';
+
+        const recommendationPills = [];
         if (stats && stats.bestMode && stats.bestMode.n >= 2 && stats.bestMode.rate >= 50) {
-            out.recommendationPills.push({
+            recommendationPills.push({
                 label: 'Reuse ' + fmtMode(stats.bestMode.mode),
                 action: { mode: stats.bestMode.mode },
             });
         }
         if (stats && stats.topSoundFit && stats.topSoundFit.key === 'too_fast') {
-            out.recommendationPills.push({ label: 'Lower intensity', action: { intensity: 2 } });
+            recommendationPills.push({ label: 'Lower intensity', action: { intensity: 2 } });
         }
         if (stats && stats.topSoundFit && stats.topSoundFit.key === 'too_busy') {
-            out.recommendationPills.push({ label: 'Try Calm 30 min', action: { mode: 'calm', durationMin: 30 } });
+            recommendationPills.push({ label: 'Try Calm · 30 min', action: { mode: 'calm', durationMin: 30 } });
         }
-        if (!out.recommendationPills.length) {
-            out.recommendationPills.push({ label: 'Start a Calm session', action: { mode: 'calm' } });
+        if (!recommendationPills.length) {
+            recommendationPills.push({ label: 'Start Calm session', action: { mode: 'calm' } });
         }
 
-        return out;
+        return {
+            overview: {
+                headline: headline,
+                summary: overviewSummary,
+                facts: overviewFacts,
+                dataQuality: ctx.dataQuality || dataQualityFromStats(stats),
+            },
+            sections: sections,
+            recommendationPills: recommendationPills,
+        };
+    }
+
+    function coerceSection(rawSec, tmplSec) {
+        const r = rawSec && typeof rawSec === 'object' ? rawSec : {};
+        const ts = tmplSec || emptySection();
+        return {
+            summary: String(r.summary || ts.summary || ''),
+            plainMeaning: String(r.plainMeaning || r.plain_meaning || ts.plainMeaning || ''),
+            tryNext: String(r.tryNext || r.try_next || ts.tryNext || ''),
+        };
+    }
+
+    function mergeNarrative(llmRaw, tmpl) {
+        const raw = llmRaw || {};
+        let ov = raw.overview;
+        if (ov && typeof ov === 'object') {
+            ov = {
+                headline: String(ov.headline || tmpl.overview.headline),
+                summary: String(ov.summary || tmpl.overview.summary),
+                facts: tmpl.overview.facts,
+                dataQuality: tmpl.overview.dataQuality,
+            };
+        } else {
+            ov = tmpl.overview;
+        }
+        const sections = {};
+        TOPICS.forEach(function (t) {
+            const rs = raw.sections && raw.sections[t.id];
+            sections[t.id] = coerceSection(rs, tmpl.sections[t.id]);
+        });
+        return {
+            overview: ov,
+            sections: sections,
+            recommendationPills: tmpl.recommendationPills,
+        };
     }
 
     /* ─── LLM narrator ─────────────────────────────────────────────── */
@@ -4960,25 +5230,38 @@
         abortCtl = new AbortController();
         const facts = {
             window: ctx.window,
+            windowLabel: ctx.windowLabel,
             counts: ctx.counts,
             stats: ctx.windowStats,
             fullStats: ctx.fullStats,
+            moodThemes: ctx.moodThemes,
+            achievements: ctx.achievements,
+            topicEvidence: ctx.topicEvidence,
             recent: ctx.recentSessions,
             physiology: ctx.physiology,
             identity: ctx.identity,
+            dataQuality: ctx.dataQuality,
         };
-        const sys = 'You are Soma, a gentle wellness music guide. Write a diagnostic-style report for the user about their music-therapy sessions. Strict rules: ' +
-            '(1) Use only numbers and facts present in the provided "facts" JSON; never invent values. ' +
-            '(2) Tone: warm, plain-spoken, second person ("you"), no jargon, no medical diagnoses. ' +
-            '(3) Each section must include both a paragraph and a one-line takeaway in plain English. ' +
-            '(4) Output JSON only, matching the requested schema exactly.';
-        const user = 'Generate the report sections from these facts. If a section lacks data, say so kindly and suggest what to do next.\n\n' +
-            'facts =\n' + JSON.stringify(facts).slice(0, 8000) + '\n\n' +
-            'Return JSON with keys: snapshot, snapshotOneLine, trends, trendsOneLine, patterns, patternsOneLine, physiology, physiologyOneLine, recommendations, recommendationsOneLine. Each value is a short string (<= 60 words for paragraphs, <= 18 words for one-liners).';
+        const schemaHint = JSON.stringify({
+            overview: { headline: 'string', summary: 'string' },
+            sections: {
+                trends: { summary: 'string', plainMeaning: 'string', tryNext: 'string' },
+                patterns: { summary: 'string', plainMeaning: 'string', tryNext: 'string' },
+                physiology: { summary: 'string', plainMeaning: 'string', tryNext: 'string' },
+                achievements: { summary: 'string', plainMeaning: 'string', tryNext: 'string' },
+                recommendations: { summary: 'string', plainMeaning: 'string', tryNext: 'string' },
+            },
+        });
+        const sys = 'You are Soma, a gentle wellness music companion. Write readable report prose for the user. Strict rules: ' +
+            '(1) Use ONLY facts present in facts.topicEvidence, facts.stats, facts.fullStats, facts.counts, facts.moodThemes, facts.achievements, facts.physiology, facts.recent. Never invent numbers. ' +
+            '(2) No medical diagnoses or treatment claims. Second person, plain English. ' +
+            '(3) Output JSON ONLY matching schema keys in user message. Paragraph fields <= 70 words each; tryNext <= 22 words.';
+        const user = 'facts =\n' + JSON.stringify(facts).slice(0, 9000) + '\n\nReturn JSON exactly shaped like:\n' + schemaHint + '\n' +
+            'If evidence is missing for physiology, say so and suggest opening Vitals.';
         const body = {
             model: 'gpt-4o-mini',
             response_format: { type: 'json_object' },
-            temperature: 0.4,
+            temperature: 0.35,
             messages: [
                 { role: 'system', content: sys },
                 { role: 'user', content: user },
@@ -4999,9 +5282,7 @@
         if (!text) throw new Error('LLM empty');
         const parsed = JSON.parse(text);
         const tmpl = narrateTemplate(ctx);
-        return Object.assign({}, tmpl, parsed, {
-            recommendationPills: tmpl.recommendationPills,
-        });
+        return mergeNarrative(parsed, tmpl);
     }
 
     /* ─── Cache + refresh ──────────────────────────────────────────── */
@@ -5088,6 +5369,34 @@
 
     /* ─── Render ────────────────────────────────────────────────────── */
 
+    function migrateLegacyNarrative(old, ctx) {
+        const tmpl = narrateTemplate(ctx);
+        if (old && old.overview && old.sections && typeof old.overview === 'object') return old;
+        if (!old || typeof old !== 'object') return tmpl;
+        const sections = {};
+        TOPICS.forEach(function (t) {
+            const summary = old[t.id];
+            const one = old[t.id + 'OneLine'];
+            const ts = tmpl.sections[t.id] || emptySection();
+            sections[t.id] = {
+                summary: typeof summary === 'string' ? summary : ts.summary,
+                plainMeaning: ts.plainMeaning,
+                tryNext: typeof one === 'string' ? one : ts.tryNext,
+            };
+        });
+        const snap = typeof old.snapshot === 'string' ? old.snapshot : tmpl.overview.summary;
+        return {
+            overview: {
+                headline: tmpl.overview.headline,
+                summary: snap,
+                facts: tmpl.overview.facts,
+                dataQuality: tmpl.overview.dataQuality,
+            },
+            sections: sections,
+            recommendationPills: Array.isArray(old.recommendationPills) ? old.recommendationPills : tmpl.recommendationPills,
+        };
+    }
+
     function modeBadgeText(mode) {
         if (mode === 'llm') return 'LLM';
         if (mode === 'llm-loading') return 'LLM · generating…';
@@ -5096,15 +5405,191 @@
         return 'Template (offline)';
     }
 
+    function sourceLineForReport(ctx) {
+        const ws = ctx.windowStats;
+        const wl = ctx.windowLabel || windowLabelFromWin(ctx.window || '7');
+        const parts = [wl];
+        if (ws) parts.push(ws.n + ' feedback sessions');
+        parts.push(ctx.identity.hasProfile ? 'profile saved' : 'profile optional');
+        parts.push(ctx.physiology && ctx.physiology.heartRate != null ? 'latest vitals snapshot' : 'vitals not loaded');
+        return 'Source: ' + parts.join(' · ');
+    }
+
+    function getExpandedDefaults() {
+        const m = {};
+        TOPICS.forEach(function (t) { m[t.id] = !!t.expandDefault; });
+        return m;
+    }
+
+    function getExpandedState() {
+        const saved = loadJson(LS_EXPANDED, null);
+        const defaults = getExpandedDefaults();
+        if (!saved || typeof saved !== 'object') return defaults;
+        TOPICS.forEach(function (t) {
+            if (Object.prototype.hasOwnProperty.call(saved, t.id)) defaults[t.id] = !!saved[t.id];
+        });
+        return defaults;
+    }
+
+    function saveExpandedState(topicId, open) {
+        const cur = loadJson(LS_EXPANDED, {});
+        cur[topicId] = !!open;
+        saveJson(LS_EXPANDED, cur);
+    }
+
+    function renderOverviewHTML(rep) {
+        const ov = rep.narrative.overview || {};
+        const ctx = rep.ctx;
+        const facts = ov.facts || [];
+        const factsHtml = facts.map(function (f) {
+            return '<span class="inline-flex flex-col gap-0.5 rounded-2xl border border-white/[0.07] bg-white/[0.03] px-3 py-2.5 min-w-[6.75rem] transition-colors duration-200 ease-out hover:border-white/[0.11] hover:bg-white/[0.045]">' +
+                '<span class="text-[0.6rem] uppercase tracking-wider text-white/35">' + escHtml(f.label) + '</span>' +
+                '<span class="text-sm tabular-nums text-white/[0.88] font-light">' + escHtml(f.value) + '</span>' +
+                '</span>';
+        }).join('');
+        let calmCmp = '';
+        const ws = ctx.windowStats;
+        const fs = ctx.fullStats;
+        if (ws && fs && ws.avgCalmAfter != null && fs.avgCalmAfter != null && ws.avgCalmAfter !== fs.avgCalmAfter) {
+            calmCmp = '<p class="text-xs text-white/42 font-light mt-3 leading-relaxed">Calm after sessions: ' +
+                '<span class="tabular-nums text-white/[0.78]">' + ws.avgCalmAfter + '/5</span> this window · ' +
+                '<span class="tabular-nums text-white/[0.78]">' + fs.avgCalmAfter + '/5</span> all-time.</p>';
+        }
+        return '' +
+            '<div class="rounded-3xl border border-white/[0.08] bg-white/[0.035] px-5 py-5 sm:px-7 sm:py-6">' +
+                '<span class="block text-[0.65rem] text-white/38 uppercase tracking-[0.2em] mb-2">Overview</span>' +
+                '<h3 class="text-lg md:text-xl text-white/[0.9] font-display italic tracking-wide leading-snug mb-3 max-w-[68ch]">' + escHtml(ov.headline || '') + '</h3>' +
+                '<p class="text-sm text-white/68 font-light leading-relaxed max-w-[68ch]">' + escHtml(ov.summary || '') + '</p>' +
+                '<div class="flex flex-wrap gap-3 mt-5">' + factsHtml + '</div>' +
+                calmCmp +
+                '<p class="text-[0.65rem] text-white/38 font-light mt-4 leading-relaxed">Signal strength: <span class="text-white/[0.62]">' +
+                    escHtml(ov.dataQuality || ctx.dataQuality || dataQualityFromStats(ctx.windowStats)) + '</span></p>' +
+            '</div>';
+    }
+
+    function renderAchievementsHTML(rep) {
+        const ach = rep.ctx.achievements || [];
+        const inner = ach.map(function (a) {
+            const cls = a.met
+                ? 'border-white/[0.12] bg-white/[0.05] text-white/[0.78] hover:bg-white/[0.07] hover:border-white/[0.16]'
+                : 'border-white/[0.07] bg-white/[0.025] text-white/42 hover:border-white/[0.1] hover:bg-white/[0.035]';
+            const hint = a.hint ? '<p class="text-[0.62rem] font-light mt-1.5 leading-snug opacity-70">' + escHtml(a.hint) + '</p>' : '';
+            return '<div class="rounded-2xl border px-3 py-3 min-w-[148px] max-w-[240px] flex-shrink-0 transition-colors duration-200 ease-out ' + cls + '">' +
+                '<p class="text-xs font-light tracking-tight leading-snug">' + escHtml(a.title) + '</p>' +
+                '<p class="text-[0.65rem] font-light leading-snug mt-1.5 opacity-88">' + escHtml(a.detail) + '</p>' +
+                hint +
+                '</div>';
+        }).join('');
+        return '' +
+            '<div class="rounded-3xl border border-white/[0.08] bg-white/[0.03] px-5 py-5 sm:px-6 sm:py-5">' +
+                '<span class="block text-[0.65rem] text-white/38 uppercase tracking-[0.2em] mb-3">Progress</span>' +
+                '<div class="flex flex-nowrap sm:flex-wrap gap-2.5 overflow-x-auto overscroll-x-contain pb-1 -mx-0.5 px-0.5">' + inner + '</div>' +
+            '</div>';
+    }
+
+    function renderTopicSectionHTML(rep, topic, expanded) {
+        const sec = (rep.narrative.sections && rep.narrative.sections[topic.id]) || emptySection();
+        const evKey = topic.id;
+        const evidence = (rep.ctx.topicEvidence && rep.ctx.topicEvidence[evKey]) || [];
+        const evHtml = evidence.length
+            ? '<ul class="mt-4 space-y-1.5 text-xs text-white/55 font-light list-disc pl-4 marker:text-white/25">' +
+              evidence.slice(0, 6).map(function (e) { return '<li>' + escHtml(e) + '</li>'; }).join('') +
+              '</ul>'
+            : '';
+        const summaryPeek = sec.summary ? escHtml(sec.summary.slice(0, 140) + (sec.summary.length > 140 ? '…' : '')) : escHtml(topic.blurb);
+        const peekHtml = '<span class="report-topic-peek block text-xs text-white/42 font-light mt-2 leading-relaxed line-clamp-2 ' + (expanded ? 'hidden' : '') + '">' + summaryPeek + '</span>';
+        let pillsHtml = '';
+        if (topic.id === 'recommendations' && Array.isArray(rep.narrative.recommendationPills)) {
+            pillsHtml = '<div class="mt-5 flex flex-wrap gap-2">' + rep.narrative.recommendationPills.map(function (p) {
+                const raw = JSON.stringify(p.action || {});
+                const enc = encodeURIComponent(raw);
+                return '<button type="button" class="soma-pill report-rec-pill touch-manipulation transition-colors duration-200 ease-out hover:bg-white/[0.12] hover:border-white/[0.18] active:opacity-90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/28" data-action="' + escHtml(enc) + '">' + escHtml(p.label) + '</button>';
+            }).join('') + '</div>';
+        }
+        const detailCls = expanded ? '' : 'hidden';
+        const chevCls = expanded ? 'rotate-180' : '';
+        return '' +
+            '<section id="report-topic-' + topic.id + '" class="report-topic-anchor rounded-3xl border border-white/[0.08] bg-white/[0.03] px-4 py-3.5 sm:px-6 sm:py-4 scroll-mt-36 transition-colors duration-200 ease-out hover:border-white/[0.11]">' +
+                '<button type="button" class="report-topic-toggle group w-full flex items-start gap-3 sm:gap-3.5 text-left touch-manipulation rounded-2xl -mx-1 px-1.5 py-1.5 motion-safe:transition-colors motion-safe:duration-200 motion-safe:ease-out hover:bg-white/[0.035] active:bg-white/[0.045] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/22 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" aria-expanded="' + (expanded ? 'true' : 'false') + '" data-topic="' + topic.id + '">' +
+                    '<span class="w-9 h-9 rounded-full border border-white/10 bg-white/[0.05] flex items-center justify-center flex-shrink-0 mt-0.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]" aria-hidden="true">' +
+                        '<iconify-icon icon="' + topic.icon + '" width="14" class="text-white/55 group-hover:text-white/65 motion-safe:transition-colors motion-safe:duration-200"></iconify-icon>' +
+                    '</span>' +
+                    '<span class="min-w-0 flex-1 pr-1">' +
+                        '<span class="block text-[0.65rem] text-white/38 uppercase tracking-[0.2em]">' + escHtml(topic.title) + '</span>' +
+                        '<span class="block text-[0.95rem] sm:text-base text-white/[0.88] font-light tracking-tight mt-1 leading-snug">' + escHtml(topic.blurb) + '</span>' +
+                        peekHtml +
+                    '</span>' +
+                    '<iconify-icon icon="lucide:chevron-down" width="17" class="text-white/38 flex-shrink-0 mt-1 motion-safe:transition-transform motion-safe:duration-200 motion-safe:ease-out report-topic-chevron group-hover:text-white/52 ' + chevCls + '"></iconify-icon>' +
+                '</button>' +
+                '<div class="report-topic-detail pt-4 mt-3 border-t border-white/[0.06] ' + detailCls + '">' +
+                    '<div class="max-w-[68ch]">' +
+                        '<p class="text-[0.62rem] text-white/35 font-light mb-3 leading-relaxed">' + escHtml(sourceLineForReport(rep.ctx)) + '</p>' +
+                        '<p class="text-sm text-white/72 font-light leading-relaxed">' + escHtml(sec.summary) + '</p>' +
+                        evHtml +
+                        '<p class="text-xs text-white/48 font-light mt-4 leading-relaxed"><span class="text-white/58 font-normal">What it means:</span> ' + escHtml(sec.plainMeaning) + '</p>' +
+                        '<p class="text-xs text-white/48 font-light mt-2 leading-relaxed"><span class="text-white/58 font-normal">Try next:</span> ' + escHtml(sec.tryNext) + '</p>' +
+                        pillsHtml +
+                    '</div>' +
+                '</div>' +
+            '</section>';
+    }
+
+    function wireReportTopicInteractions() {
+        const sectionsRoot = document.getElementById('report-sections');
+        if (!sectionsRoot) return;
+        sectionsRoot.querySelectorAll('.report-topic-toggle').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const id = btn.getAttribute('data-topic');
+                const wrap = btn.closest('section');
+                if (!wrap || !id) return;
+                const det = wrap.querySelector('.report-topic-detail');
+                const chev = btn.querySelector('.report-topic-chevron');
+                const peek = wrap.querySelector('.report-topic-peek');
+                const wasHidden = det && det.classList.contains('hidden');
+                const open = !!wasHidden;
+                if (det) det.classList.toggle('hidden', !open);
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                if (peek) peek.classList.toggle('hidden', !!open);
+                if (chev) chev.classList.toggle('rotate-180', open);
+                saveExpandedState(id, open);
+            });
+        });
+    }
+
+    function wireReportTopicNav() {
+        const nav = document.getElementById('report-topic-nav');
+        if (!nav) return;
+        nav.querySelectorAll('.report-topic-jump').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                const id = btn.getAttribute('data-report-jump');
+                const el = id && document.getElementById('report-topic-' + id);
+                if (!el) return;
+                let behavior = 'smooth';
+                try {
+                    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) behavior = 'auto';
+                } catch (_) {}
+                el.scrollIntoView({ behavior: behavior, block: 'start' });
+            });
+        });
+    }
+
     function renderReport(rep) {
         const sectionsEl = document.getElementById('report-sections');
+        const overviewEl = document.getElementById('report-overview');
+        const achEl = document.getElementById('report-achievements');
+        const navEl = document.getElementById('report-topic-nav');
+        const navHostEl = document.getElementById('report-topic-nav-host');
+        const bodyEl = document.getElementById('report-body');
         const emptyEl = document.getElementById('report-empty');
         const disclEl = document.getElementById('report-disclaimer');
         const metaEl = document.getElementById('report-meta');
         const modePill = document.getElementById('report-mode-pill');
         const regenIcon = document.getElementById('report-regen-icon');
         const regenBtn = document.getElementById('report-regen');
-        if (!sectionsEl) return;
+        const summaryLine = document.getElementById('report-summary-line');
+        if (!sectionsEl || !overviewEl || !bodyEl) return;
+
+        if (summaryLine) summaryLine.textContent = 'One full report: switch Weekly / Monthly / Full, then jump into each topic.';
 
         if (modePill) modePill.textContent = modeBadgeText(rep.mode);
         if (metaEl) {
@@ -5117,57 +5602,51 @@
         }
         if (regenBtn) regenBtn.setAttribute('aria-busy', rep.mode === 'llm-loading' ? 'true' : 'false');
 
-        document.querySelectorAll('.report-window-pill').forEach(b => {
+        document.querySelectorAll('.report-window-pill').forEach(function (b) {
             const w = b.getAttribute('data-window');
             b.classList.toggle('soma-pill-active', w === (rep.window || getWindow()));
         });
 
         if (rep.mode === 'empty' || !rep.narrative) {
             sectionsEl.innerHTML = '';
+            overviewEl.innerHTML = '';
+            if (achEl) achEl.innerHTML = '';
+            if (navEl) navEl.innerHTML = '';
+            if (navHostEl) navHostEl.classList.add('hidden');
+            bodyEl.classList.add('hidden');
             if (emptyEl) emptyEl.classList.remove('hidden');
             if (disclEl) disclEl.classList.add('hidden');
             if (regenBtn) regenBtn.disabled = true;
             return;
         }
 
+        bodyEl.classList.remove('hidden');
+        if (navHostEl) navHostEl.classList.remove('hidden');
         if (emptyEl) emptyEl.classList.add('hidden');
         if (disclEl) disclEl.classList.remove('hidden');
         if (regenBtn) regenBtn.disabled = false;
 
-        const n = rep.narrative;
-        const html = SECTIONS.map(sec => {
-            const para = n[sec.id] || sec.blurb;
-            const oneLine = n[sec.id + 'OneLine'] || '';
-            let footer = '';
-            if (sec.id === 'recommendations' && Array.isArray(n.recommendationPills) && n.recommendationPills.length) {
-                const pills = n.recommendationPills.map((p, i) => {
-                    const action = JSON.stringify(p.action || {});
-                    return '<button type="button" class="soma-pill report-rec-pill" data-action=\'' + escHtml(action) + '\'>' +
-                        escHtml(p.label) + '</button>';
-                }).join(' ');
-                footer = '<div class="mt-4 flex flex-wrap gap-2">' + pills + '</div>';
+        if (rep.narrative && rep.ctx) {
+            if (!rep.narrative.overview || !rep.narrative.sections || typeof rep.narrative.sections !== 'object') {
+                rep.narrative = migrateLegacyNarrative(rep.narrative, rep.ctx);
             }
-            const summary = oneLine
-                ? '<p class="mt-4 pt-3 border-t border-white/[0.05] text-sm text-white/55 font-light italic">' + escHtml(oneLine) + '</p>'
-                : '';
-            return '' +
-                '<section class="rounded-3xl border border-white/[0.08] bg-white/[0.03] px-5 py-5 sm:px-7 sm:py-6" role="region" aria-labelledby="report-h-' + sec.id + '">' +
-                    '<div class="flex items-center gap-3 mb-3">' +
-                        '<span class="w-8 h-8 rounded-full border border-white/10 bg-white/[0.05] flex items-center justify-center" aria-hidden="true">' +
-                            '<iconify-icon icon="' + sec.icon + '" width="14" class="text-white/55"></iconify-icon>' +
-                        '</span>' +
-                        '<div class="min-w-0">' +
-                            '<span class="block text-[0.65rem] text-white/38 uppercase tracking-[0.2em]">' + escHtml(sec.title) + '</span>' +
-                            '<h3 id="report-h-' + sec.id + '" class="text-base text-white/[0.88] font-light tracking-tight mt-0.5">' + escHtml(sec.blurb) + '</h3>' +
-                        '</div>' +
-                    '</div>' +
-                    '<p class="text-sm text-white/72 font-light leading-relaxed">' + escHtml(para) + '</p>' +
-                    footer +
-                    summary +
-                '</section>';
+        }
+
+        overviewEl.innerHTML = renderOverviewHTML(rep);
+        if (achEl) achEl.innerHTML = renderAchievementsHTML(rep);
+        if (navEl) {
+            navEl.innerHTML = TOPICS.map(function (t) {
+                return '<button type="button" class="soma-pill report-topic-jump shrink-0 text-[0.65rem] touch-manipulation transition-colors duration-200 ease-out hover:bg-white/[0.08] hover:border-white/[0.15] active:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent" data-report-jump="' + t.id + '">' + escHtml(t.navLabel) + '</button>';
+            }).join('');
+        }
+
+        const exp = getExpandedState();
+        sectionsEl.innerHTML = TOPICS.map(function (t) {
+            return renderTopicSectionHTML(rep, t, !!exp[t.id]);
         }).join('');
 
-        sectionsEl.innerHTML = html;
+        wireReportTopicInteractions();
+        wireReportTopicNav();
     }
 
     /* ─── Fresh dot ─────────────────────────────────────────────────── */
@@ -5222,7 +5701,10 @@
             const t = e.target && e.target.closest && e.target.closest('.report-rec-pill');
             if (!t) return;
             let action = {};
-            try { action = JSON.parse(t.getAttribute('data-action') || '{}'); } catch (_) {}
+            try {
+                const enc = t.getAttribute('data-action') || '';
+                action = JSON.parse(decodeURIComponent(enc));
+            } catch (_) {}
             applyRecommendationAction(action);
         });
 
