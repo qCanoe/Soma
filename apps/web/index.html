@@ -921,8 +921,8 @@
             flex-shrink: 0;
         }
 
-        /* Vitals modal scrollbar */
-        #vitals-scroll::-webkit-scrollbar { width: 0; }
+        /* Vitals workspace scroll (single outer scroller) */
+        #vitals-view::-webkit-scrollbar { width: 0; }
 
         /* Source chip */
         .v-source {
@@ -1160,6 +1160,24 @@
             #history-insight-view { animation: none !important; }
         }
         #history-list-scroll::-webkit-scrollbar { width: 0; }
+
+        /* History workspace: toolbar scrolls horizontally on phones; rhythmic padding matches card edge */
+        #history-filter-bar {
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            gap: 0.5rem;
+        }
+        #history-filter-bar::-webkit-scrollbar {
+            display: none;
+        }
+        .hist-filter:focus-visible {
+            outline: 2px solid rgba(180, 198, 218, 0.45);
+            outline-offset: 2px;
+        }
+        #history-insight-entry:focus-visible {
+            outline: 2px solid rgba(180, 198, 218, 0.35);
+            outline-offset: 2px;
+        }
 
         /* Demo (no side-stripe accent: use inset ring + tint) */
         .soma-demo-hint {
@@ -1637,50 +1655,58 @@
                 <div id="history-view" class="soma-view hidden flex flex-col flex-1 min-h-0 overflow-hidden" role="region" aria-labelledby="history-view-title" hidden>
                     <h2 id="history-view-title" class="sr-only">History</h2>
                     <div id="history-modal" class="soma-inline-panel-host flex flex-1 flex-col min-h-0 w-full max-w-3xl mx-auto">
-    <div id="history-card" class="relative glass-panel rounded-[2.5rem] w-full flex flex-col shadow-[0_40px_80px_rgba(0,0,0,0.65)] flex-1 min-h-0" style="min-height:min(88vh,640px);border:1px solid rgba(255,255,255,0.1);">
-        <div class="px-8 pt-8 pb-4 flex items-start justify-between gap-4 flex-shrink-0">
-            <div class="min-w-0 flex-1">
-                <span class="soma-section-label block mb-2">Your sessions</span>
-                <h2 class="font-display text-2xl text-white/90 italic tracking-wide">History</h2>
-                <p id="history-summary-line" class="text-sm text-white/32 font-light mt-2">—</p>
-                <button type="button" id="history-insight-entry" class="hidden mt-3 w-full p-3 rounded-2xl border border-white/[0.08] bg-white/[0.03] text-left">
-                    <span class="flex items-center justify-between gap-3">
-                        <span class="min-w-0">
-                            <span class="block text-xs text-white/40 uppercase tracking-[0.22em]">History insight</span>
-                            <span id="history-insight-entry-summary" class="block text-sm text-white/58 font-light mt-1 truncate">Open trend panel</span>
-                        </span>
-                        <span class="text-xs text-white/32 uppercase tracking-[0.14em] flex-shrink-0">Open →</span>
-                    </span>
-                </button>
-            </div>
-            <button type="button" id="history-close" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0" title="Back to Session" aria-label="Back to Session">
-                <iconify-icon icon="lucide:x" width="15"></iconify-icon>
-            </button>
-        </div>
-        <div id="history-list-view" class="flex flex-col flex-1 min-h-0">
-            <div class="px-8 pb-3 flex flex-wrap gap-2 flex-shrink-0">
-                <button type="button" class="soma-pill soma-pill-active hist-filter" data-filter="all">All</button>
-                <button type="button" class="soma-pill hist-filter" data-filter="calm">Calm</button>
-                <button type="button" class="soma-pill hist-filter" data-filter="focus">Focus</button>
-                <button type="button" class="soma-pill hist-filter" data-filter="sleep">Sleep</button>
-                <button type="button" class="soma-pill hist-filter" data-filter="helped">Helped</button>
-            </div>
-            <div id="history-list-scroll" class="flex-1 overflow-y-auto px-8 pb-8 min-h-0">
-                <div id="history-list" class="flex flex-col gap-2"></div>
-                <p id="history-empty" class="text-center text-sm text-white/25 py-12 font-light">No completed sessions yet. Finish a session and save feedback.</p>
-            </div>
-        </div>
-        <div id="history-insight-view" class="hidden flex-col flex-1 min-h-0 px-8 pb-8">
-            <button type="button" id="history-insight-back" class="soma-action-ghost self-start mb-4">← Back to history</button>
-            <div id="history-insights" class="flex-1 p-4 rounded-3xl border border-white/[0.08] bg-white/[0.03] text-left space-y-1.5 overflow-y-auto min-h-0"></div>
-        </div>
-    </div>
+                        <div id="history-card" class="relative glass-panel rounded-[2.5rem] w-full flex flex-col shadow-[0_40px_80px_rgba(0,0,0,0.65)] flex-1 min-h-0" style="min-height:min(88vh,640px);border:1px solid rgba(255,255,255,0.1);">
+                            <div class="history-card-header px-5 sm:px-8 pt-7 sm:pt-8 pb-5 flex-shrink-0 border-b border-white/[0.06]">
+                                <div class="flex items-start justify-between gap-4">
+                                    <div class="min-w-0 flex-1">
+                                        <span class="soma-section-label block mb-1.5">Your sessions</span>
+                                        <h2 class="font-display text-2xl md:text-[1.75rem] leading-tight text-white/90 italic tracking-wide">History</h2>
+                                        <p id="history-summary-line" class="text-sm text-white/35 font-light mt-2.5 leading-relaxed">—</p>
+                                        <button type="button" id="history-insight-entry" class="hidden mt-4 w-full p-4 rounded-2xl border border-white/[0.09] bg-white/[0.04] text-left touch-manipulation transition-colors duration-300 hover:bg-white/[0.06] hover:border-white/[0.12]">
+                                            <span class="flex items-center gap-4">
+                                                <span class="flex-shrink-0 w-9 h-9 rounded-full border border-white/10 bg-white/[0.05] flex items-center justify-center" aria-hidden="true">
+                                                    <iconify-icon icon="lucide:trending-up" width="18" class="text-white/45"></iconify-icon>
+                                                </span>
+                                                <span class="min-w-0 flex-1 flex flex-col gap-0.5">
+                                                    <span class="text-[0.65rem] text-white/38 uppercase tracking-[0.2em]">Insights</span>
+                                                    <span id="history-insight-entry-summary" class="text-sm text-white/62 font-light leading-snug truncate">Open trend panel</span>
+                                                </span>
+                                                <span class="text-white/35 flex-shrink-0" aria-hidden="true"><iconify-icon icon="lucide:chevron-right" width="18"></iconify-icon></span>
+                                            </span>
+                                        </button>
+                                    </div>
+                                    <button type="button" id="history-close" class="touch-manipulation w-11 h-11 min-w-[2.75rem] min-h-[2.75rem] shrink-0 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-colors duration-300" title="Back to Session" aria-label="Back to Session">
+                                        <iconify-icon icon="lucide:x" width="17"></iconify-icon>
+                                    </button>
+                                </div>
+                            </div>
+                            <div id="history-list-view" class="flex flex-col flex-1 min-h-0 min-w-0">
+                                <div id="history-filter-bar" class="px-5 sm:px-8 pt-4 pb-1 flex flex-nowrap gap-2 flex-shrink-0 overflow-x-auto overscroll-x-contain">
+                                    <button type="button" class="soma-pill soma-pill-active hist-filter shrink-0" data-filter="all">All</button>
+                                    <button type="button" class="soma-pill hist-filter shrink-0" data-filter="calm">Calm</button>
+                                    <button type="button" class="soma-pill hist-filter shrink-0" data-filter="focus">Focus</button>
+                                    <button type="button" class="soma-pill hist-filter shrink-0" data-filter="sleep">Sleep</button>
+                                    <button type="button" class="soma-pill hist-filter shrink-0" data-filter="helped">Helped</button>
+                                </div>
+                                <div id="history-list-scroll" class="flex-1 overflow-y-auto overscroll-y-contain px-5 sm:px-8 pb-8 pt-3 min-h-0 min-w-0">
+                                    <div id="history-list" class="flex flex-col gap-3"></div>
+                                    <p id="history-empty" class="text-center text-sm text-white/30 font-light px-4 py-16 max-w-sm mx-auto leading-relaxed">No completed sessions yet. Finish a session and save feedback.</p>
+                                </div>
+                            </div>
+                            <div id="history-insight-view" class="hidden flex-col flex-1 min-h-0 min-w-0 px-5 sm:px-8 pb-8 pt-4">
+                                <button type="button" id="history-insight-back" class="soma-action-ghost self-start mb-5 inline-flex items-center gap-2">
+                                    <iconify-icon icon="lucide:arrow-left" width="14" class="opacity-70"></iconify-icon>
+                                    <span>Back to history</span>
+                                </button>
+                                <div id="history-insights" class="flex-1 min-h-0 py-5 px-5 sm:px-6 sm:py-6 rounded-3xl border border-white/[0.08] bg-white/[0.03] text-left overflow-y-auto overscroll-y-contain"></div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div id="vitals-view" class="soma-view hidden flex flex-col flex-1 min-h-0 overflow-hidden" role="region" aria-labelledby="vitals-view-title" hidden>
+                <div id="vitals-view" class="soma-view hidden flex flex-col flex-1 min-h-0 overflow-y-auto overscroll-y-contain px-4 sm:px-6 py-6 md:py-7" role="region" aria-labelledby="vitals-view-title" hidden>
                     <h2 id="vitals-view-title" class="sr-only">Vitals</h2>
-                    <div id="vitals-modal" class="soma-inline-panel-host flex flex-1 min-h-0 flex-col w-full max-w-4xl mx-auto">
-                        <div id="vitals-card" class="relative glass-panel rounded-[2.5rem] w-full flex flex-col flex-1 min-h-0 shadow-[0_40px_80px_rgba(0,0,0,0.65)]" style="min-height:min(88vh,680px);border:1px solid rgba(255,255,255,0.1);">
+                    <div id="vitals-modal" class="soma-inline-panel-host flex flex-col w-full max-w-4xl mx-auto">
+                        <div id="vitals-card" class="relative glass-panel rounded-[2.5rem] w-full flex flex-col shadow-[0_40px_80px_rgba(0,0,0,0.65)]" style="border:1px solid rgba(255,255,255,0.1);">
 
                                 <!-- Header -->
                                 <div class="px-9 pt-9 pb-6 flex-shrink-0">
@@ -4111,25 +4137,32 @@
         if (empty) empty.style.display = rows.length ? 'none' : 'block';
         rows.forEach(row => {
             const wrap = document.createElement('div');
-            wrap.className = 'soma-panel-soft px-4 py-3 flex flex-col gap-2';
+            wrap.className = 'soma-panel-soft px-4 py-3.5 sm:px-5 sm:py-4 flex flex-col gap-2.5';
             const title = row.track?.title || row.recommendation?.title || row.id;
             const dt = row.feedback?.submittedAt ? new Date(row.feedback.submittedAt).toLocaleString() : '';
             const calm = row.feedback?.calmAfter != null ? `Calm ${row.feedback.calmAfter}/5` : '';
+            const help = row.feedback?.helpfulness || '';
+            const calmHelp = [calm, help].filter(Boolean).join(' · ');
             const modeLbl = row.input?.mode || '—';
             const srcLbl = formatTrackSource(row.track?.source);
             const fitLbl = row.feedback?.soundFit || '—';
-            const badgeRow = '<div class="flex flex-wrap gap-1.5">' +
-                '<span class="soma-pill text-xs py-0.5 px-2 tracking-wide">' + escapeHtml(modeLbl) + '</span>' +
-                '<span class="soma-pill text-xs py-0.5 px-2 tracking-wide opacity-85">' + escapeHtml(srcLbl) + '</span>' +
-                '<span class="soma-pill text-xs py-0.5 px-2 tracking-wide opacity-85">' + escapeHtml(fitLbl) + '</span>' +
+            const badgeRow = '<div class="flex flex-wrap gap-1.5 items-center">' +
+                '<span class="soma-pill text-[0.65rem] py-1 px-2.5 tracking-wide">' + escapeHtml(modeLbl) + '</span>' +
+                '<span class="soma-pill text-[0.65rem] py-1 px-2.5 tracking-wide opacity-85">' + escapeHtml(srcLbl) + '</span>' +
+                '<span class="soma-pill text-[0.65rem] py-1 px-2.5 tracking-wide opacity-85">' + escapeHtml(fitLbl) + '</span>' +
                 '</div>';
-            wrap.innerHTML = '<div class="flex justify-between gap-2"><span class="text-xs text-white/75 font-light truncate">' + escapeHtml(title) + '</span><span class="text-xs text-white/28 flex-shrink-0">' + escapeHtml(dt) + '</span></div>' +
+            const metaLine = calmHelp
+                ? '<div class="text-xs text-white/38 leading-snug">' + escapeHtml(calmHelp) + '</div>'
+                : '';
+            wrap.innerHTML = '<div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-4">' +
+                '<span class="text-sm text-white/[0.82] font-light leading-snug min-w-0">' + escapeHtml(title) + '</span>' +
+                '<span class="text-[0.7rem] text-white/30 font-light flex-shrink-0 sm:text-right sm:max-w-[9rem]" title="' + escapeHtml(dt) + '">' + escapeHtml(dt) + '</span></div>' +
                 badgeRow +
-                '<div class="text-xs text-white/35">' + escapeHtml(calm) + ' · ' + escapeHtml(row.feedback?.helpfulness || '') + '</div>' +
-                '<div class="flex flex-wrap gap-2 mt-1">' +
+                metaLine +
+                '<div class="flex flex-wrap gap-x-3 gap-y-2 pt-1 border-t border-white/[0.05]">' +
                 '<button type="button" class="hist-replay soma-action-ghost" data-id="' + row.id + '">Replay</button>' +
                 '<button type="button" class="hist-template soma-action-ghost" data-id="' + row.id + '">Use as template</button>' +
-                '<button type="button" class="hist-del soma-action-ghost" data-id="' + row.id + '" style="color:rgba(248,113,113,0.55)">Delete</button></div>';
+                '<button type="button" class="hist-del soma-action-ghost ml-auto max-sm:w-full max-sm:text-left" data-id="' + row.id + '" style="color:rgba(248,113,113,0.55)">Delete</button></div>';
             list.appendChild(wrap);
         });
         list.querySelectorAll('.hist-replay').forEach(btn => btn.addEventListener('click', () => replayHistory(btn.dataset.id)));
