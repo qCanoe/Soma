@@ -32,6 +32,13 @@
             --glass-bg: rgba(15, 15, 18, 0.4);
             --glass-border: rgba(255, 255, 255, 0.08);
             --glow-accent: rgba(180, 198, 218, 0.4);
+            /* dims bright Aura/Unicorn blobs behind typography (Shader cannot expose “light position” to CSS). */
+            --soma-readability-scrim: radial-gradient(
+                ellipse 92% 58% at 50% 18%,
+                rgba(3, 3, 5, 0.38) 0%,
+                rgba(3, 3, 5, 0.14) 42%,
+                transparent 74%
+            );
         }
         
         body {
@@ -93,10 +100,28 @@
             position: relative;
             z-index: 10;
             min-height: 0;
+            isolation: isolate;
+        }
+        .soma-workspace::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+            background: var(--soma-readability-scrim);
         }
         /* Each workspace view fills the column and scrolls internally */
         #soma-workspace > .soma-view {
             min-height: 0;
+            position: relative;
+            z-index: 1;
+        }
+        /* Fallback legibility when the animated background peaks behind copy */
+        .soma-text-on-aura {
+            text-shadow:
+                0 0 1rem rgba(3, 3, 5, 0.7),
+                0 0 1.75rem rgba(3, 3, 5, 0.45),
+                0 1px 2px rgba(3, 3, 5, 0.9);
         }
         aside.soma-sidebar iconify-icon,
         .soma-mobile-brand iconify-icon,
@@ -1349,7 +1374,7 @@
 
         <!-- Intent Input Area -->
         <div class="w-full max-w-3xl mb-10 lg:mb-12 flex flex-col gap-6">
-            <h1 class="font-display text-4xl md:text-[2.65rem] text-center mb-4 font-medium text-white/90 tracking-wide animate-stagger-1 leading-tight">
+            <h1 class="soma-text-on-aura font-display text-4xl md:text-[2.65rem] text-center mb-4 font-medium text-white/90 tracking-wide animate-stagger-1 leading-tight">
                 How are you feeling <i class="text-white/50">today?</i>
             </h1>
             
@@ -1451,15 +1476,13 @@
                         </div><!-- /#session-checkin-scroll -->
                         </div><!-- /#session-checkin-screen -->
 
-                        <div id="session-playback-screen" class="hidden flex flex-col flex-1 min-h-0 min-w-0 items-stretch" role="region" aria-labelledby="session-playback-heading" aria-hidden="true" hidden>
+                        <div id="session-playback-screen" class="hidden relative flex flex-col flex-1 min-h-0 min-w-0 items-stretch" role="region" aria-labelledby="session-playback-heading" aria-hidden="true" hidden>
                             <h3 id="session-playback-heading" class="sr-only">Session playback</h3>
-                            <div class="w-full max-w-lg mx-auto shrink-0 flex justify-start pb-4 pt-0.5 px-1">
-                                <button type="button" id="session-playback-back" class="touch-manipulation inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm font-light text-white/55 hover:bg-white/[0.08] hover:text-white/90 hover:border-white/15 transition-colors">
-                                    <iconify-icon icon="lucide:arrow-left" width="16" class="opacity-75"></iconify-icon>
-                                    <span>Back to edit</span>
-                                </button>
-                            </div>
-                            <div class="flex flex-1 min-h-0 flex-col justify-start sm:justify-center items-center overflow-y-auto overscroll-y-contain min-w-0 w-full px-1 pb-4 gap-8">
+                            <button type="button" id="session-playback-back" class="absolute left-0 top-0 z-20 touch-manipulation inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-sm font-light text-white/55 hover:bg-white/[0.08] hover:text-white/90 hover:border-white/15 transition-colors">
+                                <iconify-icon icon="lucide:arrow-left" width="16" class="opacity-75"></iconify-icon>
+                                <span>Back to edit</span>
+                            </button>
+                            <div class="flex flex-1 min-h-0 flex-col justify-start sm:justify-center items-center overflow-y-auto overscroll-y-contain min-w-0 w-full px-1 pb-4 gap-8 pt-14">
         <!-- Player Card -->
         <div class="w-full max-w-lg relative group animate-stagger-4 mx-auto shrink-0">
             <div class="relative glass-panel rounded-[2.5rem] p-10 flex flex-col items-center">
@@ -1467,7 +1490,7 @@
                 <div class="w-full flex justify-between items-start mb-8">
                     <div class="flex flex-col">
                         <span class="text-xs text-white/40 uppercase tracking-[0.3em] font-medium mb-2">Now Resonating</span>
-                        <h2 id="player-title" class="text-3xl text-white flex items-center gap-3 font-display italic tracking-wide">
+                        <h2 id="player-title" class="soma-text-on-aura text-3xl text-white flex items-center gap-3 font-display italic tracking-wide">
                             Deep Focus
                         </h2>
                         <!-- Suno generated track badge -->
@@ -1584,7 +1607,7 @@
                                 <div class="flex items-start justify-between gap-4">
                                     <div class="min-w-0 flex-1">
                                         <span class="soma-section-label block mb-1.5">Your sessions</span>
-                                        <h2 class="font-display text-2xl md:text-[1.75rem] leading-tight text-white/90 italic tracking-wide">History</h2>
+                                        <h2 class="soma-text-on-aura font-display text-2xl md:text-[1.75rem] leading-tight text-white/90 italic tracking-wide">History</h2>
                                         <p id="history-summary-line" class="text-sm text-white/35 font-light mt-2.5 leading-relaxed">—</p>
                                     </div>
                                     <button type="button" id="history-close" class="touch-manipulation w-11 h-11 min-w-[2.75rem] min-h-[2.75rem] shrink-0 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-colors duration-300" title="Back to Session" aria-label="Back to Session">
@@ -1640,7 +1663,7 @@
                                                 <div class="v-live-dot"></div>
                                                 <span class="text-xs text-white/30 uppercase tracking-[0.28em] font-medium">Biometric Monitor</span>
                                             </div>
-                                            <h2 id="vitals-title" class="font-display text-3xl text-white/90 italic tracking-wide leading-tight">No Data</h2>
+                                            <h2 id="vitals-title" class="soma-text-on-aura font-display text-3xl text-white/90 italic tracking-wide leading-tight">No Data</h2>
                                             <div class="flex items-center gap-3 mt-0.5">
                                                 <span class="v-source">
                                                     <iconify-icon icon="lucide:watch" width="10"></iconify-icon>
@@ -1855,7 +1878,7 @@
                                     <div class="flex items-start justify-between mb-5">
                                         <div>
                                             <span class="p-label" style="margin-bottom:.45rem">Therapy Profile</span>
-                                            <h2 id="p-step-title" class="font-display text-[2.25rem] text-white/90 italic tracking-wide leading-tight">Basic Information</h2>
+                                            <h2 id="p-step-title" class="soma-text-on-aura font-display text-[2.25rem] text-white/90 italic tracking-wide leading-tight">Basic Information</h2>
                                         </div>
                                         <button id="profile-close" class="mt-1 w-9 h-9 rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/45 hover:text-white hover:bg-white/10 transition-all duration-300 flex-shrink-0">
                                             <iconify-icon icon="lucide:x" width="15"></iconify-icon>
