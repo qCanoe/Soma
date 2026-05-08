@@ -2397,6 +2397,10 @@
             }
         } catch (_) {
             showSomaView('session', { skipExtras: true });
+            try {
+                var su3 = localStorage.getItem(LS_SESSION_UI);
+                if (su3 === 'playback' || su3 === 'checkin') showSessionStep(su3);
+            } catch (e3) {}
         }
     });
 })();
