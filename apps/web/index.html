@@ -1665,9 +1665,6 @@
             .soma-view {
                 scroll-padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
             }
-            #session-checkin-scroll {
-                scroll-padding-bottom: calc(5.25rem + env(safe-area-inset-bottom, 0px));
-            }
         }
         @media (max-width: 26rem) {
             .intent-chip-matrix {
@@ -1785,7 +1782,7 @@
                     <!-- Session: check-in vs playback screens (exactly one visible). -->
                     <div class="session-station w-full max-w-3xl mx-auto flex flex-col flex-1 min-h-0 min-w-0">
                         <div id="session-checkin-screen" class="flex flex-col flex-1 min-h-0 min-w-0" role="region" aria-label="Session check-in">
-                            <div id="session-checkin-scroll" class="flex-1 min-h-0 overflow-y-auto overscroll-y-contain min-w-0 pb-2">
+                            <div id="session-checkin-scroll" class="flex-1 min-h-0 min-w-0 overflow-hidden pb-2">
                         <div class="session-station__inputs flex flex-col w-full min-w-0">
         <!-- Demo Cases Bar -->
         <div id="demo-cases-bar" class="w-full max-w-2xl mb-8 flex flex-col gap-2">
@@ -1933,6 +1930,10 @@
                                 <iconify-icon icon="lucide:arrow-left" width="16" class="opacity-75"></iconify-icon>
                                 <span>Back to edit</span>
                             </button>
+                            <button type="button" id="end-session-btn" class="fixed z-30 touch-manipulation hidden inline-flex items-center gap-2 rounded-xl border border-white/10 bg-black/40 backdrop-blur-md px-3.5 py-2 text-sm font-light text-white/55 hover:bg-white/[0.08] hover:text-white/90 hover:border-white/15 transition-colors shadow-[0_8px_32px_rgba(0,0,0,0.35)] right-[calc(1rem+env(safe-area-inset-right,0px))] top-[calc(1.25rem+env(safe-area-inset-top,0px))] md:right-[calc(1.5rem+env(safe-area-inset-right,0px))] md:top-[calc(1.5rem+env(safe-area-inset-top,0px))]" aria-label="End session">
+                                <iconify-icon icon="lucide:flag" width="16" class="opacity-75"></iconify-icon>
+                                <span>End Session</span>
+                            </button>
                             <div class="flex flex-1 min-h-0 flex-col justify-center items-center overflow-hidden overscroll-none min-w-0 w-full px-1 pb-4 gap-5 pt-4 sm:pt-6">
         <!-- Player Card -->
         <div class="w-full max-w-md relative group animate-stagger-4 mx-auto shrink-0">
@@ -1951,7 +1952,6 @@
                         </div>
                         <div id="session-strip" class="mt-3 w-full max-w-[280px] soma-panel-soft px-3 py-2.5 flex flex-wrap items-center gap-2 opacity-90">
                             <span id="session-status-label" class="text-xs text-white/35 uppercase tracking-widest">Session · idle</span>
-                            <button type="button" id="end-session-btn" class="soma-action-ghost hidden">End Session</button>
                         </div>
                     </div>
                     <button type="button" id="regen-btn" class="touch-manipulation w-10 h-10 min-w-[2.75rem] min-h-[2.75rem] rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors duration-300">
@@ -2117,10 +2117,9 @@
                                     </button>
                                 </div>
                                 <div class="mt-4 flex flex-wrap items-center gap-2">
-                                    <span id="report-mode-pill" class="soma-pill text-[0.65rem]" aria-live="polite">Template</span>
-                                    <button type="button" class="soma-pill report-window-pill soma-pill-active" data-window="7">Weekly view</button>
-                                    <button type="button" class="soma-pill report-window-pill" data-window="30">Monthly view</button>
-                                    <button type="button" class="soma-pill report-window-pill" data-window="all">Full report</button>
+                                    <span id="report-mode-pill" class="soma-pill text-[0.65rem]" aria-live="polite">LLM</span>
+                                    <button type="button" class="soma-pill report-window-pill soma-pill-active" data-window="all">Full Report</button>
+                                    <button type="button" class="soma-pill report-window-pill" data-window="7">Weekly Report</button>
                                     <span id="report-meta" class="text-[0.65rem] text-white/35 ml-auto"></span>
                                 </div>
                             </div>
@@ -2134,6 +2133,21 @@
                                 <div id="report-empty" class="hidden text-center text-sm text-white/30 font-light px-4 py-16 max-w-md mx-auto leading-relaxed">
                                     <span class="block text-white/45 font-light mb-4">Your report needs a little more signal.</span>
                                     Finish <span class="text-white/[0.72] tabular-nums">2</span> sessions and save feedback after each one. Optional: open Vitals so physiology notes reflect your wrist snapshot.
+                                </div>
+                                <div id="report-needs-key" class="hidden text-center text-sm text-white/30 font-light px-4 py-16 max-w-md mx-auto leading-relaxed">
+                                    <span class="block text-white/45 font-light mb-4">OpenAI key needed for report narration.</span>
+                                    Add your key under Settings → Integrations. Nothing is sent until you generate the report.
+                                    <button type="button" id="report-open-settings-openai" class="mt-6 mx-auto block px-5 py-2.5 rounded-full border border-white/15 bg-white/[0.06] text-xs font-medium text-white/75 hover:bg-white/[0.1] hover:border-white/22 transition-colors touch-manipulation focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25">Open Settings</button>
+                                </div>
+                                <div id="report-llm-loading" class="hidden text-center text-sm text-white/35 font-light px-4 py-16 max-w-md mx-auto leading-relaxed">
+                                    <iconify-icon icon="lucide:loader-2" width="22" class="inline-block animate-spin text-white/45 mb-3"></iconify-icon>
+                                    <span class="block text-white/45 font-light mb-2">Generating your report…</span>
+                                    This uses your OpenAI key and local session facts only.
+                                </div>
+                                <div id="report-llm-error" class="hidden text-center text-sm text-white/30 font-light px-4 py-16 max-w-md mx-auto leading-relaxed">
+                                    <span class="block text-rose-200/75 font-light mb-3">Could not generate the report.</span>
+                                    <p id="report-llm-error-detail" class="text-xs text-white/38 font-light mb-4 leading-relaxed"></p>
+                                    <span class="text-xs text-white/32 font-light">Check your network and API key, then tap refresh.</span>
                                 </div>
                                 <div id="report-body" class="hidden flex flex-col gap-5 min-w-0">
                                     <div id="report-overview" class="min-w-0"></div>
@@ -2895,7 +2909,7 @@
 
                                 <div id="settings-panel-report" role="tabpanel" aria-labelledby="settings-tab-report" class="hidden flex flex-col" hidden aria-hidden="true">
                                     <span class="soma-section-label">Diagnostic report</span>
-                                    <p class="settings-panel-intro text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Offline template stays the default. Add an OpenAI key under Integrations for richer narration.</p>
+                                    <p class="settings-panel-intro text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Diagnostic reports use OpenAI when a key is saved under Integrations.</p>
                                     <div class="settings-setting-row">
                                         <div class="settings-setting-row-main">
                                             <div class="settings-setting-title">Default time window</div>
@@ -2903,9 +2917,8 @@
                                         </div>
                                         <div class="settings-setting-row-controls">
                                             <div class="settings-segment" role="group" aria-label="Default report window">
-                                                <button type="button" class="settings-segment-btn settings-segment-active" data-soma-setting="report.defaultWindow" data-val="7">7 days</button>
-                                                <button type="button" class="settings-segment-btn" data-soma-setting="report.defaultWindow" data-val="30">30 days</button>
-                                                <button type="button" class="settings-segment-btn" data-soma-setting="report.defaultWindow" data-val="all">Full</button>
+                                                <button type="button" class="settings-segment-btn settings-segment-active" data-soma-setting="report.defaultWindow" data-val="all">Full</button>
+                                                <button type="button" class="settings-segment-btn" data-soma-setting="report.defaultWindow" data-val="7">Weekly</button>
                                             </div>
                                         </div>
                                     </div>
@@ -2958,7 +2971,7 @@
                                 <div id="settings-panel-integrations" role="tabpanel" aria-labelledby="settings-tab-integrations" class="flex flex-col gap-5 md:gap-6" aria-hidden="false">
                                     <div>
                                         <span class="soma-section-label">Integrations</span>
-                                        <p class="settings-panel-intro text-sm text-white/35 font-light mt-3 leading-relaxed">Optional keys unlock live generation and richer reporting. Keys never touch a first-party Soma server in this demo.</p>
+                                        <p class="settings-panel-intro text-sm text-white/35 font-light mt-3 leading-relaxed">Optional Suno key unlocks live generation. OpenAI key is required for diagnostic report narration in this build.</p>
                                         <p id="settings-integration-status" class="text-xs text-white/40 font-light mt-2 leading-relaxed"></p>
                                     </div>
                                     <div id="apikey-modal" class="w-full flex flex-col">
@@ -3002,7 +3015,7 @@
                                                 <span class="text-white/90 font-display italic text-xl tracking-wide">OpenAI API Key</span>
                                             </div>
                                             <p class="text-sm text-white/30 font-light leading-relaxed">
-                                                <strong class="text-amber-200/80 font-medium">Optional.</strong> Sent directly to OpenAI when generating your diagnostic report. Leave blank for offline template mode.
+                                                <strong class="text-amber-200/80 font-medium">Required for reports.</strong> Sent directly to OpenAI when you open or refresh the diagnostic report.
                                             </p>
                                             <div class="p-field">
                                                 <label class="p-label" for="openai-key-input">API Key <span class="p-label-note">· sk-…</span></label>
@@ -3963,7 +3976,14 @@
     });
 
     // ── Play / Pause ──────────────────────────────────────────────────────
-    playBtn.addEventListener('click', () => setPlaying(!isPlaying));
+    // When real Suno audio is wired, a capture-phase handler toggles
+    // sunoAudio only; keep the fake-timer isPlaying toggle out of that path —
+    // otherwise a stale isPlaying(false) calls setPlaying(true) after pause()
+    // and reverses the pause UI (icon/record/EQ) while audio stays paused.
+    playBtn.addEventListener('click', () => {
+        if (playBtn.dataset.sunoWired === '1') return;
+        setPlaying(!isPlaying);
+    });
 
     // ── Generate waveform bars ────────────────────────────────────────────
     // 52 height values that form a realistic-looking audio waveform shape
@@ -5532,16 +5552,23 @@
         catch (_) { return ''; }
     }
 
+    function normalizeReportWindow(w) {
+        if (w === '7' || w === 'all') return w;
+        if (w === '30') return 'all';
+        return 'all';
+    }
+
     function getWindow() {
-        try { return localStorage.getItem(LS_WINDOW) || '7'; }
-        catch (_) { return '7'; }
+        try { return normalizeReportWindow(localStorage.getItem(LS_WINDOW)); }
+        catch (_) { return 'all'; }
     }
     function setWindow(w) {
-        try { localStorage.setItem(LS_WINDOW, w); } catch (_) {}
+        try { localStorage.setItem(LS_WINDOW, normalizeReportWindow(w)); } catch (_) {}
     }
 
     window.somaApplyReportWindowSetting = function (w) {
-        if (w === '7' || w === '30' || w === 'all') setWindow(w);
+        if (w === '7' || w === 'all') setWindow(w);
+        else if (w === '30') setWindow('all');
     };
 
     function readSessions() {
@@ -5562,8 +5589,9 @@
     }
 
     function filterByWindow(sessions, win) {
+        win = normalizeReportWindow(win);
         if (win === 'all') return sessions;
-        const days = win === '30' ? 30 : 7;
+        const days = 7;
         const cutoff = Date.now() - days * 86400000;
         const tFn = api().sessionSubmittedAtMs;
         return sessions.filter(s => {
@@ -5597,9 +5625,9 @@
     }
 
     function windowLabelFromWin(win) {
-        if (win === '30') return 'Monthly view';
-        if (win === 'all') return 'Full report';
-        return 'Weekly view';
+        win = normalizeReportWindow(win);
+        if (win === 'all') return 'Full Report';
+        return 'Weekly Report';
     }
 
     function dataQualityFromStats(ws) {
@@ -5848,27 +5876,14 @@
         return ctx;
     }
 
-    /* ─── Template narrator (offline, structured) ───────────────────── */
+    /* ─── LLM narrative helpers (facts shell + model prose) ─────────── */
 
     function emptySection() {
         return { summary: '', plainMeaning: '', tryNext: '' };
     }
 
-    function narrateTemplate(ctx) {
+    function overviewFactsFromCtx(ctx) {
         const stats = ctx.windowStats || ctx.fullStats;
-        const fs = ctx.fullStats;
-        const id = ctx.identity;
-        const fmtMode = api().formatModeLabel || function (m) {
-            const x = m || '';
-            return x ? x.charAt(0).toUpperCase() + x.slice(1) : '';
-        };
-        const fmtFit = api().formatSoundFitLabel || function (k) { return k || ''; };
-
-        const greet = id.name ? id.name : 'You';
-        const winHuman = ctx.window === 'all' ? 'your full history' : (ctx.window === '30' ? 'the last 30 days' : 'the last 7 days');
-        const recentMode = ctx.recentSessions[0] && ctx.recentSessions[0].mode;
-        const winLabelSafe = ctx.windowLabel || windowLabelFromWin(ctx.window || '7');
-
         const overviewFacts = [];
         if (stats) {
             overviewFacts.push({ label: 'Sessions (with feedback)', value: String(stats.n) });
@@ -5877,107 +5892,15 @@
         } else {
             overviewFacts.push({ label: 'Sessions', value: '0' });
         }
+        return overviewFacts;
+    }
 
-        let headline = greet + ', here is your report for ' + winHuman + '.';
-        let overviewSummary = '';
-        if (stats && stats.bestMode && stats.bestMode.n >= 2 && stats.bestMode.rate >= 50) {
-            headline = greet + ', ' + fmtMode(stats.bestMode.mode) + ' mode is standing out in this view.';
-        }
-        if (stats) {
-            overviewSummary = 'You logged ' + stats.n + ' completed sessions with feedback ' +
-                (winLabelSafe === 'Full report' ? 'overall' : ('within ' + winLabelSafe.toLowerCase())) +
-                '. About ' + stats.helpedRate + '% felt helpful.';
-            if (recentMode) overviewSummary += ' Your latest run used ' + fmtMode(recentMode) + '.';
-            if (ctx.physiology && ctx.physiology.heartRate != null) {
-                overviewSummary += ' Latest wrist HR reads ' + ctx.physiology.heartRate + ' bpm.';
-            }
-        } else {
-            overviewSummary = 'Save feedback after sessions so this overview can summarize how things land.';
-        }
-
-        const sections = {
-            trends: emptySection(),
-            patterns: emptySection(),
-            physiology: emptySection(),
-            achievements: emptySection(),
-            recommendations: emptySection(),
+    function buildRecommendationPills(ctx) {
+        const stats = ctx.windowStats || ctx.fullStats;
+        const fmtMode = api().formatModeLabel || function (m) {
+            const x = m || '';
+            return x ? x.charAt(0).toUpperCase() + x.slice(1) : '';
         };
-
-        if (stats) {
-            sections.trends.summary = stats.helpedRate + '% of notes felt helpful (' + stats.helpedCount + '/' + stats.n + '). ' +
-                    (stats.avgCalmAfter != null
-                    ? ('Average calm after: ' + stats.avgCalmAfter + '/5.' +
-                       (stats.lastCalm != null && stats.lastComparedToAvg
-                           ? (' Latest calm ' + stats.lastCalm + '/5, ' +
-                               (stats.lastComparedToAvg === 'above' ? 'above' : stats.lastComparedToAvg === 'below' ? 'below' : 'matching') +
-                               ' your average.')
-                           : ''))
-                    : 'Add calm ratings on more sessions to see an average.');
-            if (fs && fs.avgCalmAfter != null && stats.avgCalmAfter != null && fs.avgCalmAfter !== stats.avgCalmAfter) {
-                sections.trends.summary += ' All-time avg calm is ' + fs.avgCalmAfter + '/5.';
-            }
-            sections.trends.plainMeaning = '"Felt helped" is your own tap after a session. Calm is your 1 to 5 check-in. Together they show relief trends without diagnosing anything.';
-            sections.trends.tryNext = stats.helpedRate < 45 ? 'Try one softer template next session and note sound-fit chips honestly.'
-                : 'Keep doing what works; change only one knob at a time (mode or intensity).';
-
-            const tops = (stats.modeCountsSorted || []).slice(0, 3).map(r =>
-                fmtMode(r.mode) + ' used ' + r.n + '× (~' + r.rate + '% helped)');
-            const sf = (stats.soundFitSorted || []).slice(0, 3).map(([k, c]) => fmtFit(k) + ': ' + c + '/' + stats.n).join(' · ');
-            sections.patterns.summary = tops.length ? ('Top modes: ' + tops.join('; ') + '. ') : '';
-            sections.patterns.summary += sf ? ('Sound notes: ' + sf + '. ') : 'Keep tagging sound fit after sessions.';
-            if (ctx.moodThemes && ctx.moodThemes.length) {
-                sections.patterns.summary += ' Words leaned toward: ' +
-                    ctx.moodThemes.slice(0, 3).map(t => t.label + ' (' + t.count + ')').join(', ') + '.';
-            } else {
-                sections.patterns.summary += ' Optional: add a short mood note before sessions to spot repeating themes.';
-            }
-            sections.patterns.plainMeaning = 'Modes shape tempo and texture. Sound-fit chips tell us whether the mix matched your nervous system that day.';
-            sections.patterns.tryNext = stats.bestMode && stats.bestMode.n >= 2
-                ? ('Reuse ' + fmtMode(stats.bestMode.mode) + ' when the moment feels similar.')
-                : 'Rotate across two modes you trust and compare notes twice each.';
-        } else {
-            sections.trends.summary = 'Once two sessions include feedback, this section shows relief and calm averages.';
-            sections.trends.plainMeaning = 'Trends only reflect what you saved locally.';
-            sections.trends.tryNext = 'Finish another session and submit feedback.';
-            sections.patterns.summary = 'Patterns appear after you try modes and tap sound-fit chips a few times.';
-            sections.patterns.plainMeaning = 'Nothing here replaces clinical assessment.';
-            sections.patterns.tryNext = 'Pick one calm preset and log how it felt.';
-        }
-
-        const phys = ctx.physiology;
-        if (phys && phys.heartRate != null) {
-            const bits = ['HR ' + phys.heartRate + ' bpm'];
-            if (phys.hrv != null) bits.push('HRV ' + phys.hrv + ' ms');
-            if (phys.respiratoryRate != null) bits.push('breathing ~' + phys.respiratoryRate + '/min');
-            sections.physiology.summary = bits.join(' · ') + '. ';
-            if (phys.pipeline) {
-                sections.physiology.summary += 'MindWave suggests tempo near ' + phys.pipeline.targetBpm + ' BPM';
-                if (phys.pipeline.stressState) sections.physiology.summary += ', stress read as ' + phys.pipeline.stressState;
-                sections.physiology.summary += '.';
-            }
-            sections.physiology.plainMeaning = 'HRV reflects recovery bandwidth (higher often feels steadier). Target BPM is a wellness tempo cue from your snapshot, not a prescription.';
-            sections.physiology.tryNext = phys.pipeline && phys.pipeline.recoveryPriority
-                ? ('Bias toward ' + phys.pipeline.recoveryPriority + ' modes until you feel steadier.')
-                : 'Refresh Vitals before sessions when you want biometric-guided tempo.';
-        } else {
-            sections.physiology.summary = 'No wrist snapshot is loaded. Physiology notes stay neutral until Vitals or a Demo Case provides HR.';
-            sections.physiology.plainMeaning = 'Biometrics guide music pacing here; they are optional for emotional check-ins alone.';
-            sections.physiology.tryNext = 'Open Vitals once per week if you want this section filled in.';
-        }
-
-        const met = (ctx.achievements || []).filter(function (a) { return a.met; });
-        sections.achievements.summary = met.length
-            ? ('Unlocked ' + met.length + ' milestones: ' + met.slice(0, 4).map(a => a.title).join('; ') + '.')
-            : 'Stick with tiny reflections — milestones unlock as notes accumulate.';
-        sections.achievements.plainMeaning = 'Achievements reward consistency, not perfection. They never diagnose.';
-        sections.achievements.tryNext = 'Pick one achievement you are closest to and chase it for one week.';
-
-        const nextAdj = (api().buildNextAdjustment && stats) ? api().buildNextAdjustment(stats)
-            : 'Keep submitting feedback so recommendations stay personal.';
-        sections.recommendations.summary = nextAdj;
-        sections.recommendations.plainMeaning = 'These are listening tweaks grounded in your chips and modes.';
-        sections.recommendations.tryNext = 'Change only one setting next session, then compare notes.';
-
         const recommendationPills = [];
         if (stats && stats.bestMode && stats.bestMode.n >= 2 && stats.bestMode.rate >= 50) {
             recommendationPills.push({
@@ -5994,16 +5917,40 @@
         if (!recommendationPills.length) {
             recommendationPills.push({ label: 'Start Calm session', action: { mode: 'calm' } });
         }
+        return recommendationPills;
+    }
 
+    function minimalOverviewFromCtx(ctx) {
+        const stats = ctx.windowStats || ctx.fullStats;
+        const id = ctx.identity;
+        const greet = id.name ? id.name : 'You';
+        const fmtMode = api().formatModeLabel || function (m) {
+            const x = m || '';
+            return x ? x.charAt(0).toUpperCase() + x.slice(1) : '';
+        };
+        const recentMode = ctx.recentSessions[0] && ctx.recentSessions[0].mode;
+
+        let headline = greet + ', here is your diagnostic overview.';
+        if (stats && stats.bestMode && stats.bestMode.n >= 2 && stats.bestMode.rate >= 50) {
+            headline = greet + ', ' + fmtMode(stats.bestMode.mode) + ' mode is standing out in this view.';
+        }
+        let overviewSummary = '';
+        if (stats) {
+            overviewSummary = 'You logged ' + stats.n + ' completed sessions with feedback ' +
+                (ctx.window === 'all' ? 'overall' : 'in your weekly window') +
+                '. About ' + stats.helpedRate + '% felt helpful.';
+            if (recentMode) overviewSummary += ' Your latest run used ' + fmtMode(recentMode) + '.';
+            if (ctx.physiology && ctx.physiology.heartRate != null) {
+                overviewSummary += ' Latest wrist HR reads ' + ctx.physiology.heartRate + ' bpm.';
+            }
+        } else {
+            overviewSummary = 'Save feedback after sessions so this overview can summarize how things land.';
+        }
         return {
-            overview: {
-                headline: headline,
-                summary: overviewSummary,
-                facts: overviewFacts,
-                dataQuality: ctx.dataQuality || dataQualityFromStats(stats),
-            },
-            sections: sections,
-            recommendationPills: recommendationPills,
+            headline: headline,
+            summary: overviewSummary,
+            facts: overviewFactsFromCtx(ctx),
+            dataQuality: ctx.dataQuality || dataQualityFromStats(stats),
         };
     }
 
@@ -6017,28 +5964,30 @@
         };
     }
 
-    function mergeNarrative(llmRaw, tmpl) {
+    function mergeLLMNarrative(llmRaw, ctx) {
+        const shell = minimalOverviewFromCtx(ctx);
+        const pills = buildRecommendationPills(ctx);
         const raw = llmRaw || {};
         let ov = raw.overview;
         if (ov && typeof ov === 'object') {
             ov = {
-                headline: String(ov.headline || tmpl.overview.headline),
-                summary: String(ov.summary || tmpl.overview.summary),
-                facts: tmpl.overview.facts,
-                dataQuality: tmpl.overview.dataQuality,
+                headline: String(ov.headline || shell.headline),
+                summary: String(ov.summary || shell.summary),
+                facts: shell.facts,
+                dataQuality: shell.dataQuality,
             };
         } else {
-            ov = tmpl.overview;
+            ov = shell;
         }
         const sections = {};
         TOPICS.forEach(function (t) {
             const rs = raw.sections && raw.sections[t.id];
-            sections[t.id] = coerceSection(rs, tmpl.sections[t.id]);
+            sections[t.id] = coerceSection(rs, emptySection());
         });
         return {
             overview: ov,
             sections: sections,
-            recommendationPills: tmpl.recommendationPills,
+            recommendationPills: pills,
         };
     }
 
@@ -6101,14 +6050,23 @@
         const json = await res.json();
         const text = json && json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content;
         if (!text) throw new Error('LLM empty');
-        const parsed = JSON.parse(text);
-        const tmpl = narrateTemplate(ctx);
-        return mergeNarrative(parsed, tmpl);
+        let parsed;
+        try {
+            parsed = JSON.parse(text);
+        } catch (e) {
+            throw new Error('LLM returned invalid JSON');
+        }
+        return mergeLLMNarrative(parsed, ctx);
     }
 
     /* ─── Cache + refresh ──────────────────────────────────────────── */
 
-    function getCached() { return loadJson(LS_REPORT, null); }
+    function getCached() {
+        const c = loadJson(LS_REPORT, null);
+        if (!c || typeof c !== 'object') return null;
+        if (c.mode === 'template' || c.mode === 'template-fallback') return null;
+        return c;
+    }
     function setCached(rep) { saveJson(LS_REPORT, rep); }
 
     let pending = false;
@@ -6139,24 +6097,22 @@
             return;
         }
 
-        if (!opts.force && cached && cached.contextHash === ctx.contextHash && cached.window === ctx.window && cached.narrative) {
+        if (!opts.force && cached && cached.contextHash === ctx.contextHash && cached.window === ctx.window && cached.mode === 'llm' && cached.narrative) {
             renderReport(cached);
             return;
         }
 
         const key = getOpenAIKey();
-        const placeholder = {
-            generatedAt: ctx.generatedAt,
-            contextHash: ctx.contextHash,
-            window: ctx.window,
-            mode: key ? 'llm-loading' : 'template',
-            ctx: ctx,
-            narrative: narrateTemplate(ctx),
-        };
-        renderReport(placeholder);
 
         if (!key) {
-            const rep = Object.assign({}, placeholder, { mode: 'template' });
+            const rep = {
+                generatedAt: ctx.generatedAt,
+                contextHash: ctx.contextHash,
+                window: ctx.window,
+                mode: 'needs-key',
+                ctx: ctx,
+                narrative: null,
+            };
             setCached(rep);
             renderReport(rep);
             markFresh(true);
@@ -6164,6 +6120,17 @@
         }
 
         if (pending) return;
+
+        const placeholder = {
+            generatedAt: ctx.generatedAt,
+            contextHash: ctx.contextHash,
+            window: ctx.window,
+            mode: 'llm-loading',
+            ctx: ctx,
+            narrative: null,
+        };
+        renderReport(placeholder);
+
         pending = true;
         try {
             const narrative = await narrateLLM(ctx, key);
@@ -6180,7 +6147,16 @@
             markFresh(true);
         } catch (err) {
             if (err && err.name === 'AbortError') return;
-            const rep = Object.assign({}, placeholder, { mode: 'template-fallback' });
+            const msg = (err && err.message) ? String(err.message) : 'Generation failed';
+            const rep = {
+                generatedAt: ctx.generatedAt,
+                contextHash: ctx.contextHash,
+                window: ctx.window,
+                mode: 'llm-error',
+                ctx: ctx,
+                narrative: null,
+                llmErrorDetail: msg,
+            };
             setCached(rep);
             renderReport(rep);
         } finally {
@@ -6191,44 +6167,54 @@
     /* ─── Render ────────────────────────────────────────────────────── */
 
     function migrateLegacyNarrative(old, ctx) {
-        const tmpl = narrateTemplate(ctx);
+        const shell = minimalOverviewFromCtx(ctx);
+        const pills = buildRecommendationPills(ctx);
         if (old && old.overview && old.sections && typeof old.overview === 'object') return old;
-        if (!old || typeof old !== 'object') return tmpl;
+        if (!old || typeof old !== 'object') {
+            const sections = {};
+            TOPICS.forEach(function (t) { sections[t.id] = emptySection(); });
+            return {
+                overview: shell,
+                sections: sections,
+                recommendationPills: pills,
+            };
+        }
         const sections = {};
         TOPICS.forEach(function (t) {
             const summary = old[t.id];
             const one = old[t.id + 'OneLine'];
-            const ts = tmpl.sections[t.id] || emptySection();
+            const ts = emptySection();
             sections[t.id] = {
                 summary: typeof summary === 'string' ? summary : ts.summary,
                 plainMeaning: ts.plainMeaning,
                 tryNext: typeof one === 'string' ? one : ts.tryNext,
             };
         });
-        const snap = typeof old.snapshot === 'string' ? old.snapshot : tmpl.overview.summary;
+        const snap = typeof old.snapshot === 'string' ? old.snapshot : shell.summary;
         return {
             overview: {
-                headline: tmpl.overview.headline,
+                headline: shell.headline,
                 summary: snap,
-                facts: tmpl.overview.facts,
-                dataQuality: tmpl.overview.dataQuality,
+                facts: shell.facts,
+                dataQuality: shell.dataQuality,
             },
             sections: sections,
-            recommendationPills: Array.isArray(old.recommendationPills) ? old.recommendationPills : tmpl.recommendationPills,
+            recommendationPills: Array.isArray(old.recommendationPills) ? old.recommendationPills : pills,
         };
     }
 
     function modeBadgeText(mode) {
         if (mode === 'llm') return 'LLM';
         if (mode === 'llm-loading') return 'LLM · generating…';
-        if (mode === 'template-fallback') return 'Template (LLM failed)';
+        if (mode === 'llm-error') return 'LLM error';
+        if (mode === 'needs-key') return 'API key needed';
         if (mode === 'empty') return 'Awaiting data';
-        return 'Template (offline)';
+        return '—';
     }
 
     function sourceLineForReport(ctx) {
         const ws = ctx.windowStats;
-        const wl = ctx.windowLabel || windowLabelFromWin(ctx.window || '7');
+        const wl = ctx.windowLabel || windowLabelFromWin(ctx.window || 'all');
         const parts = [wl];
         if (ws) parts.push(ws.n + ' feedback sessions');
         parts.push(ctx.identity.hasProfile ? 'profile saved' : 'profile optional');
@@ -6308,6 +6294,39 @@
                 '<span class="block text-[0.65rem] text-white/38 uppercase tracking-[0.2em] mb-3">Progress</span>' +
                 '<div class="flex flex-nowrap sm:flex-wrap gap-2.5 overflow-x-auto overscroll-x-contain pb-1 -mx-0.5 px-0.5">' + inner + '</div>' +
             '</div>';
+    }
+
+    function renderFullTopicCardHTML(rep, topic) {
+        const sec = (rep.narrative.sections && rep.narrative.sections[topic.id]) || emptySection();
+        let pillsHtml = '';
+        if (topic.id === 'recommendations' && Array.isArray(rep.narrative.recommendationPills)) {
+            pillsHtml = '<div class="mt-4 flex flex-wrap gap-2">' + rep.narrative.recommendationPills.map(function (p) {
+                const raw = JSON.stringify(p.action || {});
+                const enc = encodeURIComponent(raw);
+                return '<button type="button" class="soma-pill report-rec-pill touch-manipulation transition-colors duration-200 ease-out hover:bg-white/[0.12] hover:border-white/[0.18] active:opacity-90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/28" data-action="' + escHtml(enc) + '">' + escHtml(p.label) + '</button>';
+            }).join('') + '</div>';
+        }
+        const meanHtml = sec.plainMeaning
+            ? '<p class="text-xs text-white/48 font-light mt-3 leading-relaxed"><span class="text-white/58 font-normal">What it means:</span> ' + escHtml(sec.plainMeaning) + '</p>'
+            : '';
+        const tryHtml = sec.tryNext
+            ? '<p class="text-xs text-white/42 font-light mt-2 leading-relaxed"><span class="text-white/55 font-normal">Try next:</span> ' + escHtml(sec.tryNext) + '</p>'
+            : '';
+        return '' +
+            '<section id="report-topic-' + topic.id + '" class="report-topic-anchor rounded-3xl border border-white/[0.08] bg-white/[0.035] px-5 py-5 sm:px-7 sm:py-6 scroll-mt-6">' +
+                '<div class="flex items-start gap-3 sm:gap-4">' +
+                    '<span class="w-10 h-10 rounded-full border border-white/10 bg-white/[0.06] flex items-center justify-center flex-shrink-0 shadow-[inset_0_1px_0_rgba(255,255,255,0.04)]" aria-hidden="true">' +
+                        '<iconify-icon icon="' + topic.icon + '" width="16" class="text-white/55"></iconify-icon>' +
+                    '</span>' +
+                    '<div class="min-w-0 flex-1">' +
+                        '<span class="block text-[0.65rem] text-white/38 uppercase tracking-[0.2em]">' + escHtml(topic.title) + '</span>' +
+                        '<p class="text-sm text-white/[0.82] font-light leading-relaxed mt-2">' + escHtml(sec.summary) + '</p>' +
+                        meanHtml +
+                        tryHtml +
+                        pillsHtml +
+                    '</div>' +
+                '</div>' +
+            '</section>';
     }
 
     function renderTopicSectionHTML(rep, topic, expanded) {
@@ -6451,6 +6470,10 @@
         const navHostEl = document.getElementById('report-topic-nav-host');
         const bodyEl = document.getElementById('report-body');
         const emptyEl = document.getElementById('report-empty');
+        const needsKeyEl = document.getElementById('report-needs-key');
+        const llmLoadEl = document.getElementById('report-llm-loading');
+        const llmErrEl = document.getElementById('report-llm-error');
+        const llmErrDetail = document.getElementById('report-llm-error-detail');
         const disclEl = document.getElementById('report-disclaimer');
         const metaEl = document.getElementById('report-meta');
         const modePill = document.getElementById('report-mode-pill');
@@ -6459,7 +6482,14 @@
         const summaryLine = document.getElementById('report-summary-line');
         if (!sectionsEl || !overviewEl || !bodyEl) return;
 
-        if (summaryLine) summaryLine.textContent = 'One full report: switch Weekly / Monthly / Full, then jump into each topic.';
+        function hideReportAlternatePanels() {
+            ['report-empty', 'report-needs-key', 'report-llm-loading', 'report-llm-error'].forEach(function (id) {
+                const el = document.getElementById(id);
+                if (el) el.classList.add('hidden');
+            });
+        }
+
+        if (summaryLine) summaryLine.textContent = 'Full Report is your long-view summary. Weekly Report walks topic by topic.';
 
         if (modePill) modePill.textContent = modeBadgeText(rep.mode);
         if (metaEl) {
@@ -6470,29 +6500,57 @@
             regenIcon.setAttribute('icon', rep.mode === 'llm-loading' ? 'lucide:loader-2' : 'lucide:refresh-cw');
             regenIcon.classList.toggle('animate-spin', rep.mode === 'llm-loading');
         }
-        if (regenBtn) regenBtn.setAttribute('aria-busy', rep.mode === 'llm-loading' ? 'true' : 'false');
+        if (regenBtn) {
+            regenBtn.setAttribute('aria-busy', rep.mode === 'llm-loading' ? 'true' : 'false');
+            regenBtn.disabled = rep.mode === 'empty' || rep.mode === 'llm-loading';
+        }
 
         document.querySelectorAll('.report-window-pill').forEach(function (b) {
             const w = b.getAttribute('data-window');
             b.classList.toggle('soma-pill-active', w === (rep.window || getWindow()));
         });
 
-        if (rep.mode === 'empty' || !rep.narrative) {
-            sectionsEl.innerHTML = '';
-            overviewEl.innerHTML = '';
-            if (achEl) achEl.innerHTML = '';
-            if (navEl) navEl.innerHTML = '';
-            if (navHostEl) navHostEl.classList.add('hidden');
-            bodyEl.classList.add('hidden');
+        hideReportAlternatePanels();
+        bodyEl.classList.add('hidden');
+        if (disclEl) disclEl.classList.add('hidden');
+        if (navHostEl) navHostEl.classList.add('hidden');
+        sectionsEl.innerHTML = '';
+        overviewEl.innerHTML = '';
+        if (achEl) achEl.innerHTML = '';
+        if (navEl) navEl.innerHTML = '';
+
+        if (rep.mode === 'empty') {
             if (emptyEl) emptyEl.classList.remove('hidden');
-            if (disclEl) disclEl.classList.add('hidden');
             if (regenBtn) regenBtn.disabled = true;
             return;
         }
 
+        if (rep.mode === 'needs-key') {
+            if (needsKeyEl) needsKeyEl.classList.remove('hidden');
+            if (regenBtn) regenBtn.disabled = false;
+            return;
+        }
+
+        if (rep.mode === 'llm-loading') {
+            if (llmLoadEl) llmLoadEl.classList.remove('hidden');
+            if (regenBtn) regenBtn.disabled = true;
+            return;
+        }
+
+        if (rep.mode === 'llm-error') {
+            if (llmErrEl) llmErrEl.classList.remove('hidden');
+            if (llmErrDetail) llmErrDetail.textContent = rep.llmErrorDetail ? String(rep.llmErrorDetail) : 'Unknown error';
+            if (regenBtn) regenBtn.disabled = false;
+            return;
+        }
+
+        if (rep.mode !== 'llm' || !rep.narrative) {
+            if (emptyEl) emptyEl.classList.remove('hidden');
+            if (regenBtn) regenBtn.disabled = false;
+            return;
+        }
+
         bodyEl.classList.remove('hidden');
-        if (navHostEl) navHostEl.classList.remove('hidden');
-        if (emptyEl) emptyEl.classList.add('hidden');
         if (disclEl) disclEl.classList.remove('hidden');
         if (regenBtn) regenBtn.disabled = false;
 
@@ -6504,21 +6562,31 @@
 
         overviewEl.innerHTML = renderOverviewHTML(rep);
         if (achEl) achEl.innerHTML = renderAchievementsHTML(rep);
-        if (navEl) {
-            navEl.innerHTML = TOPICS.map(function (t, i) {
-                const act = i === 0 ? ' soma-pill-active' : '';
-                const aria = i === 0 ? ' aria-current="location"' : '';
-                return '<button type="button" class="soma-pill report-topic-jump shrink-0 text-[0.62rem] font-normal tracking-[0.04em] touch-manipulation transition-[color,background-color,border-color,opacity] duration-200 ease-out active:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent' + act + '" data-report-jump="' + t.id + '"' + aria + '>' + escHtml(t.navLabel) + '</button>';
+
+        const win = normalizeReportWindow(rep.window || getWindow());
+        const isFull = win === 'all';
+
+        if (isFull) {
+            if (navHostEl) navHostEl.classList.add('hidden');
+            sectionsEl.innerHTML = TOPICS.map(function (t) {
+                return renderFullTopicCardHTML(rep, t);
             }).join('');
+        } else {
+            if (navHostEl) navHostEl.classList.remove('hidden');
+            if (navEl) {
+                navEl.innerHTML = TOPICS.map(function (t, i) {
+                    const act = i === 0 ? ' soma-pill-active' : '';
+                    const aria = i === 0 ? ' aria-current="location"' : '';
+                    return '<button type="button" class="soma-pill report-topic-jump shrink-0 text-[0.62rem] font-normal tracking-[0.04em] touch-manipulation transition-[color,background-color,border-color,opacity] duration-200 ease-out active:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/25 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent' + act + '" data-report-jump="' + t.id + '"' + aria + '>' + escHtml(t.navLabel) + '</button>';
+                }).join('');
+            }
+            const exp = getExpandedState();
+            sectionsEl.innerHTML = TOPICS.map(function (t) {
+                return renderTopicSectionHTML(rep, t, !!exp[t.id]);
+            }).join('');
+            wireReportTopicInteractions();
+            wireReportTopicNav();
         }
-
-        const exp = getExpandedState();
-        sectionsEl.innerHTML = TOPICS.map(function (t) {
-            return renderTopicSectionHTML(rep, t, !!exp[t.id]);
-        }).join('');
-
-        wireReportTopicInteractions();
-        wireReportTopicNav();
     }
 
     /* ─── Fresh dot ─────────────────────────────────────────────────── */
@@ -6563,10 +6631,16 @@
 
         document.querySelectorAll('.report-window-pill').forEach(b => {
             b.addEventListener('click', function () {
-                const w = b.getAttribute('data-window') || '7';
+                const w = b.getAttribute('data-window') || 'all';
                 setWindow(w);
                 refreshReport({ force: true, immediate: true });
             });
+        });
+
+        const reportOpenAiSetup = document.getElementById('report-open-settings-openai');
+        if (reportOpenAiSetup) reportOpenAiSetup.addEventListener('click', function () {
+            if (typeof window.somaOpenSettingsSection === 'function') window.somaOpenSettingsSection('integrations');
+            else if (typeof window.showSomaView === 'function') window.showSomaView('settings');
         });
 
         document.body.addEventListener('click', function (e) {
@@ -6621,9 +6695,16 @@
     window.addEventListener('load', function () {
         try {
             const o = readSettingsForReport();
-            const w = o.report && o.report.defaultWindow;
-            if (w === '7' || w === '30' || w === 'all') setWindow(w);
-        } catch (_) {}
+            let w = o.report && o.report.defaultWindow;
+            if (w === '30' && o.report) {
+                o.report.defaultWindow = 'all';
+                try { localStorage.setItem(LS_SOMA_SETTINGS, JSON.stringify(o)); } catch (_) {}
+                w = 'all';
+            }
+            setWindow(normalizeReportWindow(w || 'all'));
+        } catch (_) {
+            setWindow('all');
+        }
         setTimeout(() => refreshReport({ immediate: true }), 250);
     });
 })();
@@ -6731,20 +6812,32 @@
         experience: { aura: 'on', motion: 'standard', density: 'comfortable' },
         session: { mode: 'focus', durationMin: 45, intensity: 3, environment: 'Rain' },
         playback: { autoplay: true, endSound: false, skipStepSec: 30, showFrequencyInfo: true },
-        report: { defaultWindow: '7', evidenceVisible: true, rememberExpandedTopics: true },
+        report: { defaultWindow: 'all', evidenceVisible: true, rememberExpandedTopics: true },
     };
+
+    function coerceReportDefaultWindow(w) {
+        if (w === '7' || w === 'all') return w;
+        if (w === '30') return 'all';
+        return 'all';
+    }
 
     function loadSomaSettingsAggregated() {
         var raw = null;
         try { raw = localStorage.getItem(LS_SETTINGS_AGGREGATE); } catch (_) { raw = null; }
         var parsed = {};
         try { parsed = raw ? JSON.parse(raw) : {}; } catch (_) { parsed = {}; }
-        return {
+        var cur = {
             experience: Object.assign({}, DEFAULT_SOMA_SETTINGS.experience, parsed.experience || {}),
             session: Object.assign({}, DEFAULT_SOMA_SETTINGS.session, parsed.session || {}),
             playback: Object.assign({}, DEFAULT_SOMA_SETTINGS.playback, parsed.playback || {}),
             report: Object.assign({}, DEFAULT_SOMA_SETTINGS.report, parsed.report || {}),
         };
+        var ndw = coerceReportDefaultWindow(cur.report.defaultWindow);
+        if (String(cur.report.defaultWindow) !== String(ndw)) {
+            cur.report.defaultWindow = ndw;
+            saveSomaSettingsAggregated(cur);
+        }
+        return cur;
     }
 
     function saveSomaSettingsAggregated(full) {
@@ -6872,7 +6965,7 @@
         var suno = !!(getKey() || '').trim();
         var oai = false;
         try { oai = !!(localStorage.getItem(LS_OPENAI_STORE) || '').trim(); } catch (_) {}
-        el.textContent = 'Live Suno: ' + (suno ? 'ready (key saved)' : 'not configured') + '. Report LLM: ' + (oai ? 'optional narration on' : 'template-only offline mode') + '.';
+        el.textContent = 'Live Suno: ' + (suno ? 'ready (key saved)' : 'not configured') + '. Report LLM: ' + (oai ? 'ready (key saved)' : 'not configured — required for reports') + '.';
     }
 
     window.somaRefreshSettingsIndicators = function () {
@@ -6939,6 +7032,16 @@
         if (sectionId === 'privacy') updatePrivacySummaryBlock();
         if (sectionId === 'integrations') updateIntegrationStatusLine();
     }
+
+    window.somaOpenSettingsSection = function (sectionId) {
+        sectionId = sectionId || 'integrations';
+        if (typeof window.showSomaView === 'function') window.showSomaView('settings', { skipExtras: true });
+        activateSettingsSection(sectionId, { scrollTopContent: true });
+        if (sectionId === 'integrations') {
+            var oai = document.getElementById('openai-key-input');
+            if (oai) setTimeout(function () { try { oai.focus(); } catch (e) {} }, 200);
+        }
+    };
 
     function initSettingsSectionNav() {
         var tablist = document.getElementById('settings-nav-inner');
