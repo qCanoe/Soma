@@ -794,10 +794,12 @@
             border-radius: 2px 2px 1px 1px;
             background: linear-gradient(to top, rgba(255,255,255,0.18), rgba(255,255,255,0.04));
             transform-origin: bottom center;
-            animation: eq-wave var(--eq-dur, 1s) var(--eq-delay, 0s) ease-in-out infinite alternate;
+            /* Softer easing + longer --eq-dur (set in JS) → calmer, easier on the eyes */
+            animation: eq-wave var(--eq-dur, 1.35s) var(--eq-delay, 0s) cubic-bezier(0.42, 0, 0.28, 1) infinite alternate;
             /* only transform/opacity transition — background updates are intentionally instant */
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.15, 1),
-                        opacity  0.6s ease;
+            transition: transform 0.95s cubic-bezier(0.35, 0, 0.2, 1),
+                        opacity  0.85s ease,
+                        background 0.4s cubic-bezier(0.33, 0, 0.25, 1);
         }
 
         /* Paused (CSS fake mode): strip animation so transition takes over → bars melt to near-flat */
@@ -811,7 +813,8 @@
            The [data-rms] attribute is set on #eq-bars when the driver is active.   */
         #eq-bars[data-rms] .eq-bar {
             animation: none !important;
-            transition: none !important;
+            /* JS drives transform each frame; ease background only so progress doesn’t “stair‑step” */
+            transition: background 0.4s cubic-bezier(0.33, 0, 0.25, 1) !important;
             opacity: 1 !important;
         }
 
@@ -1950,9 +1953,6 @@
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-400/80 flex-shrink-0"></span>
                             <span id="suno-track-title" class="text-xs text-white/40 font-light tracking-wide truncate max-w-[180px]">AI Generated</span>
                         </div>
-                        <div id="session-strip" class="mt-3 w-full max-w-[280px] soma-panel-soft px-3 py-2.5 flex flex-wrap items-center gap-2 opacity-90">
-                            <span id="session-status-label" class="text-xs text-white/35 uppercase tracking-widest">Session · idle</span>
-                        </div>
                     </div>
                     <button type="button" id="regen-btn" class="touch-manipulation w-10 h-10 min-w-[2.75rem] min-h-[2.75rem] rounded-full border border-white/10 bg-white/5 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors duration-300">
                         <iconify-icon id="regen-icon" icon="lucide:refresh-cw" width="16"></iconify-icon>
@@ -2117,7 +2117,6 @@
                                     </button>
                                 </div>
                                 <div class="mt-4 flex flex-wrap items-center gap-2">
-                                    <span id="report-mode-pill" class="soma-pill text-[0.65rem]" aria-live="polite">LLM</span>
                                     <button type="button" class="soma-pill report-window-pill soma-pill-active" data-window="all">Full Report</button>
                                     <button type="button" class="soma-pill report-window-pill" data-window="7">Weekly Report</button>
                                     <span id="report-meta" class="text-[0.65rem] text-white/35 ml-auto"></span>
@@ -3468,11 +3467,11 @@
         grateful:    'Gratitude warmth',
     };
 
-    // Speed multiplier per mode — higher = slower / more hypnotic
+    // Speed multiplier per mode — higher = slower / more hypnotic (baseline dur × factor)
     const EQ_SPEED_FACTOR = {
-        focus: 0.62, calm: 1.45, sleep: 3.20, anxious: 1.10, ground: 1.80, energy: 0.45, trauma: 4.50,
-        clarity: 0.80, release: 1.55, breath: 2.05, body: 1.25,
-        study: 0.72, restore: 2.95, still: 1.22, warm: 1.05,
+        focus: 0.88, calm: 1.60, sleep: 3.35, anxious: 1.22, ground: 1.95, energy: 0.68, trauma: 4.65,
+        clarity: 0.98, release: 1.70, breath: 2.20, body: 1.38,
+        study: 0.94, restore: 3.10, still: 1.35, warm: 1.18,
     };
 
     const LS_SOMA_SETTINGS = 'soma-settings-v1';
@@ -3593,8 +3592,9 @@
     // Focus feels quick/energetic, Calm gentle, Sleep barely breathing.
     function updateEqSpeed(mode) {
         const factor = EQ_SPEED_FACTOR[mode] ?? 1;
+        const soften = 1.28; /* global tempo: longer cycle = gentler motion */
         eqBarEls.forEach(bar => {
-            bar.style.animationDuration = (parseFloat(bar.dataset.baseDur) * factor).toFixed(3) + 's';
+            bar.style.animationDuration = (parseFloat(bar.dataset.baseDur) * factor * soften).toFixed(3) + 's';
         });
     }
 
@@ -3604,14 +3604,26 @@
                String(sec % 60).padStart(2, '0');
     }
 
+    /** Smooth playhead across EQ bars: fractional “fill” per bar (0–1), not whole-bar steps. */
+    window.somaEqBarProgressStyle = function (i, nBars, progress01) {
+        if (!nBars || nBars <= 0) {
+            return 'linear-gradient(to top, rgba(255,255,255,0.18), rgba(255,255,255,0.04))';
+        }
+        const p = Math.max(0, Math.min(1, progress01));
+        const t = p * nBars;
+        const fill = Math.max(0, Math.min(1, t - i));
+        const top = 0.18 + 0.54 * fill;
+        const bot = 0.04 + 0.20 * fill;
+        return 'linear-gradient(to top, rgba(255,255,255,' + top.toFixed(3) + '), rgba(255,255,255,' + bot.toFixed(3) + '))';
+    };
+
     // Colour waveform bars (played = bright, unplayed = dim) and move playhead cursor
     function updateProgressVisuals(sec) {
-        const pct         = (sec / totalSec) * 100;
-        const playedCount = Math.round((sec / totalSec) * eqBarEls.length);
+        const pct = (sec / totalSec) * 100;
+        const p = totalSec > 0 ? sec / totalSec : 0;
+        const sty = window.somaEqBarProgressStyle;
         eqBarEls.forEach((bar, i) => {
-            bar.style.background = i < playedCount
-                ? 'linear-gradient(to top, rgba(255,255,255,0.72), rgba(255,255,255,0.24))'
-                : 'linear-gradient(to top, rgba(255,255,255,0.18), rgba(255,255,255,0.04))';
+            bar.style.background = sty(i, eqBarEls.length, p);
         });
         progressThumb.style.left = pct + '%';
         timeElapsed.textContent  = fmt(sec);
@@ -3997,8 +4009,8 @@
     WAVEFORM.forEach((h, i) => {
         const bar   = document.createElement('div');
         bar.className = 'eq-bar';
-        const dur   = (0.55 + h * 0.75).toFixed(2);    // taller bars slightly slower
-        const delay = ((i % 9) * 0.055).toFixed(3);     // staggered phase offset
+        const dur   = (0.95 + h * 0.95).toFixed(2);    // longer cycle; taller bars a touch slower
+        const delay = ((i % 9) * 0.070).toFixed(3);     // stagger phases without “buzzing”
         bar.dataset.baseDur = dur;                        // stored for updateEqSpeed
         bar.style.cssText   = `height:${(h * 100).toFixed(1)}%;` +
                               `--eq-min:${(h * 0.50).toFixed(2)};` +
@@ -4644,18 +4656,13 @@
 
     function updateSessionStrip() {
         const act = getActive();
-        const lbl = document.getElementById('session-status-label');
         const endBtn = document.getElementById('end-session-btn');
-        if (!lbl || !endBtn) return;
+        if (!endBtn) return;
         if (!act) {
-            lbl.textContent = 'Session · idle';
             endBtn.classList.add('hidden');
-            return;
+        } else {
+            endBtn.classList.toggle('hidden', act.status !== 'playing' && act.status !== 'generating');
         }
-        if (act.status === 'generating') lbl.textContent = 'Session · composing…';
-        else if (act.status === 'playing') lbl.textContent = 'Session · playing';
-        else lbl.textContent = 'Session · ' + act.status;
-        endBtn.classList.toggle('hidden', act.status !== 'playing' && act.status !== 'generating');
     }
 
     function beginSessionFromUi() {
@@ -4841,7 +4848,7 @@
         if (window.showToast) window.showToast('Feedback saved — thank you.');
         renderHistoryList();
         if (window.SomaReport && typeof window.SomaReport.refresh === 'function') {
-            window.SomaReport.refresh();
+            window.SomaReport.refresh({ force: true, immediate: true, reason: 'session-completed' });
         }
     }
 
@@ -5991,14 +5998,12 @@
         };
     }
 
-    /* ─── LLM narrator ─────────────────────────────────────────────── */
+    /* ─── LLM narrator (draft → refine) ───────────────────────────── */
 
     let abortCtl = null;
 
-    async function narrateLLM(ctx, key) {
-        if (abortCtl) { try { abortCtl.abort(); } catch (_) {} }
-        abortCtl = new AbortController();
-        const facts = {
+    function reportFactsFromCtx(ctx) {
+        return {
             window: ctx.window,
             windowLabel: ctx.windowLabel,
             counts: ctx.counts,
@@ -6012,7 +6017,10 @@
             identity: ctx.identity,
             dataQuality: ctx.dataQuality,
         };
-        const schemaHint = JSON.stringify({
+    }
+
+    function reportJsonSchemaHint() {
+        return JSON.stringify({
             overview: { headline: 'string', summary: 'string' },
             sections: {
                 trends: { summary: 'string', plainMeaning: 'string', tryNext: 'string' },
@@ -6022,16 +6030,13 @@
                 recommendations: { summary: 'string', plainMeaning: 'string', tryNext: 'string' },
             },
         });
-        const sys = 'You are Soma, a gentle wellness music companion. Write readable report prose for the user. Strict rules: ' +
-            '(1) Use ONLY facts present in facts.topicEvidence, facts.stats, facts.fullStats, facts.counts, facts.moodThemes, facts.achievements, facts.physiology, facts.recent. Never invent numbers. ' +
-            '(2) No medical diagnoses or treatment claims. Second person, plain English. ' +
-            '(3) Output JSON ONLY matching schema keys in user message. Paragraph fields <= 70 words each; tryNext <= 22 words.';
-        const user = 'facts =\n' + JSON.stringify(facts).slice(0, 9000) + '\n\nReturn JSON exactly shaped like:\n' + schemaHint + '\n' +
-            'If evidence is missing for physiology, say so and suggest opening Vitals.';
+    }
+
+    async function reportLlmJsonRound(key, sys, user, temperature) {
         const body = {
             model: 'gpt-4o-mini',
             response_format: { type: 'json_object' },
-            temperature: 0.35,
+            temperature: temperature,
             messages: [
                 { role: 'system', content: sys },
                 { role: 'user', content: user },
@@ -6050,13 +6055,45 @@
         const json = await res.json();
         const text = json && json.choices && json.choices[0] && json.choices[0].message && json.choices[0].message.content;
         if (!text) throw new Error('LLM empty');
-        let parsed;
         try {
-            parsed = JSON.parse(text);
+            return JSON.parse(text);
         } catch (e) {
             throw new Error('LLM returned invalid JSON');
         }
-        return mergeLLMNarrative(parsed, ctx);
+    }
+
+    async function narrateLLM(ctx, key) {
+        if (abortCtl) { try { abortCtl.abort(); } catch (_) {} }
+        abortCtl = new AbortController();
+
+        const facts = reportFactsFromCtx(ctx);
+        const factsJson = JSON.stringify(facts).slice(0, 9000);
+        const schemaHint = reportJsonSchemaHint();
+
+        const draftSys = 'You are Soma, a gentle wellness music companion. Write readable report prose for the user. Strict rules: ' +
+            '(1) Use ONLY facts present in facts.topicEvidence, facts.stats, facts.fullStats, facts.counts, facts.moodThemes, facts.achievements, facts.physiology, facts.recent. Never invent numbers. ' +
+            '(2) No medical diagnoses or treatment claims. Second person, plain English. ' +
+            '(3) Output JSON ONLY matching schema keys in user message. Paragraph fields <= 70 words each; tryNext <= 22 words.';
+        const draftUser = 'facts =\n' + factsJson + '\n\nReturn JSON exactly shaped like:\n' + schemaHint + '\n' +
+            'If evidence is missing for physiology, say so and suggest opening Vitals.';
+
+        const draftParsed = await reportLlmJsonRound(key, draftSys, draftUser, 0.35);
+
+        let finalParsed = draftParsed;
+        try {
+            const refineSys = 'You are Soma\'s report editor. You receive the same grounded facts and a draft report JSON. ' +
+                'Rewrite the JSON so every statement is fully supported by the facts object only—remove or generalize any specifics not explicitly grounded (counts, dates, modes, vitals, themes). ' +
+                'Keep the identical schema keys. Preserve a warm second-person tone. No medical diagnoses or treatment claims. ' +
+                'Paragraph fields <= 70 words each; tryNext <= 22 words. Output JSON ONLY.';
+            const draftStr = JSON.stringify(draftParsed).slice(0, 7000);
+            const refineUser = 'facts =\n' + factsJson + '\n\ndraft =\n' + draftStr + '\n\nReturn revised JSON exactly shaped like:\n' + schemaHint + '\n' +
+                'If physiology evidence is absent in facts, keep wording cautious and suggest opening Vitals where relevant.';
+            finalParsed = await reportLlmJsonRound(key, refineSys, refineUser, 0.2);
+        } catch (_) {
+            finalParsed = draftParsed;
+        }
+
+        return mergeLLMNarrative(finalParsed, ctx);
     }
 
     /* ─── Cache + refresh ──────────────────────────────────────────── */
@@ -6071,6 +6108,17 @@
 
     let pending = false;
     let debounceHandle = null;
+    let reportRefreshQueuedOpts = null;
+
+    function mergeQueuedReportOpts(prev, next) {
+        prev = prev || {};
+        next = next || {};
+        return {
+            immediate: !!(prev.immediate || next.immediate),
+            force: !!(prev.force || next.force),
+            reason: next.reason || prev.reason,
+        };
+    }
 
     function refreshReport(opts) {
         opts = opts || {};
@@ -6155,7 +6203,12 @@
             return;
         }
 
-        if (pending) return;
+        if (pending) {
+            if (opts.force) {
+                reportRefreshQueuedOpts = mergeQueuedReportOpts(reportRefreshQueuedOpts, opts);
+            }
+            return;
+        }
 
         const placeholder = {
             generatedAt: ctx.generatedAt,
@@ -6197,6 +6250,9 @@
             renderReport(rep);
         } finally {
             pending = false;
+            const q = reportRefreshQueuedOpts;
+            reportRefreshQueuedOpts = null;
+            if (q) setTimeout(function () { doRefresh(q); }, 0);
         }
     }
 
@@ -6237,17 +6293,6 @@
             sections: sections,
             recommendationPills: Array.isArray(old.recommendationPills) ? old.recommendationPills : pills,
         };
-    }
-
-    function modeBadgeText(mode, rep) {
-        rep = rep || {};
-        if (rep.isDemoMock && mode === 'llm') return 'Demo · mock';
-        if (mode === 'llm') return 'LLM';
-        if (mode === 'llm-loading') return 'LLM · generating…';
-        if (mode === 'llm-error') return 'LLM error';
-        if (mode === 'needs-key') return 'API key needed';
-        if (mode === 'empty') return 'Awaiting data';
-        return '—';
     }
 
     function sourceLineForReport(ctx) {
@@ -6514,7 +6559,6 @@
         const llmErrDetail = document.getElementById('report-llm-error-detail');
         const disclEl = document.getElementById('report-disclaimer');
         const metaEl = document.getElementById('report-meta');
-        const modePill = document.getElementById('report-mode-pill');
         const regenIcon = document.getElementById('report-regen-icon');
         const regenBtn = document.getElementById('report-regen');
         const summaryLine = document.getElementById('report-summary-line');
@@ -6529,7 +6573,6 @@
 
         if (summaryLine) summaryLine.textContent = 'Full Report is your long-view summary. Weekly Report walks topic by topic.';
 
-        if (modePill) modePill.textContent = modeBadgeText(rep.mode, rep);
         if (metaEl) {
             const ts = rep.generatedAt ? new Date(rep.generatedAt).getTime() : 0;
             metaEl.textContent = ts ? ('Updated ' + relTime(ts)) : '';
@@ -7493,11 +7536,10 @@
             const d   = isFinite(sunoAudio.duration) ? sunoAudio.duration : 0;
             const c   = sunoAudio.currentTime || 0;
             const pct = d ? (c / d) * 100 : 0;
-            const played = d ? Math.round((c / d) * eqBarEls.length) : 0;
+            const p   = d ? c / d : 0;
+            const sty = window.somaEqBarProgressStyle;
             eqBarEls.forEach((bar, i) => {
-                bar.style.background = i < played
-                    ? 'linear-gradient(to top, rgba(255,255,255,0.72), rgba(255,255,255,0.24))'
-                    : 'linear-gradient(to top, rgba(255,255,255,0.18), rgba(255,255,255,0.04))';
+                bar.style.background = sty ? sty(i, eqBarEls.length, p) : 'linear-gradient(to top, rgba(255,255,255,0.18), rgba(255,255,255,0.04))';
             });
             progressThumb.style.left = pct + '%';
             timeElapsed.textContent  = fmtS(c);
@@ -7578,6 +7620,12 @@
 
     // ── Main: Tune / Start Session click ─────────────────────────────────
     tuneBtn.addEventListener('click', async () => {
+        const resume = window.somaGetActive ? window.somaGetActive() : null;
+        if (resume && (resume.status === 'playing' || resume.status === 'generating')) {
+            if (typeof window.showSessionStep === 'function') window.showSessionStep('playback');
+            return;
+        }
+
         const gate = window.somaTuneGate ? window.somaTuneGate() : null;
         if (gate) {
             window.showToast(gate);
@@ -7688,8 +7736,8 @@
     // ── Config ────────────────────────────────────────────────────────────
     const NUM_BARS   = 52;    // must match the WAVEFORM array length
     const MIN_SCALE  = 0.07;  // floor height when silent (mirrors eq-paused)
-    const ATTACK     = 0.40;  // 0‒1, higher = faster rise
-    const RELEASE    = 0.78;  // 0‒1, higher = slower fall (smooth tail)
+    const ATTACK     = 0.09;  // 0‒1, lower = softer rises (less “nervous” motion)
+    const RELEASE    = 0.93;  // 0‒1, higher = slower, silkier decay
     // Map bars to the first N% of FFT bins (covers vocals + instruments well)
     const BIN_COVER  = 0.55;
 
@@ -7709,7 +7757,7 @@
             audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             analyser = audioCtx.createAnalyser();
             analyser.fftSize              = 256;
-            analyser.smoothingTimeConstant = 0;  // we apply our own per-frame smoothing
+            analyser.smoothingTimeConstant = 0.84;  // heavier smoothing between analyser frames
             const src = audioCtx.createMediaElementSource(audioEl);
             src.connect(analyser);
             analyser.connect(audioCtx.destination);
@@ -7749,8 +7797,8 @@
             const binIdx    = Math.floor((i / NUM_BARS) * binRange);
             const freqLevel = freqBuf[binIdx] / 255;     // 0‒1
 
-            // Blend: per-bar frequency shape + global RMS boost
-            const target = Math.min(1, freqLevel * 0.85 + rms * 0.60);
+            // Blend: favor smoother RMS envelope so bars don’t snap to every FFT twitch
+            const target = Math.min(1, freqLevel * 0.72 + rms * 0.58);
 
             // Exponential envelope: fast attack, slow release
             const prev   = smooth[i];
@@ -8979,11 +9027,10 @@
                     const d = isFinite(sunoAudio.duration) ? sunoAudio.duration : 0;
                     const c = sunoAudio.currentTime || 0;
                     const pct = d ? (c / d) * 100 : 0;
-                    const played = d ? Math.round((c / d) * eqBarEls.length) : 0;
+                    const p = d ? c / d : 0;
+                    const sty = window.somaEqBarProgressStyle;
                     eqBarEls.forEach((bar, i) => {
-                        bar.style.background = i < played
-                            ? 'linear-gradient(to top, rgba(255,255,255,0.72), rgba(255,255,255,0.24))'
-                            : 'linear-gradient(to top, rgba(255,255,255,0.18), rgba(255,255,255,0.04))';
+                        bar.style.background = sty ? sty(i, eqBarEls.length, p) : 'linear-gradient(to top, rgba(255,255,255,0.18), rgba(255,255,255,0.04))';
                     });
                     if (progressThumb) progressThumb.style.left = pct + '%';
                     if (timeElapsed) timeElapsed.textContent = fmtS(c);
