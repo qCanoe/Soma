@@ -6078,7 +6078,43 @@
         debounceHandle = setTimeout(() => doRefresh(opts), opts.immediate ? 0 : DEBOUNCE_MS);
     }
 
+    function currentDemoCaseId() {
+        let id = window.__somaDemoCaseId;
+        if (id) return id;
+        if (window.somaGetActive) {
+            try {
+                const act = window.somaGetActive();
+                if (act && act.demoCaseId) return act.demoCaseId;
+            } catch (_) {}
+        }
+        return null;
+    }
+
     async function doRefresh(opts) {
+        opts = opts || {};
+        const demoId = currentDemoCaseId();
+        const demoCases = window.somaDemoCases;
+        const buildDemoNarrative = window.somaBuildDemoReportNarrative;
+        if (demoId && demoCases && demoCases[demoId] && typeof buildDemoNarrative === 'function') {
+            const ctxDemo = buildReportContext();
+            const narrativeDemo = buildDemoNarrative(demoId, ctxDemo);
+            if (narrativeDemo) {
+                const repDemo = {
+                    generatedAt: new Date().toISOString(),
+                    contextHash: ctxDemo.contextHash,
+                    window: ctxDemo.window,
+                    mode: 'llm',
+                    ctx: ctxDemo,
+                    narrative: narrativeDemo,
+                    isDemoMock: true,
+                };
+                setCached(repDemo);
+                renderReport(repDemo);
+                markFresh(true);
+                return;
+            }
+        }
+
         const ctx = buildReportContext();
         const cached = getCached();
         const enoughData = ctx.counts.completedWithFeedback >= 2;
@@ -6097,7 +6133,7 @@
             return;
         }
 
-        if (!opts.force && cached && cached.contextHash === ctx.contextHash && cached.window === ctx.window && cached.mode === 'llm' && cached.narrative) {
+        if (!opts.force && cached && !cached.isDemoMock && cached.contextHash === ctx.contextHash && cached.window === ctx.window && cached.mode === 'llm' && cached.narrative) {
             renderReport(cached);
             return;
         }
@@ -6203,7 +6239,9 @@
         };
     }
 
-    function modeBadgeText(mode) {
+    function modeBadgeText(mode, rep) {
+        rep = rep || {};
+        if (rep.isDemoMock && mode === 'llm') return 'Demo · mock';
         if (mode === 'llm') return 'LLM';
         if (mode === 'llm-loading') return 'LLM · generating…';
         if (mode === 'llm-error') return 'LLM error';
@@ -6491,7 +6529,7 @@
 
         if (summaryLine) summaryLine.textContent = 'Full Report is your long-view summary. Weekly Report walks topic by topic.';
 
-        if (modePill) modePill.textContent = modeBadgeText(rep.mode);
+        if (modePill) modePill.textContent = modeBadgeText(rep.mode, rep);
         if (metaEl) {
             const ts = rep.generatedAt ? new Date(rep.generatedAt).getTime() : 0;
             metaEl.textContent = ts ? ('Updated ' + relTime(ts)) : '';
@@ -6615,7 +6653,8 @@
     window.somaOnEnterReportView = function () {
         markFresh(false);
         const cached = getCached();
-        if (cached) renderReport(cached);
+        const demoId = currentDemoCaseId();
+        if (cached && !(cached.isDemoMock && !demoId)) renderReport(cached);
         refreshReport({ immediate: true });
         const card = document.getElementById('report-card');
         if (card) {
@@ -8118,10 +8157,11 @@
             sunoPrompt:  'Instrumental, Neo-Soul groove, 70 BPM, warm analog synthesizer and deep smooth bass, lo-fi hip hop beat with vinyl crackle, urban night rain atmosphere, relaxing jazzy chords, no lead vocal',
             // Cached music info shown in player
             cachedTrack: {
-                title:    'Midnight Window Seat',
-                subtext:  'Alpha · 10Hz',
-                mode:     'anxious',
-                audioUrl: 'https://tempfile.aiquickdraw.com/r/1e1d9961d49240c59c151e488200962e.mp3',
+                title:     'Rain on Velvet',
+                subtext:   'Alpha · 10Hz',
+                mode:      'anxious',
+                audioUrl:  'https://tempfile.aiquickdraw.com/r/7b537011620b4b7982e5e645356ad492.mp3',
+                streamUrl: 'https://musicfile.removeai.ai/MzM2M2Q5OTAtNGUwMC00ZGQxLTgyZDMtNDA2MGY4ZTU1ODI5',
             },
             // Apple Watch biometric snapshot (from data/case.md + system defaults)
             vitals: {
@@ -8137,7 +8177,7 @@
                 baselineHR:         65,
             },
             demoNarrative:
-                'Post-work tension with low HRV: lower entrainment tempo, continuous pad, and neo-soul warmth without sharp attacks — matches the cached “Midnight Window Seat” teaching track.',
+                'Post-work tension with low HRV: lower entrainment tempo, continuous pad, and neo-soul warmth without sharp attacks — matches the cached “Rain on Velvet” teaching track.',
         },
         case_002: {
             profile: {
@@ -8168,10 +8208,11 @@
             vibes:       [],
             sunoPrompt:  'Instrumental, ambient classical, 50 BPM, soft cello legato and warm flute, continuous sustained notes and pure acoustic resonance, highly peaceful and sleep inducing, absolutely no drums and no sharp attacks',
             cachedTrack: {
-                title:    'Moonlight Between Breaths',
-                subtext:  'Delta · 2Hz',
-                mode:     'sleep',
-                audioUrl: 'https://tempfile.aiquickdraw.com/r/4465c092af244f448590c2714f68ae07.mp3',
+                title:     'Moonlit Reedfield',
+                subtext:   'Delta · 2Hz',
+                mode:      'sleep',
+                audioUrl:  'https://tempfile.aiquickdraw.com/r/22991c8c210042eca112216f374464ec.mp3',
+                streamUrl: 'https://musicfile.removeai.ai/OTE4NmU5ZTItODA0NC00ZDdlLWFiOTMtOGQ1YzU0MWMzMTBm',
             },
             vitals: {
                 heartRate:          72,
@@ -8186,7 +8227,7 @@
                 baselineHR:         68,
             },
             demoNarrative:
-                'Sleep + sound sensitivity: very slow BPM, acoustic legato, no percussion, minimized transients — pairs with “Moonlight Between Breaths”.',
+                'Sleep + sound sensitivity: very slow BPM, acoustic legato, no percussion, minimized transients — pairs with “Moonlit Reedfield”.',
         },
         case_003: {
             profile: {
@@ -8217,10 +8258,11 @@
             vibes:       ['creative'],
             sunoPrompt:  'Instrumental, minimal IDM, 90 BPM, crisp clean electronic texture, steady repetitive pulse with binaural ambient, focused energy and pure concentration, no distracting melodies',
             cachedTrack: {
-                title:    'Pure Function',
-                subtext:  'Binaural · 40Hz',
-                mode:     'focus',
-                audioUrl: 'https://tempfile.aiquickdraw.com/r/9cba48be9cc340a5996246d76041ff70.mp3',
+                title:     'Pulse Chamber',
+                subtext:   'Binaural · 40Hz',
+                mode:      'focus',
+                audioUrl:  'https://tempfile.aiquickdraw.com/r/05e8cf818e4440e78954e8add39dd63e.mp3',
+                streamUrl: 'https://musicfile.removeai.ai/OWIzNjA4YmQtMTMyOS00MDljLTg4NDItNTE0MjlhMTNiY2Q3',
             },
             vitals: {
                 heartRate:          78,
@@ -8235,7 +8277,7 @@
                 baselineHR:         62,
             },
             demoNarrative:
-                'Focus context with moderate arousal: stable tempo band, sparse IDM-ish texture and binaural steadiness — demo track “Pure Function” illustrates concentration use.',
+                'Focus context with moderate arousal: stable tempo band, sparse IDM-ish texture and binaural steadiness — demo track “Pulse Chamber” illustrates concentration use.',
         },
         case_004: {
             profile: {
@@ -8266,10 +8308,11 @@
             vibes:       ['anxious', 'overwhelmed'],
             sunoPrompt:  'Instrumental, Neo-Soul meditation, 65 BPM, warm analog synth with soft humming textures, gentle lo-fi groove, supportive and encouraging mood, reduce PhD anxiety, academic stress relief, peaceful lab night atmosphere, no vocals',
             cachedTrack: {
-                title:    'Night Shift in Soft Gold',
-                subtext:  'Alpha · 10Hz',
-                mode:     'anxious',
-                audioUrl: 'https://tempfile.aiquickdraw.com/r/9dec1ae3b4ef443e9f7d556c8e5872ee.mp3',
+                title:     'Late Lab Calm',
+                subtext:   'Alpha · 10Hz',
+                mode:      'anxious',
+                audioUrl:  'https://tempfile.aiquickdraw.com/r/ea79b0366b254cf3ad0822b837d25aad.mp3',
+                streamUrl: 'https://musicfile.removeai.ai/MTljNmY3YTMtZjNmYi00YjQyLWIwOWQtMjQ0ZTgxYTcyN2Q5',
             },
             vitals: {
                 heartRate:          85,
@@ -8284,7 +8327,7 @@
                 baselineHR:         64,
             },
             demoNarrative:
-                'High stress + burnout risk: grounding recovery priority, supportive neo-soul pad, restrained dynamics — aligns with “Night Shift in Soft Gold”.',
+                'High stress + burnout risk: grounding recovery priority, supportive neo-soul pad, restrained dynamics — aligns with “Late Lab Calm”.',
         },
         case_005: {
             profile: {
@@ -8315,10 +8358,11 @@
             vibes:       ['anxious'],
             sunoPrompt:  'Instrumental, cinematic memoir, 55 BPM, warm piano with soft strings, nostalgic orchestral ambient, bittersweet reflection, middle-aged wisdom, reduce tenure anxiety, accept life complexity, gentle catharsis, hopeful resolution',
             cachedTrack: {
-                title:    'Autumn Tenure',
-                subtext:  'Theta · 6Hz',
-                mode:     'calm',
-                audioUrl: 'https://tempfile.aiquickdraw.com/r/3e42b09a8be5433c8365edb712ba68cf.mp3',
+                title:     'Paper Lantern Years',
+                subtext:   'Theta · 6Hz',
+                mode:      'calm',
+                audioUrl:  'https://tempfile.aiquickdraw.com/r/ae543e6a4208421f924c1e363ca14770.mp3',
+                streamUrl: 'https://musicfile.removeai.ai/YjYyYWNmMjItYzBjZS00ZDUzLWJmMTAtNzU1OGI5ZGY1NGI4',
             },
             vitals: {
                 heartRate:          78,
@@ -8333,9 +8377,223 @@
                 baselineHR:         70,
             },
             demoNarrative:
-                'Reflective calm for dual-role fatigue: slower cinematic bed, soft strings/piano, space for emotional processing — “Autumn Tenure” showcases that arc.',
+                'Reflective calm for dual-role fatigue: slower cinematic bed, soft strings/piano, space for emotional processing — “Paper Lantern Years” showcases that arc.',
         },
     };
+
+    window.somaDemoCases = DEMO_CASES;
+
+    function somaBuildDemoReportNarrative(caseId, ctx) {
+        const c = DEMO_CASES[caseId];
+        if (!c) return null;
+        ctx = ctx || {};
+        const p = c.profile || {};
+        const name = p.name || 'Demo';
+        const modeNice = {
+            focus: '专注', calm: '平静', sleep: '睡眠', anxious: '焦虑舒缓', ground: '接地', energy: '轻柔激活',
+            trauma: '温和神经系统支持', clarity: '清醒', release: '情绪释放', breath: '呼吸调节', body: '身体感知',
+            study: '学习专注', restore: '深度恢复', still: '安静正念', warm: '温暖抱持',
+        };
+        const modeLabel = modeNice[c.mode] || (c.mode || '—');
+        const vit = c.vitals || {};
+        const ct = c.cachedTrack || {};
+        const trackTitle = ct.title || '—';
+        const trackSub = (ct.subtext || '').trim();
+        const vibeStr = (c.vibes || []).join('、') || '—';
+        const stats = ctx.windowStats || ctx.fullStats;
+        const n = stats && typeof stats.n === 'number' ? stats.n : 0;
+        const helped = stats && typeof stats.helpedRate === 'number' ? stats.helpedRate : 0;
+        const avgCalm = stats && stats.avgCalmAfter != null ? stats.avgCalmAfter : null;
+        const streakDays = stats && stats.consecutiveFeedbackDays != null ? stats.consecutiveFeedbackDays : null;
+        const demoLine = (c.demoNarrative || '').trim();
+        const moodFull = (c.moodInput || '').trim();
+        const moodClip = moodFull.length > 110 ? moodFull.slice(0, 110) + '…' : moodFull;
+        const goalsStr = (p.goals || []).slice(0, 5).join('、') || '—';
+        const emoStr = (p.emotions || []).slice(0, 5).join('、') || '—';
+        const stylesStr = (p.styles || []).slice(0, 5).join('、') || '—';
+        const fluct = (p.fluctuation || []).slice(0, 3).join('、') || '';
+        const sleepSelf = p.sleep != null ? String(p.sleep) + ' / 10' : '—';
+        const rhythmLbl = p.rhythm != null ? String(p.rhythm) + ' / 5' : '—';
+        const vol = (p.volume || '—').trim();
+        const notesClip = ((p.notes || '').trim());
+        const notesShort = notesClip.length > 140 ? notesClip.slice(0, 140) + '…' : notesClip;
+        const sensitiveRaw = (p.sensitive || '').trim();
+        const sensitiveShort = sensitiveRaw.length > 100 ? sensitiveRaw.slice(0, 100) + '…' : sensitiveRaw;
+
+        const hrNum = vit.heartRate;
+        const baseNum = vit.baselineHR;
+        const hr = hrNum != null ? String(hrNum) + ' bpm' : '—';
+        const stress = vit.stressScore != null ? String(vit.stressScore) + '/10' : '—';
+        let hrVsBase = '—';
+        if (hrNum != null && baseNum != null) {
+            const d = hrNum - baseNum;
+            hrVsBase = (d > 0 ? '+' : '') + d + ' vs 基线 ' + baseNum;
+        }
+
+        const sleepStageCn = { awake: '清醒', light: '浅睡', deep: '深睡', rem: 'REM' }[vit.sleepStage] || (vit.sleepStage || '—');
+        const motion = vit.bodyMotion;
+        const motionMag = motion && typeof motion.x === 'number'
+            ? Math.round(Math.sqrt(motion.x * motion.x + motion.y * motion.y + motion.z * motion.z) * 100) / 100
+            : null;
+
+        const pipe = ctx.physiology && ctx.physiology.pipeline;
+        const pipeParts = [];
+        if (pipe && pipe.targetBpm != null) pipeParts.push('目标 tempo ~' + pipe.targetBpm + ' BPM');
+        if (pipe && pipe.stressState) pipeParts.push('状态 ' + String(pipe.stressState));
+        if (pipe && pipe.recoveryPriority) pipeParts.push('恢复侧重 ' + String(pipe.recoveryPriority));
+        if (pipe && pipe.arousal != null) pipeParts.push('唤醒度索引 ' + String(pipe.arousal));
+        const pipeSentence = pipeParts.length ? ('MindWave 管线（演示）：' + pipeParts.join(' · ') + '。') : '';
+
+        const themes = (ctx.moodThemes || []).filter(function (t) { return t.count > 0; }).slice(0, 4);
+        const themeSentence = themes.length
+            ? ('关键词主题命中：' + themes.map(function (t) { return t.label + ' ×' + t.count; }).join('，') + '。')
+            : '';
+
+        const recent = ctx.recentSessions && ctx.recentSessions[0];
+        let recentSentence = '';
+        if (recent) {
+            const ca = recent.feedback && recent.feedback.calmAfter != null ? recent.feedback.calmAfter + '/5' : '—';
+            const help = (recent.feedback && recent.feedback.helpfulness) || '—';
+            recentSentence = '时间线最近一条：' + String(recent.mode || '—') + ' 模式，平静感 ' + ca + '，帮助感「' + help + '」。';
+        }
+
+        const achMet = (ctx.achievements || []).filter(function (a) { return a.met; });
+        const achPending = (ctx.achievements || []).filter(function (a) { return !a.met; }).slice(0, 2);
+        let achSummary = '';
+        if (achMet.length) {
+            achSummary = '已达成：' + achMet.slice(0, 4).map(function (a) { return a.title; }).join('；');
+            if (achMet.length > 4) achSummary += '…';
+        }
+        if (achPending.length) {
+            achSummary += (achSummary ? ' · ' : '') + '可追逐：' + achPending.map(function (a) { return a.title; }).join('、');
+        }
+        if (!achSummary) achSummary = '演示合并种子会话前，部分徽章为待解锁状态。';
+
+        const bpmMatch = (c.sunoPrompt || '').match(/(\d+)\s*BPM/i);
+        const bpmHint = bpmMatch ? bpmMatch[1] + ' BPM' : null;
+        const sunoClip = (c.sunoPrompt || '').trim();
+        const sunoTeaser = sunoClip.length > 160 ? sunoClip.slice(0, 160) + '…' : sunoClip;
+
+        let summary = '预置演示数据 · 无 OpenAI。' + name + ' 当前 Case：曲目「' + trackTitle + '」' +
+            (trackSub ? '（' + trackSub + '）' : '') + '；会话模式「' + modeLabel + '」· Vibes「' + vibeStr + '」。';
+        summary += ' 主诉：「' + (moodClip || '—') + '」。';
+        if (notesShort) summary += ' 档案备注：' + notesShort;
+        summary += ' ';
+        if (n) {
+            summary += '库内 ' + n + ' 条含反馈完成会话，约 ' + helped + '% 标记「有帮助」';
+            if (avgCalm != null) summary += '，平均课后平静 ' + avgCalm + '/5';
+            summary += '。';
+        } else summary += '若本地尚无会话种子，统计卡片仍会显示本案例体征与档案字段。';
+        if (streakDays != null && streakDays >= 2) summary += ' 连续反馈约 ' + streakDays + ' 天（含演示种子）。';
+        if (themeSentence) summary += ' ' + themeSentence;
+        if (recentSentence) summary += ' ' + recentSentence;
+        if (demoLine) summary += ' ' + demoLine;
+
+        const facts = [
+            { label: 'Demo case', value: caseId.replace('_', ' ') },
+            { label: '演示曲目', value: trackTitle + (trackSub ? ' · ' + trackSub : '') },
+            { label: '模式 · Vibe', value: modeLabel + ' · ' + vibeStr },
+            { label: '睡眠自评', value: sleepSelf },
+            { label: '节奏 / 音量', value: rhythmLbl + ' · ' + vol },
+            { label: '心率 · 相对基线', value: hr + (hrVsBase !== '—' ? '（' + hrVsBase + '）' : '') },
+            { label: 'HRV · 压力', value: (vit.hrv != null ? vit.hrv + ' ms' : '—') + ' · ' + stress },
+            { label: 'SpO₂ · RR', value: (vit.bloodOxygen != null ? vit.bloodOxygen + '%' : '—') + ' · ' + (vit.respiratoryRate != null ? vit.respiratoryRate + '/min' : '—') },
+            { label: '环境 · 腕温', value: (vit.ambientNoise != null ? vit.ambientNoise + ' dB' : '—') + ' · ' + (vit.wristTemperature != null ? vit.wristTemperature + ' °C' : '—') },
+            { label: '睡眠阶段 · 运动', value: sleepStageCn + (motionMag != null ? ' · 运动幅值≈' + motionMag : '') },
+        ];
+        if (bpmHint) facts.push({ label: 'Prompt tempo', value: bpmHint });
+        if (stats) {
+            facts.push({ label: '含反馈会话', value: String(stats.n) });
+            facts.push({ label: '有帮助占比', value: stats.helpedRate + '%' });
+            if (avgCalm != null) facts.push({ label: '平均平静', value: avgCalm + '/5' });
+            if (streakDays != null && streakDays >= 1) facts.push({ label: '连续反馈日', value: String(streakDays) + ' d' });
+        }
+
+        const overview = {
+            headline: name + ' · 全览（演示数据集 · 与 Live Vitals 同步）',
+            summary: summary,
+            facts: facts,
+            dataQuality: (ctx.dataQuality || 'Demo') + ' · mock · teaching',
+        };
+
+        const section = function (summary, plain, tryNext) {
+            return { summary: summary, plainMeaning: plain, tryNext: tryNext };
+        };
+
+        const hiStress = vit.stressScore != null && vit.stressScore >= 8;
+        const lowHrv = vit.hrv != null && vit.hrv <= 40;
+
+        const sections = {
+            trends: section(
+                '趋势（演示）：本窗口内平静感' + (avgCalm != null ? '平均 ' + avgCalm + '/5' : '需更多反馈才能收敛均值') +
+                    (streakDays != null && streakDays >= 2 ? '；连续记录约 ' + streakDays + ' 天，利于观察情绪节律。' : '；可强调「每日一次简短反馈」的教学卖点。') +
+                    (n >= 3 ? ' 多条归档让「有帮助」占比更可信。' : '') +
+                    (recentSentence ? ' ' + recentSentence : ''),
+                '线上版本中，这段由模型读取 facts窗口统计，不自造数字；此处数字来自你的 localStorage 演示种子或真实历史。',
+                '演示脚本：完成两次反馈 → 切到 Full Report → 再比对 Weekly 视窗。'
+            ),
+            patterns: section(
+                '档案画像：目标「' + goalsStr + '」；情绪标签「' + emoStr + '」；偏好风格「' + stylesStr + '」。' +
+                    (fluct ? ' 自述波动段：' + fluct + '。' : '') +
+                    ' 输入区原文与上述标签应相互印证，便于讲「为什么推荐这首」。' +
+                    (sensitiveShort ? ' 听感边界：' + sensitiveShort : ''),
+                '切换不同 Demo Case 时，可对比「高压白领 vs 大学生 vs PhD 熬夜」三类叙事如何映射到模式与编曲说明。',
+                '向观众指出 Vibe 多选与会话模式共同约束 Suno Prompt 语气与节奏。'
+            ),
+            physiology: section(
+                (vit.heartRate != null
+                    ? '腕部快照：HR ' + vit.heartRate + ' bpm' +
+                        (baseNum != null ? '（静息基线约 ' + baseNum + '）' : '') +
+                        (vit.hrv != null ? '，HRV ' + vit.hrv + ' ms' : '') +
+                        (vit.respiratoryRate != null ? '，RR ' + vit.respiratoryRate + '/min' : '') +
+                        (vit.bloodOxygen != null ? '，SpO₂ ' + vit.bloodOxygen + '%' : '') +
+                        (vit.ambientNoise != null ? '，环境 ' + vit.ambientNoise + ' dB' : '') +
+                        (vit.wristTemperature != null ? '，腕温 ' + vit.wristTemperature + ' °C' : '') +
+                        '；主观压力 ' + stress + '，阶段「' + sleepStageCn + '」。'
+                    : '本案例未绑定腕部快照。') +
+                    (motionMag != null ? ' 运动矢量合成幅值约 ' + motionMag + '（演示向观众解释「静坐 vs 走动」）。' : '') +
+                    (hiStress ? ' 压力分偏高：讲解时可强调慢起音与宽立体声像。' : '') +
+                    (lowHrv && vit.hrv != null ? ' HRV 偏低：适合低刺激、稳定脉冲类编曲。' : '') +
+                    (pipeSentence ? ' ' + pipeSentence : ' （当前未拉到 MindWave 结果：可先 load case 触发管线再刷新报告。）'),
+                '生理读数应与 Vitals 面板一致；这一段负责把「可穿戴数据」翻译成「音乐策略」讲解话术。',
+                '若现场 Wi‑Fi 慢：提前载入 Case，确保 HR/HRV 与推荐卡片同步出现。'
+            ),
+            achievements: section(
+                achSummary +
+                    (streakDays != null && streakDays >= 2 ? ' 连续反馈把「 streak 」类成就点亮，适合截图传播。' : '') +
+                    (n >= 5 ? ' 演示库已合并 5 条种子会话，成就区应较满。' : ''),
+                '真实用户可能从 0 起步：说明「保存反馈 → 成就与时间线才启动」。' +
+                    (themeSentence ? ' ' + themeSentence : ''),
+                '设置里可清 Report cache；会话种子可用「载入演示历史」重新灌入。'
+            ),
+            recommendations: section(
+                '曲目侧：「' + trackTitle + '」' + (bpmHint ? '约 ' + bpmHint : '') +
+                    ' — Prompt 摘要：' + (sunoTeaser || '（无）') +
+                    '。疗程侧：维持「' + modeLabel + '」主模式，节奏偏好 ' + rhythmLbl + '、音量「' + vol + '」。' +
+                    (hiStress ? ' 高压档建议下一次减一档强度或改 Calm/Sleep 预览。' : ''),
+                '演示话术：先念主诉 → 再指 HR/HRV → 再展示曲目标题与 Prompt 关键词闭链。',
+                '退出演示：历史里选「Use as template」或结束当前 active session，即恢复真实 LLM 报告路径。'
+            ),
+        };
+
+        const recommendationPills = [
+            { label: '套用「' + modeLabel + '」预设', action: { mode: c.mode } },
+            { label: 'Calm · 30 分钟', action: { mode: 'calm', durationMin: 30 } },
+        ];
+        if (hiStress || c.mode === 'sleep') {
+            recommendationPills.push({ label: '睡眠向 · 45 分钟', action: { mode: 'sleep', durationMin: 45 } });
+        }
+        if (c.mode === 'focus' || c.mode === 'study') {
+            recommendationPills.push({ label: '专注 · 轻强度', action: { mode: c.mode, intensity: 2 } });
+        }
+        if (lowHrv && vit.stressScore != null && vit.stressScore >= 7) {
+            recommendationPills.push({ label: '减一档强度', action: { intensity: 2 } });
+        }
+
+        return { overview: overview, sections: sections, recommendationPills: recommendationPills };
+    }
+
+    window.somaBuildDemoReportNarrative = somaBuildDemoReportNarrative;
 
     const DEMO_HISTORY_CASE_ORDER = ['case_001', 'case_002', 'case_003', 'case_004', 'case_005'];
 
@@ -8835,6 +9093,9 @@
             if (window.somaStartDemoSession) window.somaStartDemoSession(caseId, c);
             if (window.somaRefreshDraft) window.somaRefreshDraft();
             if (window.showToast) window.showToast(`Loaded: ${c.profile.name} · ${caseId.replace('_',' ')}`);
+            if (window.SomaReport && typeof window.SomaReport.refresh === 'function') {
+                window.SomaReport.refresh({ immediate: true, force: true });
+            }
         });
     }
 
