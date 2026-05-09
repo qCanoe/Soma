@@ -133,6 +133,8 @@
         #settings-view #settings-nav-inner {
             scrollbar-width: thin;
             scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+            scroll-snap-type: x proximity;
+            scroll-padding-inline: 0.75rem;
         }
         #settings-view #settings-nav-inner::-webkit-scrollbar {
             height: 4px;
@@ -141,6 +143,15 @@
         #settings-view #settings-nav-inner::-webkit-scrollbar-thumb {
             background: rgba(255, 255, 255, 0.12);
             border-radius: 999px;
+        }
+        #settings-view #settings-nav-inner [role="tab"] {
+            scroll-snap-align: start;
+            scroll-margin-inline: 0.35rem;
+            transition:
+                color 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+                background-color 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.26s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.26s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
         /* Settings: compact rows (title + control), stacks on narrow viewports */
@@ -167,6 +178,31 @@
                 flex-shrink: 0;
                 align-self: center;
             }
+        }
+        .settings-panel-intro {
+            max-width: 68ch;
+        }
+        .settings-row-toggle {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            width: 100%;
+        }
+        @media (min-width: 520px) {
+            .settings-row-toggle {
+                width: auto;
+                justify-content: flex-end;
+            }
+        }
+        .settings-inline-state {
+            font-size: 0.6875rem;
+            font-weight: 300;
+            letter-spacing: 0.04em;
+            color: rgba(255, 255, 255, 0.36);
+            min-width: 2.25rem;
+            text-align: right;
         }
         .settings-setting-title {
             font-size: 0.8125rem;
@@ -195,7 +231,10 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             background: rgba(255, 255, 255, 0.03);
             color: rgba(255, 255, 255, 0.48);
-            transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+            transition:
+                border-color 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+                background 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+                color 0.22s cubic-bezier(0.22, 1, 0.36, 1);
         }
         .settings-segment button.settings-segment-btn:hover {
             border-color: rgba(255, 255, 255, 0.14);
@@ -212,12 +251,15 @@
         }
         button.settings-toggle {
             position: relative;
+            flex-shrink: 0;
             width: 2.75rem;
             height: 1.5rem;
             border-radius: 9999px;
             border: 1px solid rgba(255, 255, 255, 0.12);
             background: rgba(255, 255, 255, 0.06);
-            transition: background 0.2s ease, border-color 0.2s ease;
+            transition:
+                background 0.22s cubic-bezier(0.22, 1, 0.36, 1),
+                border-color 0.22s cubic-bezier(0.22, 1, 0.36, 1);
         }
         button.settings-toggle[aria-pressed="true"] {
             background: rgba(255, 255, 255, 0.14);
@@ -236,6 +278,41 @@
         }
         button.settings-toggle[aria-pressed="true"]::after {
             transform: translateX(1.15rem);
+        }
+        #settings-privacy-summary.settings-privacy-summary--rich {
+            display: grid;
+            gap: 0.45rem 1rem;
+            grid-template-columns: 1fr auto;
+            align-items: baseline;
+        }
+        #settings-privacy-summary.settings-privacy-summary--rich .settings-privacy-k {
+            font-size: 0.6875rem;
+            font-weight: 300;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.32);
+        }
+        #settings-privacy-summary.settings-privacy-summary--rich .settings-privacy-v {
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.72);
+            text-align: right;
+        }
+        .settings-danger-zone {
+            margin-top: 0.35rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+        }
+        .settings-danger-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        @media (min-width: 520px) {
+            .settings-danger-actions {
+                flex-direction: row;
+                flex-wrap: wrap;
+            }
         }
         html.soma-aura-off .aura-background-component {
             opacity: 0 !important;
@@ -623,11 +700,11 @@
         /* Custom Input Styling */
         .ethereal-input {
             background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
-            box-shadow: inset 0 1px 1px rgba(255,255,255,0.08), 0 8px 32px rgba(0,0,0,0.2);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.06), 0 4px 20px rgba(0,0,0,0.18);
         }
         .ethereal-input:focus-within {
             background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
-            box-shadow: inset 0 1px 1px rgba(255,255,255,0.15), 0 0 25px rgba(180, 198, 218, 0.1);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.12), 0 0 18px rgba(180, 198, 218, 0.08);
             border-color: rgba(255,255,255,0.2);
         }
         
@@ -1752,12 +1829,12 @@
                 How are you feeling <i class="text-white/50">today?</i>
             </h1>
             
-            <div class="soma-checkin-input-row flex flex-col gap-3 sm:flex-row sm:items-center group w-full min-w-0 ethereal-input rounded-2xl sm:rounded-full border border-white/10 transition-all duration-500 animate-stagger-2">
+            <div class="soma-checkin-input-row flex flex-col gap-2 sm:gap-0 sm:flex-row sm:items-center group w-full min-w-0 ethereal-input rounded-2xl sm:rounded-full border border-white/10 transition-all duration-500 animate-stagger-2 sm:py-0.5">
                 <input id="mood-input" type="text" placeholder="e.g., anxious, need focus, can't sleep..." 
-                       class="min-w-0 flex-1 bg-transparent py-4 sm:py-5 px-6 sm:pl-8 sm:pr-3 text-white/90 placeholder:text-white/30 focus:outline-none text-base sm:text-lg font-normal tracking-wide caret-white selection:bg-white/20">
-                <button id="tune-btn" type="button" class="mb-3 sm:mb-0 mx-3 sm:mx-0 sm:mr-3 flex min-h-[2.75rem] w-auto shrink-0 items-center justify-center gap-2 self-stretch rounded-xl sm:rounded-full border border-white/5 bg-white/10 px-6 text-sm font-medium text-white backdrop-blur-md transition-all hover:bg-white/20 sm:hover:scale-105 touch-manipulation">
-                    <iconify-icon id="tune-icon" icon="lucide:sparkles" width="16"></iconify-icon>
-                    <span id="tune-label">Start guided session</span>
+                       class="min-w-0 flex-1 bg-transparent py-2.5 sm:py-3 px-4 sm:pl-6 sm:pr-2 text-white/90 placeholder:text-white/30 focus:outline-none text-sm sm:text-base font-normal tracking-wide caret-white selection:bg-white/20">
+                <button id="tune-btn" type="button" class="mb-2 sm:mb-0 mx-2.5 sm:mx-0 sm:mr-2.5 flex min-h-[2.35rem] sm:min-h-[2.35rem] w-auto shrink-0 items-center justify-center gap-1.5 self-stretch rounded-xl sm:rounded-full border border-white/5 bg-white/10 px-4 sm:px-4 text-xs sm:text-sm font-medium text-white backdrop-blur-md transition-all hover:bg-white/20 sm:hover:scale-105 touch-manipulation">
+                    <iconify-icon id="tune-icon" icon="lucide:sparkles" width="14"></iconify-icon>
+                    <span id="tune-label">Resonate</span>
                 </button>
             </div>
 
@@ -2651,10 +2728,10 @@
                             </div>
                         </nav>
                         <div id="settings-content" class="flex-1 min-h-0 overflow-y-auto overscroll-y-contain">
-                            <div class="w-full max-w-xl mx-auto px-4 sm:px-6 py-5 md:py-8 flex flex-col gap-5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+                            <div class="w-full max-w-xl lg:max-w-2xl mx-auto px-4 sm:px-6 py-5 md:py-9 flex flex-col gap-6 md:gap-7 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
                                 <div id="settings-panel-experience" role="tabpanel" aria-labelledby="settings-tab-experience" class="hidden flex flex-col" hidden aria-hidden="true">
                                     <span class="soma-section-label">Experience</span>
-                                    <p class="text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Tune visuals and density. Everything stays on this device unless you add keys under Integrations.</p>
+                                    <p class="settings-panel-intro text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Tune visuals and density. Everything stays on this device unless you add keys under Integrations.</p>
                                     <div class="settings-setting-row">
                                         <div class="settings-setting-row-main">
                                             <div class="settings-setting-title">Ambient background</div>
@@ -2699,7 +2776,7 @@
 
                                 <div id="settings-panel-session" role="tabpanel" aria-labelledby="settings-tab-session" class="hidden flex flex-col" hidden aria-hidden="true">
                                     <span class="soma-section-label">Session defaults</span>
-                                    <p class="text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Starting values when you open Session. You can still change them before each listen.</p>
+                                    <p class="settings-panel-intro text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Starting values when you open Session. You can still change them before each listen.</p>
                                     <div class="settings-setting-row">
                                         <div class="settings-setting-row-main">
                                             <div class="settings-setting-title">Default mode</div>
@@ -2763,14 +2840,17 @@
 
                                 <div id="settings-panel-playback" role="tabpanel" aria-labelledby="settings-tab-playback" class="hidden flex flex-col" hidden aria-hidden="true">
                                     <span class="soma-section-label">Playback</span>
-                                    <p class="text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Controls how the player starts and skips.</p>
+                                    <p class="settings-panel-intro text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Controls how the player starts and skips.</p>
                                     <div class="settings-setting-row">
                                         <div class="settings-setting-row-main">
                                             <div class="settings-setting-title">Auto-start audio</div>
                                             <p class="settings-setting-desc">When on, the timer strip begins moving after load. Suno tracks still honor this after generation.</p>
                                         </div>
                                         <div class="settings-setting-row-controls">
-                                            <button type="button" id="settings-toggle-autoplay" class="settings-toggle" aria-pressed="true" aria-label="Auto-start audio"></button>
+                                            <div class="settings-row-toggle">
+                                                <span id="settings-toggle-autoplay-state" class="settings-inline-state" aria-hidden="true">On</span>
+                                                <button type="button" id="settings-toggle-autoplay" class="settings-toggle" aria-pressed="true" aria-label="Auto-start audio"></button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="settings-setting-row">
@@ -2779,7 +2859,10 @@
                                             <p class="settings-setting-desc">Brief toast when the timer or Suno track reaches the end.</p>
                                         </div>
                                         <div class="settings-setting-row-controls">
-                                            <button type="button" id="settings-toggle-endsound" class="settings-toggle" aria-pressed="false" aria-label="Session complete toast"></button>
+                                            <div class="settings-row-toggle">
+                                                <span id="settings-toggle-endsound-state" class="settings-inline-state" aria-hidden="true">Off</span>
+                                                <button type="button" id="settings-toggle-endsound" class="settings-toggle" aria-pressed="false" aria-label="Session complete toast"></button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="settings-setting-row">
@@ -2802,14 +2885,17 @@
                                             <p class="settings-setting-desc">Shows the frequency label row under the timer.</p>
                                         </div>
                                         <div class="settings-setting-row-controls">
-                                            <button type="button" id="settings-toggle-freqinfo" class="settings-toggle" aria-pressed="true" aria-label="Show wave detail chip"></button>
+                                            <div class="settings-row-toggle">
+                                                <span id="settings-toggle-freqinfo-state" class="settings-inline-state" aria-hidden="true">Show</span>
+                                                <button type="button" id="settings-toggle-freqinfo" class="settings-toggle" aria-pressed="true" aria-label="Show wave detail chip"></button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div id="settings-panel-report" role="tabpanel" aria-labelledby="settings-tab-report" class="hidden flex flex-col" hidden aria-hidden="true">
                                     <span class="soma-section-label">Diagnostic report</span>
-                                    <p class="text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Offline template stays the default. Add an OpenAI key under Integrations for richer narration.</p>
+                                    <p class="settings-panel-intro text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Offline template stays the default. Add an OpenAI key under Integrations for richer narration.</p>
                                     <div class="settings-setting-row">
                                         <div class="settings-setting-row-main">
                                             <div class="settings-setting-title">Default time window</div>
@@ -2829,7 +2915,10 @@
                                             <p class="settings-setting-desc">Short factual bullets under each topic summary.</p>
                                         </div>
                                         <div class="settings-setting-row-controls">
-                                            <button type="button" id="settings-toggle-evidence" class="settings-toggle" aria-pressed="true" aria-label="Show evidence bullets"></button>
+                                            <div class="settings-row-toggle">
+                                                <span id="settings-toggle-evidence-state" class="settings-inline-state" aria-hidden="true">Show</span>
+                                                <button type="button" id="settings-toggle-evidence" class="settings-toggle" aria-pressed="true" aria-label="Show evidence bullets"></button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="settings-setting-row border-b-0">
@@ -2838,37 +2927,42 @@
                                             <p class="settings-setting-desc">When off, topics reopen with their default layout next time.</p>
                                         </div>
                                         <div class="settings-setting-row-controls">
-                                            <button type="button" id="settings-toggle-remember-expanded" class="settings-toggle" aria-pressed="true" aria-label="Remember expanded sections"></button>
+                                            <div class="settings-row-toggle">
+                                                <span id="settings-toggle-remember-expanded-state" class="settings-inline-state" aria-hidden="true">On</span>
+                                                <button type="button" id="settings-toggle-remember-expanded" class="settings-toggle" aria-pressed="true" aria-label="Remember expanded sections"></button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div id="settings-panel-privacy" role="tabpanel" aria-labelledby="settings-tab-privacy" class="hidden flex flex-col" hidden aria-hidden="true">
                                     <span class="soma-section-label">Privacy &amp; data</span>
-                                    <p class="text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Everything below stays in this browser until you clear it.</p>
-                                    <div id="settings-privacy-summary" class="text-xs text-white/42 font-light leading-relaxed rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 mb-2"></div>
-                                    <button type="button" id="settings-export-data" class="text-xs font-light px-5 py-2.5 rounded-full border bg-white/[0.06] border-white/14 text-white/78 hover:border-white/26 hover:bg-white/[0.09] inline-flex items-center gap-2 self-start">
+                                    <p class="settings-panel-intro text-sm text-white/35 font-light mt-3 mb-1 leading-relaxed">Everything below stays in this browser until you clear it.</p>
+                                    <div id="settings-privacy-summary" class="settings-privacy-summary--rich rounded-2xl border border-white/[0.08] bg-white/[0.03] px-4 py-3.5 mb-3"></div>
+                                    <button type="button" id="settings-export-data" class="text-xs font-light px-5 py-2.5 rounded-full border bg-white/[0.06] border-white/14 text-white/78 hover:border-white/26 hover:bg-white/[0.09] inline-flex items-center gap-2 self-start transition-[border-color,background-color] duration-200 ease-out">
                                         <iconify-icon icon="lucide:download" width="13"></iconify-icon>
                                         Export local JSON (no API keys)
                                     </button>
-                                    <p class="text-[0.65rem] text-white/28 font-light mt-3 mb-2">Danger zone</p>
-                                    <div class="flex flex-col sm:flex-row flex-wrap gap-2">
-                                        <button type="button" id="settings-clear-sessions" class="text-xs font-light px-4 py-2 rounded-full border border-white/10 text-white/55 hover:text-white hover:border-white/22">Clear sessions</button>
-                                        <button type="button" id="settings-clear-profile" class="text-xs font-light px-4 py-2 rounded-full border border-white/10 text-white/55 hover:text-white hover:border-white/22">Clear profile</button>
-                                        <button type="button" id="settings-clear-report-cache" class="text-xs font-light px-4 py-2 rounded-full border border-white/10 text-white/55 hover:text-white hover:border-white/22">Clear report cache</button>
-                                        <button type="button" id="settings-clear-keys" class="text-xs font-light px-4 py-2 rounded-full border border-rose-400/25 text-rose-200/85 hover:border-rose-400/45">Clear API keys</button>
-                                        <button type="button" id="settings-clear-all-local" class="text-xs font-light px-4 py-2 rounded-full border border-rose-400/35 text-rose-200/95 hover:border-rose-400/55">Reset all local data</button>
+                                    <div class="settings-danger-zone">
+                                        <p class="text-[0.65rem] text-white/28 font-light mb-2 tracking-wide uppercase">Danger zone</p>
+                                        <div class="settings-danger-actions">
+                                            <button type="button" id="settings-clear-sessions" class="text-xs font-light px-4 py-2 rounded-full border border-white/10 text-white/55 hover:text-white hover:border-white/22">Clear sessions</button>
+                                            <button type="button" id="settings-clear-profile" class="text-xs font-light px-4 py-2 rounded-full border border-white/10 text-white/55 hover:text-white hover:border-white/22">Clear profile</button>
+                                            <button type="button" id="settings-clear-report-cache" class="text-xs font-light px-4 py-2 rounded-full border border-white/10 text-white/55 hover:text-white hover:border-white/22">Clear report cache</button>
+                                            <button type="button" id="settings-clear-keys" class="text-xs font-light px-4 py-2 rounded-full border border-rose-400/25 text-rose-200/85 hover:border-rose-400/45">Clear API keys</button>
+                                            <button type="button" id="settings-clear-all-local" class="text-xs font-light px-4 py-2 rounded-full border border-rose-400/35 text-rose-200/95 hover:border-rose-400/55">Reset all local data</button>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div id="settings-panel-integrations" role="tabpanel" aria-labelledby="settings-tab-integrations" class="flex flex-col gap-5" aria-hidden="false">
+                                <div id="settings-panel-integrations" role="tabpanel" aria-labelledby="settings-tab-integrations" class="flex flex-col gap-5 md:gap-6" aria-hidden="false">
                                     <div>
                                         <span class="soma-section-label">Integrations</span>
-                                        <p class="text-sm text-white/35 font-light mt-3 leading-relaxed">Optional keys unlock live generation and richer reporting. Keys never touch a first-party Soma server in this demo.</p>
+                                        <p class="settings-panel-intro text-sm text-white/35 font-light mt-3 leading-relaxed">Optional keys unlock live generation and richer reporting. Keys never touch a first-party Soma server in this demo.</p>
                                         <p id="settings-integration-status" class="text-xs text-white/40 font-light mt-2 leading-relaxed"></p>
                                     </div>
                                     <div id="apikey-modal" class="w-full flex flex-col">
-                                        <div id="apikey-card" class="relative z-10 w-full max-w-none glass-panel rounded-3xl p-8 flex flex-col gap-6">
+                                        <div id="apikey-card" class="relative z-10 w-full max-w-none glass-panel rounded-3xl p-6 md:p-7 flex flex-col gap-5 md:gap-6">
                                                 <div class="flex items-start justify-between gap-3">
                                                     <div class="flex flex-col gap-1 min-w-0">
                                                         <div class="flex items-center gap-2">
@@ -2900,7 +2994,7 @@
                                             </div>
                                     </div>
                                     <div id="openai-key-modal" class="w-full flex flex-col">
-                                        <div class="relative z-10 w-full max-w-none glass-panel rounded-3xl p-8 flex flex-col gap-6">
+                                        <div class="relative z-10 w-full max-w-none glass-panel rounded-3xl p-6 md:p-7 flex flex-col gap-5 md:gap-6">
                                             <div class="flex items-center gap-2">
                                                 <div class="w-7 h-7 rounded-full border border-white/15 bg-white/5 flex items-center justify-center">
                                                     <iconify-icon icon="lucide:sparkles" width="13" class="text-white/60"></iconify-icon>
@@ -6618,9 +6712,6 @@
     function syncKeyIndicator() {
         const has = !!getKey();
         if (apikeyDot) apikeyDot.classList.toggle('hidden', !has);
-        if (tuneBtnLabel) {
-            tuneBtnLabel.textContent = has ? 'Start session' : 'Start guided session';
-        }
     }
 
     // ── API Key (Settings workspace) ─────────────────────────────────────
@@ -6726,18 +6817,21 @@
             for (var i = 0; i < parts.length; i++) obj = obj && obj[parts[i]];
             var on = (obj !== undefined && String(obj) === String(val));
             btn.classList.toggle('settings-segment-active', on);
+            btn.setAttribute('aria-pressed', on ? 'true' : 'false');
         });
-        function togg(id, pressed) {
-            var el = document.getElementById(id);
+        function syncToggleLabels(btnId, pressed, onText, offText) {
+            var el = document.getElementById(btnId);
             if (el) el.setAttribute('aria-pressed', pressed ? 'true' : 'false');
+            var lab = document.getElementById(btnId + '-state');
+            if (lab) lab.textContent = pressed ? onText : offText;
         }
         var pb = full.playback || {};
-        togg('settings-toggle-autoplay', pb.autoplay !== false);
-        togg('settings-toggle-endsound', !!pb.endSound);
-        togg('settings-toggle-freqinfo', pb.showFrequencyInfo !== false);
+        syncToggleLabels('settings-toggle-autoplay', pb.autoplay !== false, 'On', 'Off');
+        syncToggleLabels('settings-toggle-endsound', !!pb.endSound, 'On', 'Off');
+        syncToggleLabels('settings-toggle-freqinfo', pb.showFrequencyInfo !== false, 'Show', 'Hide');
         var rp = full.report || {};
-        togg('settings-toggle-evidence', rp.evidenceVisible !== false);
-        togg('settings-toggle-remember-expanded', rp.rememberExpandedTopics !== false);
+        syncToggleLabels('settings-toggle-evidence', rp.evidenceVisible !== false, 'Show', 'Hide');
+        syncToggleLabels('settings-toggle-remember-expanded', rp.rememberExpandedTopics !== false, 'On', 'Off');
     }
 
     function updatePrivacySummaryBlock() {
@@ -6755,7 +6849,21 @@
         var oai = false;
         try { suno = !!(localStorage.getItem(LS_KEY) || '').trim(); } catch (_) {}
         try { oai = !!(localStorage.getItem(LS_OPENAI_STORE) || '').trim(); } catch (_) {}
-        el.textContent = 'Saved sessions: ' + n + '. Profile: ' + (prof ? 'yes' : 'no') + '. Suno key: ' + (suno ? 'set' : 'none') + '. OpenAI key: ' + (oai ? 'set' : 'none') + '.';
+        while (el.firstChild) el.removeChild(el.firstChild);
+        function row(label, value) {
+            var kEl = document.createElement('span');
+            kEl.className = 'settings-privacy-k';
+            kEl.textContent = label;
+            var vEl = document.createElement('span');
+            vEl.className = 'settings-privacy-v';
+            vEl.textContent = value;
+            el.appendChild(kEl);
+            el.appendChild(vEl);
+        }
+        row('Sessions saved', String(n));
+        row('Profile', prof ? 'Yes' : 'No');
+        row('Suno key', suno ? 'Saved' : 'None');
+        row('OpenAI key', oai ? 'Saved' : 'None');
     }
 
     function updateIntegrationStatusLine() {
@@ -6818,6 +6926,12 @@
             }
         });
         if (opts.scrollTopContent && settingsContentEl) settingsContentEl.scrollTop = 0;
+        var activeTab = document.getElementById('settings-tab-' + sectionId);
+        if (activeTab) {
+            try {
+                activeTab.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'smooth' });
+            } catch (_) {}
+        }
         if (opts.focusTab) {
             var ft = document.getElementById('settings-tab-' + sectionId);
             if (ft) try { ft.focus(); } catch (_) {}
@@ -7081,7 +7195,7 @@
         } else {
             tuneBtn.classList.remove('loading');
             tuneBtnIcon.setAttribute('icon', 'lucide:sparkles');
-            tuneBtnLabel.textContent = 'Start Session';
+            tuneBtnLabel.textContent = 'Resonate';
         }
     }
     function resetTuneBtn() { setTuneBtnLoading(false); }
