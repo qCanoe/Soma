@@ -1,0 +1,598 @@
+\documentclass[11pt,a4paper]{article}
+
+% ====== Packages ======
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, arrows.meta, positioning, fit, backgrounds}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% ====== Chinese support (CJK via xeCJK if compiled with XeLaTeX) ======
+% If compiled with XeLaTeX or LuaLaTeX, uncomment the following:
+% \usepackage{xeCJK}
+% \setCJKmainfont{Noto Serif CJK SC}
+
+% ====== Hyperref styling ======
+\hypersetup{
+  colorlinks=true,
+  linkcolor=black,
+  urlcolor=blue!60!black,
+  citecolor=blue!60!black,
+  pdftitle={Soma: A Knowledge-Augmented, Personalized Therapeutic Music System},
+  pdfauthor={Soma Team}
+}
+
+% ====== Code listing style ======
+\definecolor{codebg}{RGB}{248,248,248}
+\definecolor{codekw}{RGB}{0,0,180}
+\definecolor{codestr}{RGB}{160,0,0}
+\definecolor{codecmt}{RGB}{0,120,0}
+\lstset{
+  backgroundcolor=\color{codebg},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{codekw}\bfseries,
+  stringstyle=\color{codestr},
+  commentstyle=\color{codecmt}\itshape,
+  showstringspaces=false,
+  breaklines=true,
+  frame=single,
+  rulecolor=\color{black!20},
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=6pt,
+  captionpos=b
+}
+
+% ====== Title ======
+\title{
+  \vspace{-1.5cm}
+  \textbf{Soma: A Knowledge-Augmented, Personalized\\ Therapeutic Music Generation System}\\[0.4em]
+  \large Mid-Term to Final Engineering Report
+}
+\author{Soma Project Team}
+\date{May 2026}
+
+% ====== Section format ======
+\titleformat{\section}{\Large\bfseries}{\thesection}{1em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{1em}{}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent
+Soma is a wellness-oriented system that turns biometric signals, user context,
+and music preferences into personalized, AI-generated therapeutic music
+sessions. This report documents the engineering progress made between the
+mid-term checkpoint (commit \texttt{32a3159}) and the final submission, covering
+51 commits, 59 modified files, and approximately 17{,}100 added / 8{,}100
+deleted lines of code. The work spans (i) a full project re-organization into a
+standard multi-package layout, (ii) a substantially rewritten music-AI engine
+with a continuous arousal model and per-user personalization, (iii) a from-scratch
+clinical music knowledge base built on a GraphRAG architecture with hybrid
+dense--lexical retrieval, (iv) a complete reconstruction of the web client from
+a single HTML file into a multi-workspace single-page application, and
+(v) groundwork for an iOS / HealthKit migration. We describe the system
+architecture, the algorithmic and engineering decisions behind each subsystem,
+the test coverage we introduced, and the limitations and future directions of
+the project.
+\end{abstract}
+
+\tableofcontents
+\vspace{1em}
+\hrule
+\vspace{1em}
+
+% ============================================================
+\section{Introduction}
+% ============================================================
+
+\subsection{Background and Motivation}
+
+Music has long been used as a non-pharmacological aid for anxiety regulation,
+sleep onset, focus, grounding, and energy modulation. Recent advances in
+generative audio models (e.g.\ Suno, MusicGen) make it feasible to synthesize
+arbitrary therapeutic music on demand, but raw generative capability alone is
+not sufficient for a wellness product. Three gaps remain:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Personalization gap.} Off-the-shelf generation does not take
+    into account a user's physiological state, history, or preference profile.
+  \item \textbf{Evidence gap.} Recommendations should be traceable to clinical
+    or musicological evidence, not produced by an opaque prompt template.
+  \item \textbf{Experience gap.} A user arriving in an anxious or fatigued
+    state has limited patience for technical setup; the interface must reduce
+    cognitive load, not add to it.
+\end{enumerate}
+
+\subsection{Goal of This Reporting Period}
+
+The mid-term version of Soma was a working prototype: a single-file web page
+plus a notebook-driven Python pipeline. The objective for the final phase was
+to evolve it into \textbf{a deliverable system}: structured, modular, tested,
+and grounded in retrievable evidence. Concretely, we set five goals:
+
+\begin{enumerate}[leftmargin=*]
+  \item Re-organize the repository into a maintainable multi-package layout.
+  \item Upgrade the music-AI engine from discrete rule mappings to a
+    continuous, personalized strategy.
+  \item Build a clinical music knowledge base with GraphRAG-style retrieval.
+  \item Reconstruct the web client into a coherent multi-workspace SPA.
+  \item Establish a test suite and write the foundation for iOS migration.
+\end{enumerate}
+
+\subsection{Quantitative Summary}
+
+\begin{table}[h]
+\centering
+\caption{Aggregate change statistics, mid-term to final.}
+\begin{tabular}{lr}
+\toprule
+\textbf{Metric} & \textbf{Value}\\
+\midrule
+Commits                & 51 \\
+Files changed          & 59 \\
+Lines added            & $\approx 17{,}100$ \\
+Lines deleted          & $\approx 8{,}100$ \\
+New Python sub-packages & 2 (\texttt{apps/api}, \texttt{music\_ai\_module/knowledge}) \\
+New test files         & 12 ($\approx 800$ LOC) \\
+New documentation files & 6 (incl.\ a 1{,}782-line iOS migration plan) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+\section{System Architecture}
+% ============================================================
+
+Figure~\ref{fig:arch} shows the overall architecture after the final-phase
+refactor. The system is organized into four horizontal layers: \emph{Client},
+\emph{API}, \emph{Music-AI Engine}, and \emph{Knowledge \& Data}.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  node distance=0.6cm and 0.6cm,
+  layer/.style={draw, rounded corners, fill=blue!5, minimum width=14cm, minimum height=1.6cm, align=center},
+  box/.style={draw, rounded corners, fill=white, minimum width=3cm, minimum height=0.9cm, align=center, font=\small},
+  arrow/.style={-{Stealth[length=2mm]}, thick}
+]
+  % Client layer
+  \node[layer] (client) {};
+  \node[above=0.05cm of client.north west, anchor=south west] {\textbf{Client (Web SPA, future iOS)}};
+  \node[box] at ($(client.west)+(2.2,0)$) (sidebar) {Sidebar Shell};
+  \node[box] at ($(client.west)+(5.8,0)$) (sess)    {Session\\(Check-in/Playback)};
+  \node[box] at ($(client.west)+(9.4,0)$) (rep)     {Diagnostic\\Report};
+  \node[box] at ($(client.west)+(12.6,0)$) (set)    {Settings /\\History};
+
+  % API layer
+  \node[layer, below=of client] (api) {};
+  \node[above=0.05cm of api.north west, anchor=south west] {\textbf{API Layer (FastAPI, \texttt{apps/api/main.py})}};
+  \node[box] at ($(api.west)+(2.2,0)$) (sapi)  {/session};
+  \node[box] at ($(api.west)+(5.8,0)$) (fapi)  {/feedback,\\/history};
+  \node[box] at ($(api.west)+(9.4,0)$) (hkapi) {/healthkit/\\mock/run};
+  \node[box] at ($(api.west)+(12.6,0)$) (kapi) {/knowledge\\(retrieval)};
+
+  % Engine layer
+  \node[layer, below=of api, fill=orange!5] (eng) {};
+  \node[above=0.05cm of eng.north west, anchor=south west] {\textbf{Music-AI Engine (\texttt{music\_ai\_module/})}};
+  \node[box] at ($(eng.west)+(2.2,0)$) (proc) {Processor\\(physio.\ pipeline)};
+  \node[box] at ($(eng.west)+(5.8,0)$) (pers) {Personalization\\\& Strategy};
+  \node[box] at ($(eng.west)+(9.4,0)$) (comp) {Compiler\\(prompt builder)};
+  \node[box] at ($(eng.west)+(12.6,0)$) (pipe) {Pipeline\\(orchestration)};
+
+  % Knowledge layer
+  \node[layer, below=of eng, fill=green!5] (kn) {};
+  \node[above=0.05cm of kn.north west, anchor=south west] {\textbf{Knowledge \& Data (GraphRAG)}};
+  \node[box] at ($(kn.west)+(2.2,0)$) (extr)  {Extractor /\\Fetcher};
+  \node[box] at ($(kn.west)+(5.8,0)$) (graph) {Graph Store\\+ Embeddings};
+  \node[box] at ($(kn.west)+(9.4,0)$) (retr)  {Hybrid\\Retriever};
+  \node[box] at ($(kn.west)+(12.6,0)$) (audit){Clinical\\Auditor};
+
+  % Arrows
+  \draw[arrow] (client.south) -- (api.north);
+  \draw[arrow] (api.south)    -- (eng.north);
+  \draw[arrow] (eng.south)    -- (kn.north);
+  \draw[arrow, dashed] (kn.east) to[bend right=25] node[right,font=\scriptsize]{evidence} (eng.east);
+\end{tikzpicture}
+\caption{Soma final-phase architecture. The client communicates with a FastAPI
+service that orchestrates the music-AI engine, which in turn queries the
+GraphRAG knowledge base for evidence-grounded musical parameters.}
+\label{fig:arch}
+\end{figure}
+
+\subsection{Repository Layout}
+
+\begin{lstlisting}[language=bash, caption={Final-phase repository layout.}]
+Soma/
+├── apps/
+│   ├── api/main.py            # FastAPI service (~304 LOC)
+│   └── web/index.html         # Sidebar SPA (~9,866 LOC)
+├── music_ai_module/
+│   ├── processor.py           # Physiological pipeline
+│   ├── personalization.py     # Per-user strategy
+│   ├── compiler.py            # Prompt / parameter compiler
+│   ├── pipeline.py            # End-to-end orchestration
+│   ├── style_maps.py          # Genre / style mappings
+│   └── knowledge/             # NEW: GraphRAG sub-package
+│       ├── schemas.py, extractor.py, fetcher.py,
+│       ├── embeddings.py, graph_store.py,
+│       ├── retriever.py, auditor.py, cli.py
+├── data/
+│   ├── case.md, case_audio_urls.json
+│   └── knowledge/             # Seed graph + chunks + sources
+├── docs/                      # PRD, API contract, demo script,
+│                              # iOS migration plan (1,782 LOC)
+├── tests/                     # 12 test modules, ~800 LOC
+├── scripts/                   # api_test.js, generate_cases.js
+├── notebooks/pipeline_demo.ipynb
+├── pyproject.toml, requirements.txt, .env.example
+└── README.md, PRODUCT.md
+\end{lstlisting}
+
+% ============================================================
+\section{Engineering Foundation: Repository Refactor}
+% ============================================================
+
+The mid-term codebase had several structural problems: a 3{,}834-line
+\texttt{web.html} and a 3{,}675-line \texttt{Music AI.ipynb} sat at the
+repository root, scripts and JSON fixtures were unsorted, and there was no
+unified dependency or environment manifest. The first phase of the final-period
+work was to address these problems before any feature work, because the
+downstream goals (modular engine, knowledge subsystem, test coverage) were not
+viable on the old layout.
+
+The refactor performed four actions:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Standard Python layout.} Created \texttt{apps/}, \texttt{scripts/},
+    \texttt{data/}, \texttt{docs/}, \texttt{notebooks/}, and \texttt{tests/}.
+    Each Python directory received an \texttt{\_\_init\_\_.py} so that the
+    project is importable as a package and the test suite can use absolute
+    imports.
+  \item \textbf{Removed root-level monoliths.} The notebook and the single-file
+    web page were deleted from the root and replaced by their refactored
+    successors under \texttt{apps/}.
+  \item \textbf{Pinned dependencies and environment.} Added
+    \texttt{pyproject.toml}, \texttt{requirements.txt}, and an extensive
+    \texttt{.env.example} (68 lines) that documents every required key,
+    including \texttt{LLM\_BASE\_URL} (defaulted to OpenAI's
+    \texttt{api.openai.com/v1}) and the Suno/HealthKit-related settings.
+  \item \textbf{Documentation alignment.} The README was rewritten (+357
+    lines) to match the new layout, and \texttt{PRODUCT.md} was added to
+    state the consumer wellness positioning, anti-references, and design
+    principles.
+\end{enumerate}
+
+% ============================================================
+\section{Music-AI Engine}
+% ============================================================
+
+\subsection{Continuous Arousal Modeling}
+
+The mid-term engine mapped physiological signals to a small set of discrete
+labels (e.g.\ \texttt{calm}, \texttt{anxious}, \texttt{focus}). This produced
+abrupt transitions between recommendations and was unable to express
+intermediate states. The final-phase \texttt{processor.py} (rewritten to
+\textasciitilde 816 lines) treats arousal as a continuous variable
+$a \in [0,1]$ derived from heart-rate variability and EEG-band features
+(when available via the MindWave or HealthKit pipeline). Let
+$x_t \in \mathbb{R}^d$ be the feature vector at time $t$. The engine produces
+a smoothed arousal estimate
+\[
+  \hat a_t = (1-\lambda)\,\hat a_{t-1} + \lambda\, f_\theta(x_t),
+\]
+where $f_\theta$ is a feature-to-arousal mapping and $\lambda$ is a smoothing
+weight that prevents jitter from short physiological transients.
+
+\subsection{Personalization}
+
+A new module, \texttt{personalization.py} (187 LOC), maintains a lightweight
+per-user profile $\pi_u = \langle \text{preferences}, \text{history}, \text{response} \rangle$
+and produces a \texttt{MusicStrategy} object for each session:
+
+\[
+  \text{Strategy}(u, s) = g\bigl(\hat a_s,\; c_s,\; \pi_u,\; \mathrm{Retrieve}(\hat a_s, c_s)\bigr),
+\]
+
+where $s$ denotes the current session, $c_s$ is contextual state (time of day,
+self-reported intent), and $\mathrm{Retrieve}(\cdot)$ returns evidence-supported
+musical parameters from the knowledge base (Section~\ref{sec:kb}). Strategies
+are not opaque prompts; they are structured records carrying tempo (BPM),
+mode, instrumentation hints, dynamic envelope, and the IDs of supporting
+evidence nodes.
+
+\subsection{Prompt Compilation}
+
+The rewritten \texttt{compiler.py} (361 LOC) transforms a \texttt{MusicStrategy}
+into a generation-ready prompt for the downstream music model. We deliberately
+separated strategy and prompt so that the strategy layer can be unit-tested
+without an external generation service, and so that the same strategy can be
+re-targeted at a different generative backend in the future.
+
+% ============================================================
+\section{Clinical Music Knowledge Base (GraphRAG)}
+\label{sec:kb}
+% ============================================================
+
+\subsection{Motivation}
+
+A wellness recommendation must be more than a stylistic guess. To make Soma's
+recommendations \emph{auditable}, we built a from-scratch knowledge subsystem
+under \texttt{music\_ai\_module/knowledge/} that captures clinical and
+musicological evidence as a graph and supports retrieval at strategy time.
+
+\subsection{Data Model}
+
+\texttt{schemas.py} (240 LOC) defines a Pydantic-validated knowledge graph:
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Entities} --- \emph{Condition} (e.g.\ generalized anxiety),
+    \emph{Intervention} (e.g.\ binaural beats at 6\,Hz), \emph{MusicalAttribute}
+    (tempo, mode, instrumentation), \emph{Population}, \emph{Outcome}.
+  \item \textbf{Relations} --- \texttt{indicates}, \texttt{contraindicates},
+    \texttt{modulates}, \texttt{evidenced\_by}.
+  \item \textbf{Evidence} --- citations to \texttt{Source} records (paper,
+    guideline, dataset) including span / page metadata.
+\end{itemize}
+
+\subsection{Pipeline}
+
+\begin{enumerate}[leftmargin=*]
+  \item \texttt{fetcher.py} (110 LOC) ingests source documents from configured
+    URLs / local paths described in \texttt{data/knowledge/sources.yaml}.
+  \item \texttt{extractor.py} (111 LOC) chunks documents and runs LLM-based
+    structured extraction into the schemas above.
+  \item \texttt{embeddings.py} (100 LOC) computes dense embeddings per chunk
+    and per entity surface form.
+  \item \texttt{graph\_store.py} (166 LOC) merges new triples into a persistent
+    JSON-backed graph (\texttt{data/knowledge/graph.json}, 577 LOC of seed
+    data), with deduplication by canonical entity ID.
+  \item \texttt{retriever.py} (238 LOC) implements \textbf{hybrid retrieval}.
+\end{enumerate}
+
+\subsection{Hybrid Dense--Lexical Retrieval}
+
+For a query $q$ (typically a tuple of $\hat a$, condition tags, and contextual
+intent), the retriever scores candidate chunks $d$ using a convex combination:
+
+\[
+  \mathrm{score}(d, q) = \alpha \cdot \mathrm{cos}\bigl(\mathbf{e}_d, \mathbf{e}_q\bigr)
+                      + (1-\alpha) \cdot \mathrm{BM25}_{\text{multilingual}}(d, q).
+\]
+
+The lexical term uses multilingual tokenization so that Chinese clinical
+sources and English musicological sources can be retrieved jointly. Top-$k$
+chunks are then expanded by a 1-hop graph walk to recover related entities,
+and finally passed through \texttt{auditor.py} (152 LOC), which filters out
+contraindicated combinations (e.g.\ stimulating tempo for a sleep-induction
+session) before the strategy is finalized.
+
+\subsection{Auditing}
+
+The \emph{clinical auditor} is a deterministic post-filter, not a learned
+model. It reads the proposed \texttt{MusicStrategy} together with the retrieved
+evidence and rejects the strategy if any \texttt{contraindicates} edge is
+violated. This gives us a hard safety floor that is easy to test and easy to
+explain to a reviewer.
+
+% ============================================================
+\section{Web Client Reconstruction}
+% ============================================================
+
+The mid-term web client was a single 3{,}834-line HTML file. The final-phase
+client (\texttt{apps/web/index.html}, 9{,}866 LOC) is a multi-workspace SPA
+organized around a sidebar shell.
+
+\subsection{Architecture}
+
+\begin{itemize}[leftmargin=*]
+  \item \textbf{Sidebar App Shell.} A persistent left navigation switches
+    between four workspaces: \emph{Session}, \emph{History}, \emph{Diagnostic
+    Report}, and \emph{Settings}. Each workspace is independently scrollable
+    and uses a unified Tailwind type scale.
+  \item \textbf{Single source of truth for vitals.} The \emph{MindWave
+    pipeline} is the canonical source for both the displayed vital signs and
+    the prompt that is sent to the engine, eliminating an earlier
+    inconsistency where the UI display and the model input could drift.
+\end{itemize}
+
+\subsection{Session Flow}
+
+The session is split into two screens to reduce cognitive load on entry:
+
+\begin{enumerate}[leftmargin=*]
+  \item \textbf{Check-in.} Captures self-report and starts the physiological
+    stream; displays a single primary action.
+  \item \textbf{Playback.} Plays the generated music with a fixed player and
+    independent scroll for parameter context.
+\end{enumerate}
+
+We removed the original session-parameter control panel, which had been added
+during the prototype phase but interfered with the calm tone the product
+intends.
+
+\subsection{Diagnostic Report and Settings}
+
+The diagnostic report defaults to the \emph{Full Report} layout, drops the
+unused \emph{Monthly} variant, and uses an LLM-only generation path. A
+scrollspy-driven jump navigation was reworked twice to fix overlap with the
+report scroll container. The settings page was rebuilt as a sidebar +
+tab-panel structure with three sections: \emph{Preferences}, \emph{Privacy},
+and \emph{Integrations}.
+
+\subsection{Demo Seeding}
+
+To make the product demonstrable without a live physiological device, a
+\texttt{somaSeedDemoHistory()} routine seeds the user's history from five
+predefined \texttt{DEMO\_CASES} on first load, and the cached Suno tracks for
+those cases were regenerated. Demo report copy was localized to English to
+match the audience for the final presentation.
+
+% ============================================================
+\section{HealthKit Integration and iOS Foundation}
+% ============================================================
+
+A mock HealthKit endpoint, \texttt{POST /api/healthkit/mock/run}, accepts a
+JSON payload representing the user's recent HealthKit summary (HRV, resting
+HR, sleep stages) and routes it through the same strategy pipeline as
+real-time MindWave input. This gave us a complete end-to-end iOS-style flow
+without depending on a live device.
+
+In parallel, we drafted
+\texttt{docs/superpowers/plans/2026-05-01-ios-migration-foundation.md}
+(1{,}782 lines), which lays out the architecture, capability model, data flow,
+and migration milestones for moving Soma from a web demo to a SwiftUI iOS
+application that consumes HealthKit natively. This document is not part of
+the deliverable runtime but defines the path forward for the project.
+
+% ============================================================
+\section{Testing}
+% ============================================================
+
+The mid-term version had no automated tests. We added 12 modules totaling
+approximately 800 lines of test code, summarized in
+Table~\ref{tab:tests}.
+
+\begin{table}[h]
+\centering
+\caption{Test modules added in the final phase.}
+\label{tab:tests}
+\begin{tabular}{lrl}
+\toprule
+\textbf{Module} & \textbf{LOC} & \textbf{Subsystem under test}\\
+\midrule
+\texttt{test\_processor.py}             & 134 & Physiological pipeline \\
+\texttt{test\_compiler.py}              & 107 & Prompt compiler \\
+\texttt{test\_knowledge\_retriever.py}  & 101 & Hybrid retrieval \\
+\texttt{test\_healthkit\_mock\_api.py}  &  88 & FastAPI HealthKit endpoint \\
+\texttt{test\_clinical\_auditor.py}     &  75 & Contraindication filter \\
+\texttt{test\_pipeline.py}              &  58 & End-to-end orchestration \\
+\texttt{test\_knowledge\_schemas.py}    &  54 & Pydantic graph schemas \\
+\texttt{test\_knowledge\_seed\_data.py} &  50 & Seed-data integrity \\
+\texttt{test\_personalization.py}       &  43 & Per-user strategy \\
+\texttt{test\_knowledge\_graph\_merge.py}&  41 & Graph merge / dedup \\
+\texttt{test\_knowledge\_extractor.py}  &  16 & Extractor smoke test \\
+\texttt{conftest.py} + \texttt{\_\_init\_\_.py} & 32 & Fixtures \\
+\midrule
+\textbf{Total}                          & \textbf{$\approx$ 800} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The tests run without external network access by relying on local seed data
+and a stubbed LLM client, which makes the suite suitable for CI.
+
+% ============================================================
+\section{Documentation}
+% ============================================================
+
+The final phase materially expanded the documentation set:
+
+\begin{itemize}[leftmargin=*]
+  \item \texttt{docs/mvp-prd.md} --- MVP product requirements.
+  \item \texttt{docs/stage-1-mvp-session-flow.md} --- session flow specification.
+  \item \texttt{docs/session-api-contract.md} --- frontend / backend API contract.
+  \item \texttt{docs/demo-script.md} --- demo walkthrough script.
+  \item \texttt{docs/superpowers/plans/2026-05-01-ios-migration-foundation.md} ---
+        1{,}782-line iOS migration plan.
+  \item \texttt{notebooks/pipeline\_demo.ipynb} --- executable engine demo.
+\end{itemize}
+
+% ============================================================
+\section{Discussion}
+% ============================================================
+
+\subsection{What Worked}
+
+The most decisive decision was to pay the cost of the structural refactor
+\emph{first}. Once the standard layout, dependency manifest, and test scaffold
+were in place, every later subsystem (knowledge base, personalization, API)
+could be added without re-litigating import paths, environment loading, or
+where things should live. The other strong decision was to separate
+\emph{strategy} from \emph{prompt}: by treating the music plan as a typed,
+testable record rather than a free-form string, we made the auditor and the
+unit tests possible.
+
+\subsection{Limitations}
+
+\begin{itemize}[leftmargin=*]
+  \item The clinical knowledge base is seeded but not yet exhaustive; expanding
+    coverage requires curated sources and licensed clinical guidelines.
+  \item The personalization profile is currently lightweight; longitudinal
+    response modeling (does the user actually calm down after sessions of a
+    given style?) is future work.
+  \item iOS / HealthKit integration is mocked at the API boundary; the native
+    SwiftUI implementation is planned but out of scope for this phase.
+  \item Continuous arousal estimation depends on signal quality from
+    consumer-grade devices and has not been validated against a clinical
+    reference.
+\end{itemize}
+
+\subsection{Future Work}
+
+Near-term: tighten the auditor's contraindication coverage, expand the
+multilingual knowledge sources, and add longitudinal feedback to the
+personalization profile. Medium-term: execute the iOS migration plan and
+replace the mock HealthKit endpoint with the real SwiftUI bridge.
+Longer-term: validate the arousal model against polysomnography or a
+clinical-grade HRV reference, and explore a closed-loop session in which the
+generation backend is conditioned on real-time physiological response.
+
+% ============================================================
+\section{Conclusion}
+% ============================================================
+
+Between the mid-term checkpoint and the final submission, Soma evolved from a
+working prototype into a structured system: a standard repository layout, a
+rewritten music-AI engine with continuous arousal modeling and per-user
+strategy, a from-scratch GraphRAG clinical knowledge base with hybrid
+multilingual retrieval, a complete SPA reconstruction of the web client, a
+mock-HealthKit endpoint, and a test suite covering the core engine and
+knowledge subsystems. The combined effect is a product that is no longer
+merely able to generate therapeutic music, but able to do so in a way that is
+\emph{personalized}, \emph{evidence-grounded}, and \emph{auditable}.
+
+% ============================================================
+\appendix
+\section{Commit Highlights}
+% ============================================================
+
+A non-exhaustive list of the most representative commits in this period:
+
+\begin{longtable}{lp{10cm}}
+\toprule
+\textbf{Hash} & \textbf{Message}\\
+\midrule
+\endhead
+\texttt{3b0f2f2} & chore: reorganize repo layout (apps, scripts, data, docs, notebooks)\\
+\texttt{45e89d7} & feat(music\_ai\_module): continuous arousal model, MusicStrategy, tests\\
+\texttt{8079706} & feat(knowledge): add local GraphRAG clinical music knowledge pipeline\\
+\texttt{4e9f32e} & Expand knowledge seed data and add integrity tests\\
+\texttt{cc61cfa} & knowledge: multilingual lexical tokens and hybrid dense-lexical retrieval\\
+\texttt{9ea9287} & feat: personalize music strategy and harden physiology pipeline\\
+\texttt{42b4b2b} & feat: mock HealthKit prototype UI and /api/healthkit/mock/run\\
+\texttt{b54b6f4} & docs(superpowers): add iOS migration foundation plan\\
+\texttt{2c00c1a} & feat(web): Soma MVP session flow with history, feedback, and API contract docs\\
+\texttt{9e1f0df} & feat(web): add sidebar app shell with workspace views\\
+\texttt{e8433ff} & feat(web): split session into check-in and playback screens\\
+\texttt{202292a} & web: unify MindWave pipeline as single source for vitals and prompts\\
+\texttt{3dbe611} & Refactor Settings to sidebar layout with tab panels\\
+\texttt{94952fc} & polish(web): refine Settings layout, motion curves, and a11y details\\
+\texttt{afff047} & feat(web): smooth EQ progress and motion, tighten report flow\\
+\bottomrule
+\end{longtable}
+
+\end{document}
