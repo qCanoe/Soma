@@ -64,8 +64,10 @@ Optional **clinical music knowledge graph** (GraphRAG) can run *between* Layer 2
 ```
 MindWave/
 ├── apps/
+│   ├── api/
+│   │   └── main.py            # Local FastAPI wrapper for Layer 1-3 + static SPA hosting
 │   └── web/
-│       └── index.html         # Single-page therapy UI (“Soma”; all-in-one, no build)
+│       └── index.html         # Single-page therapy UI ("Soma"; all-in-one, no build)
 ├── music_ai_module/           # Python pipeline library (importable package)
 │   ├── __init__.py
 │   ├── models.py              # Layer 1 + Features / State / Strategy dataclasses
@@ -86,8 +88,7 @@ MindWave/
 │   └── knowledge/             # GraphRAG sources, seed chunks/graph, ingest output
 ├── notebooks/
 │   └── pipeline_demo.ipynb    # Minimal Jupyter walkthrough (imports music_ai_module)
-├── docs/
-│   └── mvp-prd.md             # Legacy MVP product notes (zh)
+├── PRODUCT.md                 # Product/design context for Soma
 ├── pyproject.toml             # pip install -e . (optional)
 ├── requirements.txt
 ├── .env.example               # Copy to .env for local keys
@@ -95,7 +96,7 @@ MindWave/
 └── LICENSE
 ```
 
-**Conventions:** keep **domain data** under `data/`, **automation** under `scripts/`, and the **static web client** under `apps/web/`. The Python package stays at the repository root so existing `from music_ai_module import …` and `python music_ai_module/example.py` continue to work.
+**Conventions:** keep **domain data** under `data/`, **automation** under `scripts/`, the **static web client** under `apps/web/`, and the **local HTTP wrapper** under `apps/api/`. The Python package stays at the repository root so existing `from music_ai_module import …` and `python music_ai_module/example.py` continue to work.
 
 ---
 
@@ -103,7 +104,7 @@ MindWave/
 
 ### Therapy Interface (`apps/web/index.html`)
 
-Open the file in a browser (double-click or “Open with Live Server”). Fully self-contained — no build step, no npm install.
+Open the file in a browser (double-click or "Open with Live Server") for the static demo. To enable the authoritative Python biometric pipeline from the UI, run the local FastAPI app and open the served page at `http://127.0.0.1:8000/`.
 
 
 | Area                  | Details                                                                                                                                        |
@@ -116,7 +117,7 @@ Open the file in a browser (double-click or “Open with Live Server”). Fully 
 | **Suno Generation**   | One-click AI music generation via Suno V5 API with live status polling                                                                         |
 | **Controls Drawer**   | Intensity (1–4) · Duration (15/30/45 min) · Environment (None/Rain/Noise)                                                                      |
 
-**Session flow (stage 1):** Primary action is **Start guided session** (timer + UI) without an API key, or **Start session · live AI** once a demo Suno key is saved. Cached **Demo Cases** give instant playback for pitches. Each visit can end with **feedback**; **History** persists to `localStorage` (`soma-sessions-v1`). See [docs/stage-1-mvp-session-flow.md](docs/stage-1-mvp-session-flow.md), [docs/demo-script.md](docs/demo-script.md) (4-minute presenter script), [docs/session-api-contract.md](docs/session-api-contract.md).
+**Session flow (stage 1, current implementation):** Primary action is **Start guided session** (timer + UI) without an API key, or **Start session · live AI** once a Suno key is saved. Cached **Demo Cases** give instant playback for pitches. Each visit can end with **feedback**; **History** persists to browser `localStorage` (`soma-sessions-v1`). Server-side session CRUD is not implemented yet.
 
 ### Profile Modal
 
@@ -156,14 +157,34 @@ Five pre-loaded clinical demonstration cases, each with a full profile, biometri
 
 | ID         | Patient          | Condition                                            | Track                       |
 | ---------- | ---------------- | ---------------------------------------------------- | --------------------------- |
-| `case_001` | Xiao Wang, 28M   | Work anxiety, post-work brain tension                | *Midnight Window Seat*      |
-| `case_002` | Lao Li, 62F      | Insomnia, auditory sensitivity                       | *Moonlight Between Breaths* |
-| `case_003` | Xiao Chen, 21M   | Attention deficit, study distraction                 | *Pure Function*             |
-| `case_004` | Li Tongxue, 28M  | PhD thesis anxiety, late-night lab                   | *Night Shift in Soft Gold*  |
-| `case_005` | Prof. Zhang, 45M | Dual research/teaching pressure, existential anxiety | *Autumn Tenure*             |
+| `case_001` | Xiao Wang, 28M   | Work anxiety, post-work brain tension                | *Rain on Velvet*       |
+| `case_002` | Lao Li, 62F      | Insomnia, auditory sensitivity                       | *Moonlit Reedfield*    |
+| `case_003` | Xiao Chen, 21M   | Attention deficit, study distraction                 | *Pulse Chamber*        |
+| `case_004` | Li Tongxue, 28M  | PhD thesis anxiety, late-night lab                   | *Late Lab Calm*        |
+| `case_005` | Prof. Zhang, 45M | Dual research/teaching pressure, existential anxiety | *Paper Lantern Years*  |
 
 
 Clicking a case instantly loads: profile data into the modal, mood input and mode/vibe chips, biometric data into the Vitals monitor, and begins playing the cached MP3.
+
+---
+
+### Local FastAPI Wrapper (`apps/api/main.py`)
+
+The local API wraps `MusicAIPipeline` for JSON clients and can also serve the static SPA:
+
+```bash
+pip install -e ".[api]"
+python -m uvicorn apps.api.main:app --reload --host 127.0.0.1 --port 8000
+```
+
+Endpoints:
+
+- `GET /health` — local health check.
+- `POST /api/pipeline/run` — full `StaticUserProfile` + `AppleWatchBiometrics` payload.
+- `POST /api/healthkit/mock/run` — camelCase mock vitals shape used by the web prototype.
+
+> [!NOTE]
+> This API is intended for local development and demos. It currently has no authentication, no rate limiting, and no server-side session store.
 
 ---
 
@@ -178,8 +199,10 @@ Clicking a case instantly loads: profile data into the modal, mood input and mod
 
 ```bash
 pip install -r requirements.txt
-# or: pip install -e .
-# optional dev/tests: pip install -e ".[dev]"
+# or install the package directly:
+pip install -e .
+# optional local API + tests:
+pip install -e ".[api,dev]"
 ```
 
 Core dependencies: `openai`, `numpy`, `beautifulsoup4`, `networkx`, `pyyaml` (see `pyproject.toml`).
@@ -340,7 +363,7 @@ StaticUserProfile personalization
     blend into genre_style resolved once in MusicStrategy
 ```
 
-**SPA note:** `apps/web/index.html` still mirrors parts of Layer 2 for the Vitals demo and uses a separate prompt path for mood-based Suno generation; production integrations should treat `**music_ai_module` as the canonical physiology→prompt engine**.
+**SPA note:** `apps/web/index.html` still mirrors parts of Layer 2 for the Vitals demo and uses a separate prompt path for mood-based Suno generation; production integrations should treat **`music_ai_module` as the canonical physiology→prompt engine**.
 
 ---
 
@@ -372,7 +395,7 @@ GET   https://api.sunoapi.org/api/v1/generate/record-info?taskId=…
 - Model: **V5** (instrumental, non-custom mode)
 - Prompt cap: **500** characters
 - **Web UI (`apps/web/index.html`):** poll every **5 s**, max wait **6 minutes**
-- `**scripts/generate_cases.js`:** poll every **6 s**, max wait **7 minutes**
+- **`scripts/generate_cases.js`:** poll every **6 s**, max wait **7 minutes**
 - Typical status flow: `PENDING → … → SUCCESS` (intermediate states may include `TEXT_SUCCESS`, `FIRST_SUCCESS`, depending on API version)
 
 **Privacy:** In the browser, your API key is stored in `localStorage` under `moodtune-suno-key` and is only sent to `https://api.sunoapi.org` from your machine (not through a first-party MindWave backend).

@@ -1,15 +1,42 @@
-# Knowledge pipeline: downloaded HTML snapshots (can be large)
-data/knowledge/raw/
+# Secrets and local environment
+.env
+.env.*
+!.env.example
 
-# Local embedding cache (regeneratable)
+# Python caches and packaging
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Node scripts / optional frontend tooling
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Knowledge pipeline: downloaded HTML snapshots and local embedding cache
+data/knowledge/raw/
 data/knowledge/embeddings.jsonl
 
-__pycache__/
-*.pyc
-.pytest_cache/
-*.egg-info/
-.env
+# Local logs and OS/editor files
+*.log
+.DS_Store
+Thumbs.db
 
 # Git worktrees (isolated working directories)
 .worktrees/
-docs/
