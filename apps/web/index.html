@@ -8390,47 +8390,56 @@
         const p = c.profile || {};
         const name = p.name || 'Demo';
         const modeNice = {
-            focus: '专注', calm: '平静', sleep: '睡眠', anxious: '焦虑舒缓', ground: '接地', energy: '轻柔激活',
-            trauma: '温和神经系统支持', clarity: '清醒', release: '情绪释放', breath: '呼吸调节', body: '身体感知',
-            study: '学习专注', restore: '深度恢复', still: '安静正念', warm: '温暖抱持',
+            focus: 'Focus', calm: 'Calm', sleep: 'Sleep', anxious: 'Anxiety relief', ground: 'Grounding',
+            energy: 'Gentle activation', trauma: 'Nervous-system support', clarity: 'Clarity',
+            release: 'Emotional release', breath: 'Breath regulation', body: 'Body awareness',
+            study: 'Study focus', restore: 'Deep restoration', still: 'Quiet mindfulness', warm: 'Warm holding',
         };
-        const modeLabel = modeNice[c.mode] || (c.mode || '—');
+        const modeLabel = modeNice[c.mode] || (c.mode || 'Not set');
         const vit = c.vitals || {};
         const ct = c.cachedTrack || {};
-        const trackTitle = ct.title || '—';
+        const trackTitle = ct.title || 'Untitled demo track';
         const trackSub = (ct.subtext || '').trim();
-        const vibeStr = (c.vibes || []).join('、') || '—';
+        const vibeStr = (c.vibes || []).join(', ') || 'None selected';
         const stats = ctx.windowStats || ctx.fullStats;
         const n = stats && typeof stats.n === 'number' ? stats.n : 0;
         const helped = stats && typeof stats.helpedRate === 'number' ? stats.helpedRate : 0;
         const avgCalm = stats && stats.avgCalmAfter != null ? stats.avgCalmAfter : null;
         const streakDays = stats && stats.consecutiveFeedbackDays != null ? stats.consecutiveFeedbackDays : null;
-        const demoLine = (c.demoNarrative || '').trim();
+        const cleanReportText = function (s) {
+            return String(s || '')
+                .replace(/[“”]/g, '"')
+                .replace(/[‘’]/g, "'")
+                .replace(/[—–]/g, ', ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        };
+        const demoLine = cleanReportText(c.demoNarrative);
         const moodFull = (c.moodInput || '').trim();
         const moodClip = moodFull.length > 110 ? moodFull.slice(0, 110) + '…' : moodFull;
-        const goalsStr = (p.goals || []).slice(0, 5).join('、') || '—';
-        const emoStr = (p.emotions || []).slice(0, 5).join('、') || '—';
-        const stylesStr = (p.styles || []).slice(0, 5).join('、') || '—';
-        const fluct = (p.fluctuation || []).slice(0, 3).join('、') || '';
-        const sleepSelf = p.sleep != null ? String(p.sleep) + ' / 10' : '—';
-        const rhythmLbl = p.rhythm != null ? String(p.rhythm) + ' / 5' : '—';
-        const vol = (p.volume || '—').trim();
-        const notesClip = ((p.notes || '').trim());
+        const goalsStr = (p.goals || []).slice(0, 5).join(', ') || 'Not recorded';
+        const emoStr = (p.emotions || []).slice(0, 5).join(', ') || 'Not recorded';
+        const stylesStr = (p.styles || []).slice(0, 5).join(', ') || 'Not recorded';
+        const fluct = (p.fluctuation || []).slice(0, 3).join(', ') || '';
+        const sleepSelf = p.sleep != null ? String(p.sleep) + ' / 10' : 'Not recorded';
+        const rhythmLbl = p.rhythm != null ? String(p.rhythm) + ' / 5' : 'Not recorded';
+        const vol = (p.volume || 'Not recorded').trim();
+        const notesClip = cleanReportText(p.notes);
         const notesShort = notesClip.length > 140 ? notesClip.slice(0, 140) + '…' : notesClip;
-        const sensitiveRaw = (p.sensitive || '').trim();
+        const sensitiveRaw = cleanReportText(p.sensitive);
         const sensitiveShort = sensitiveRaw.length > 100 ? sensitiveRaw.slice(0, 100) + '…' : sensitiveRaw;
 
         const hrNum = vit.heartRate;
         const baseNum = vit.baselineHR;
-        const hr = hrNum != null ? String(hrNum) + ' bpm' : '—';
-        const stress = vit.stressScore != null ? String(vit.stressScore) + '/10' : '—';
-        let hrVsBase = '—';
+        const hr = hrNum != null ? String(hrNum) + ' bpm' : 'Not recorded';
+        const stress = vit.stressScore != null ? String(vit.stressScore) + '/10' : 'Not recorded';
+        let hrVsBase = 'Not recorded';
         if (hrNum != null && baseNum != null) {
             const d = hrNum - baseNum;
-            hrVsBase = (d > 0 ? '+' : '') + d + ' vs 基线 ' + baseNum;
+            hrVsBase = (d > 0 ? '+' : '') + d + ' vs baseline ' + baseNum;
         }
 
-        const sleepStageCn = { awake: '清醒', light: '浅睡', deep: '深睡', rem: 'REM' }[vit.sleepStage] || (vit.sleepStage || '—');
+        const sleepStageLabel = { awake: 'Awake', light: 'Light sleep', deep: 'Deep sleep', rem: 'REM' }[vit.sleepStage] || (vit.sleepStage || 'Not recorded');
         const motion = vit.bodyMotion;
         const motionMag = motion && typeof motion.x === 'number'
             ? Math.round(Math.sqrt(motion.x * motion.x + motion.y * motion.y + motion.z * motion.z) * 100) / 100
@@ -8438,79 +8447,79 @@
 
         const pipe = ctx.physiology && ctx.physiology.pipeline;
         const pipeParts = [];
-        if (pipe && pipe.targetBpm != null) pipeParts.push('目标 tempo ~' + pipe.targetBpm + ' BPM');
-        if (pipe && pipe.stressState) pipeParts.push('状态 ' + String(pipe.stressState));
-        if (pipe && pipe.recoveryPriority) pipeParts.push('恢复侧重 ' + String(pipe.recoveryPriority));
-        if (pipe && pipe.arousal != null) pipeParts.push('唤醒度索引 ' + String(pipe.arousal));
-        const pipeSentence = pipeParts.length ? ('MindWave 管线（演示）：' + pipeParts.join(' · ') + '。') : '';
+        if (pipe && pipe.targetBpm != null) pipeParts.push('target tempo near ' + pipe.targetBpm + ' BPM');
+        if (pipe && pipe.stressState) pipeParts.push('stress band: ' + String(pipe.stressState));
+        if (pipe && pipe.recoveryPriority) pipeParts.push('recovery priority: ' + String(pipe.recoveryPriority));
+        if (pipe && pipe.arousal != null) pipeParts.push('arousal index: ' + String(pipe.arousal));
+        const pipeSentence = pipeParts.length ? ('MindWave demo signal: ' + pipeParts.join('; ') + '.') : '';
 
         const themes = (ctx.moodThemes || []).filter(function (t) { return t.count > 0; }).slice(0, 4);
         const themeSentence = themes.length
-            ? ('关键词主题命中：' + themes.map(function (t) { return t.label + ' ×' + t.count; }).join('，') + '。')
+            ? ('Detected mood themes: ' + themes.map(function (t) { return t.label + ' ×' + t.count; }).join(', ') + '.')
             : '';
 
         const recent = ctx.recentSessions && ctx.recentSessions[0];
         let recentSentence = '';
         if (recent) {
-            const ca = recent.feedback && recent.feedback.calmAfter != null ? recent.feedback.calmAfter + '/5' : '—';
-            const help = (recent.feedback && recent.feedback.helpfulness) || '—';
-            recentSentence = '时间线最近一条：' + String(recent.mode || '—') + ' 模式，平静感 ' + ca + '，帮助感「' + help + '」。';
+            const ca = recent.feedback && recent.feedback.calmAfter != null ? recent.feedback.calmAfter + '/5' : 'not recorded';
+            const help = (recent.feedback && recent.feedback.helpfulness) || 'not recorded';
+            recentSentence = 'Most recent timeline item: ' + String(recent.mode || 'unknown') + ' mode, calm-after score ' + ca + ', helpfulness "' + help + '".';
         }
 
         const achMet = (ctx.achievements || []).filter(function (a) { return a.met; });
         const achPending = (ctx.achievements || []).filter(function (a) { return !a.met; }).slice(0, 2);
         let achSummary = '';
         if (achMet.length) {
-            achSummary = '已达成：' + achMet.slice(0, 4).map(function (a) { return a.title; }).join('；');
+            achSummary = 'Unlocked: ' + achMet.slice(0, 4).map(function (a) { return a.title; }).join('; ');
             if (achMet.length > 4) achSummary += '…';
         }
         if (achPending.length) {
-            achSummary += (achSummary ? ' · ' : '') + '可追逐：' + achPending.map(function (a) { return a.title; }).join('、');
+            achSummary += (achSummary ? ' · ' : '') + 'Next to unlock: ' + achPending.map(function (a) { return a.title; }).join(', ');
         }
-        if (!achSummary) achSummary = '演示合并种子会话前，部分徽章为待解锁状态。';
+        if (!achSummary) achSummary = 'Before the demo seed sessions are merged, some progress markers remain locked.';
 
         const bpmMatch = (c.sunoPrompt || '').match(/(\d+)\s*BPM/i);
         const bpmHint = bpmMatch ? bpmMatch[1] + ' BPM' : null;
-        const sunoClip = (c.sunoPrompt || '').trim();
+        const sunoClip = cleanReportText(c.sunoPrompt);
         const sunoTeaser = sunoClip.length > 160 ? sunoClip.slice(0, 160) + '…' : sunoClip;
 
-        let summary = '预置演示数据 · 无 OpenAI。' + name + ' 当前 Case：曲目「' + trackTitle + '」' +
-            (trackSub ? '（' + trackSub + '）' : '') + '；会话模式「' + modeLabel + '」· Vibes「' + vibeStr + '」。';
-        summary += ' 主诉：「' + (moodClip || '—') + '」。';
-        if (notesShort) summary += ' 档案备注：' + notesShort;
+        let summary = 'Prepared demo data, no OpenAI call. ' + name + ' is loaded with "' + trackTitle + '"' +
+            (trackSub ? ' (' + trackSub + ')' : '') + ', using ' + modeLabel + ' mode and the vibe set "' + vibeStr + '".';
+        summary += ' Presenting concern: "' + (moodClip || 'not recorded') + '".';
+        if (notesShort) summary += ' Profile note: ' + notesShort;
         summary += ' ';
         if (n) {
-            summary += '库内 ' + n + ' 条含反馈完成会话，约 ' + helped + '% 标记「有帮助」';
-            if (avgCalm != null) summary += '，平均课后平静 ' + avgCalm + '/5';
-            summary += '。';
-        } else summary += '若本地尚无会话种子，统计卡片仍会显示本案例体征与档案字段。';
-        if (streakDays != null && streakDays >= 2) summary += ' 连续反馈约 ' + streakDays + ' 天（含演示种子）。';
+            summary += 'The local library includes ' + n + ' completed sessions with feedback; ' + helped + '% were marked helpful';
+            if (avgCalm != null) summary += ', with an average post-session calm score of ' + avgCalm + '/5';
+            summary += '.';
+        } else summary += 'If the local library has no seed history yet, the report still uses this case profile and biometric snapshot.';
+        if (streakDays != null && streakDays >= 2) summary += ' Feedback streak: about ' + streakDays + ' days, including demo seed entries.';
         if (themeSentence) summary += ' ' + themeSentence;
         if (recentSentence) summary += ' ' + recentSentence;
         if (demoLine) summary += ' ' + demoLine;
 
         const facts = [
             { label: 'Demo case', value: caseId.replace('_', ' ') },
-            { label: '演示曲目', value: trackTitle + (trackSub ? ' · ' + trackSub : '') },
-            { label: '模式 · Vibe', value: modeLabel + ' · ' + vibeStr },
-            { label: '睡眠自评', value: sleepSelf },
-            { label: '节奏 / 音量', value: rhythmLbl + ' · ' + vol },
-            { label: '心率 · 相对基线', value: hr + (hrVsBase !== '—' ? '（' + hrVsBase + '）' : '') },
-            { label: 'HRV · 压力', value: (vit.hrv != null ? vit.hrv + ' ms' : '—') + ' · ' + stress },
-            { label: 'SpO₂ · RR', value: (vit.bloodOxygen != null ? vit.bloodOxygen + '%' : '—') + ' · ' + (vit.respiratoryRate != null ? vit.respiratoryRate + '/min' : '—') },
-            { label: '环境 · 腕温', value: (vit.ambientNoise != null ? vit.ambientNoise + ' dB' : '—') + ' · ' + (vit.wristTemperature != null ? vit.wristTemperature + ' °C' : '—') },
-            { label: '睡眠阶段 · 运动', value: sleepStageCn + (motionMag != null ? ' · 运动幅值≈' + motionMag : '') },
+            { label: 'Demo track', value: trackTitle + (trackSub ? ' · ' + trackSub : '') },
+            { label: 'Mode · vibe', value: modeLabel + ' · ' + vibeStr },
+            { label: 'Sleep self-rating', value: sleepSelf },
+            { label: 'Rhythm / volume', value: rhythmLbl + ' · ' + vol },
+            { label: 'HR · baseline delta', value: hr + (hrVsBase !== 'Not recorded' ? ' (' + hrVsBase + ')' : '') },
+            { label: 'HRV · stress', value: (vit.hrv != null ? vit.hrv + ' ms' : 'Not recorded') + ' · ' + stress },
+            { label: 'SpO2 · respiration', value: (vit.bloodOxygen != null ? vit.bloodOxygen + '%' : 'Not recorded') + ' · ' + (vit.respiratoryRate != null ? vit.respiratoryRate + '/min' : 'Not recorded') },
+            { label: 'Noise · wrist temp', value: (vit.ambientNoise != null ? vit.ambientNoise + ' dB' : 'Not recorded') + ' · ' + (vit.wristTemperature != null ? vit.wristTemperature + ' °C' : 'Not recorded') },
+            { label: 'Stage · movement', value: sleepStageLabel + (motionMag != null ? ' · motion magnitude ≈ ' + motionMag : '') },
         ];
         if (bpmHint) facts.push({ label: 'Prompt tempo', value: bpmHint });
         if (stats) {
-            facts.push({ label: '含反馈会话', value: String(stats.n) });
-            facts.push({ label: '有帮助占比', value: stats.helpedRate + '%' });
-            if (avgCalm != null) facts.push({ label: '平均平静', value: avgCalm + '/5' });
-            if (streakDays != null && streakDays >= 1) facts.push({ label: '连续反馈日', value: String(streakDays) + ' d' });
+            facts.push({ label: 'Feedback sessions', value: String(stats.n) });
+            facts.push({ label: 'Marked helpful', value: stats.helpedRate + '%' });
+            if (avgCalm != null) facts.push({ label: 'Average calm', value: avgCalm + '/5' });
+            if (streakDays != null && streakDays >= 1) facts.push({ label: 'Feedback streak', value: String(streakDays) + ' d' });
         }
 
         const overview = {
-            headline: name + ' · 全览（演示数据集 · 与 Live Vitals 同步）',
+            headline: name + ' · Demo Diagnostic Overview',
             summary: summary,
             facts: facts,
             dataQuality: (ctx.dataQuality || 'Demo') + ' · mock · teaching',
@@ -8525,69 +8534,69 @@
 
         const sections = {
             trends: section(
-                '趋势（演示）：本窗口内平静感' + (avgCalm != null ? '平均 ' + avgCalm + '/5' : '需更多反馈才能收敛均值') +
-                    (streakDays != null && streakDays >= 2 ? '；连续记录约 ' + streakDays + ' 天，利于观察情绪节律。' : '；可强调「每日一次简短反馈」的教学卖点。') +
-                    (n >= 3 ? ' 多条归档让「有帮助」占比更可信。' : '') +
+                'Demo trend: this window ' + (avgCalm != null ? 'averages ' + avgCalm + '/5 for post-session calm' : 'needs more feedback before a stable calm average appears') +
+                    (streakDays != null && streakDays >= 2 ? '; about ' + streakDays + ' consecutive feedback days make rhythm changes easier to read.' : '; this is a useful moment to explain the value of one short reflection per session.') +
+                    (n >= 3 ? ' Multiple archived sessions make the helpfulness signal more credible.' : '') +
                     (recentSentence ? ' ' + recentSentence : ''),
-                '线上版本中，这段由模型读取 facts窗口统计，不自造数字；此处数字来自你的 localStorage 演示种子或真实历史。',
-                '演示脚本：完成两次反馈 → 切到 Full Report → 再比对 Weekly 视窗。'
+                'In production, this section is grounded in report facts and local session history, not invented metrics. In the demo, the same structure is filled from seed sessions or real local entries.',
+                'For the live demo: save two feedback entries, open Full Report, then compare it with the weekly window.'
             ),
             patterns: section(
-                '档案画像：目标「' + goalsStr + '」；情绪标签「' + emoStr + '」；偏好风格「' + stylesStr + '」。' +
-                    (fluct ? ' 自述波动段：' + fluct + '。' : '') +
-                    ' 输入区原文与上述标签应相互印证，便于讲「为什么推荐这首」。' +
-                    (sensitiveShort ? ' 听感边界：' + sensitiveShort : ''),
-                '切换不同 Demo Case 时，可对比「高压白领 vs 大学生 vs PhD 熬夜」三类叙事如何映射到模式与编曲说明。',
-                '向观众指出 Vibe 多选与会话模式共同约束 Suno Prompt 语气与节奏。'
+                'Profile pattern: goals are "' + goalsStr + '"; emotional tags are "' + emoStr + '"; preferred styles are "' + stylesStr + '".' +
+                    (fluct ? ' The self-reported fluctuation window is "' + fluct + '".' : '') +
+                    ' The free-text concern should reinforce these signals so the recommendation feels explainable.' +
+                    (sensitiveShort ? ' Sound boundary: ' + sensitiveShort + '.' : ''),
+                'Switching demo cases should reveal different narratives, such as post-work overload, late-night thesis anxiety, focus fatigue, and reflective recovery.',
+                'Point out how Mode and Vibes jointly constrain the prompt, arrangement density, and pacing.'
             ),
             physiology: section(
                 (vit.heartRate != null
-                    ? '腕部快照：HR ' + vit.heartRate + ' bpm' +
-                        (baseNum != null ? '（静息基线约 ' + baseNum + '）' : '') +
-                        (vit.hrv != null ? '，HRV ' + vit.hrv + ' ms' : '') +
-                        (vit.respiratoryRate != null ? '，RR ' + vit.respiratoryRate + '/min' : '') +
-                        (vit.bloodOxygen != null ? '，SpO₂ ' + vit.bloodOxygen + '%' : '') +
-                        (vit.ambientNoise != null ? '，环境 ' + vit.ambientNoise + ' dB' : '') +
-                        (vit.wristTemperature != null ? '，腕温 ' + vit.wristTemperature + ' °C' : '') +
-                        '；主观压力 ' + stress + '，阶段「' + sleepStageCn + '」。'
-                    : '本案例未绑定腕部快照。') +
-                    (motionMag != null ? ' 运动矢量合成幅值约 ' + motionMag + '（演示向观众解释「静坐 vs 走动」）。' : '') +
-                    (hiStress ? ' 压力分偏高：讲解时可强调慢起音与宽立体声像。' : '') +
-                    (lowHrv && vit.hrv != null ? ' HRV 偏低：适合低刺激、稳定脉冲类编曲。' : '') +
-                    (pipeSentence ? ' ' + pipeSentence : ' （当前未拉到 MindWave 结果：可先 load case 触发管线再刷新报告。）'),
-                '生理读数应与 Vitals 面板一致；这一段负责把「可穿戴数据」翻译成「音乐策略」讲解话术。',
-                '若现场 Wi‑Fi 慢：提前载入 Case，确保 HR/HRV 与推荐卡片同步出现。'
+                    ? 'Wearable snapshot: HR ' + vit.heartRate + ' bpm' +
+                        (baseNum != null ? ' (resting baseline around ' + baseNum + ')' : '') +
+                        (vit.hrv != null ? ', HRV ' + vit.hrv + ' ms' : '') +
+                        (vit.respiratoryRate != null ? ', respiration ' + vit.respiratoryRate + '/min' : '') +
+                        (vit.bloodOxygen != null ? ', SpO2 ' + vit.bloodOxygen + '%' : '') +
+                        (vit.ambientNoise != null ? ', ambient noise ' + vit.ambientNoise + ' dB' : '') +
+                        (vit.wristTemperature != null ? ', wrist temperature ' + vit.wristTemperature + ' °C' : '') +
+                        '. Stress score: ' + stress + '; stage: ' + sleepStageLabel + '.'
+                    : 'This case has no wearable snapshot attached.') +
+                    (motionMag != null ? ' Composite motion magnitude is about ' + motionMag + ', useful for explaining stillness versus movement during the demo.' : '') +
+                    (hiStress ? ' The stress score is elevated, so the musical strategy should favor slower attacks and a wider, less crowded stereo field.' : '') +
+                    (lowHrv && vit.hrv != null ? ' HRV is relatively low, which supports a low-stimulation arrangement with a steady pulse.' : '') +
+                    (pipeSentence ? ' ' + pipeSentence : ' MindWave output has not been captured yet. Load the case first, then refresh the report if you want pipeline details.'),
+                'These readings should match the Vitals panel. This section translates wearable data into music-design language without making medical claims.',
+                'For a smooth stage demo, preload the case so HR, HRV, and the recommendation card appear in sync.'
             ),
             achievements: section(
                 achSummary +
-                    (streakDays != null && streakDays >= 2 ? ' 连续反馈把「 streak 」类成就点亮，适合截图传播。' : '') +
-                    (n >= 5 ? ' 演示库已合并 5 条种子会话，成就区应较满。' : ''),
-                '真实用户可能从 0 起步：说明「保存反馈 → 成就与时间线才启动」。' +
+                    (streakDays != null && streakDays >= 2 ? ' The feedback streak makes progress feel visible enough for a demo screenshot.' : '') +
+                    (n >= 5 ? ' The demo library has merged five seed sessions, so the progress area should feel populated.' : ''),
+                'Real users may begin from zero. The product story is simple: feedback unlocks the timeline, achievements, and trend confidence.' +
                     (themeSentence ? ' ' + themeSentence : ''),
-                '设置里可清 Report cache；会话种子可用「载入演示历史」重新灌入。'
+                'If the report looks stale, clear the report cache in Settings or reload the demo history seed.'
             ),
             recommendations: section(
-                '曲目侧：「' + trackTitle + '」' + (bpmHint ? '约 ' + bpmHint : '') +
-                    ' — Prompt 摘要：' + (sunoTeaser || '（无）') +
-                    '。疗程侧：维持「' + modeLabel + '」主模式，节奏偏好 ' + rhythmLbl + '、音量「' + vol + '」。' +
-                    (hiStress ? ' 高压档建议下一次减一档强度或改 Calm/Sleep 预览。' : ''),
-                '演示话术：先念主诉 → 再指 HR/HRV → 再展示曲目标题与 Prompt 关键词闭链。',
-                '退出演示：历史里选「Use as template」或结束当前 active session，即恢复真实 LLM 报告路径。'
+                'Track side: "' + trackTitle + '"' + (bpmHint ? ' at about ' + bpmHint : '') +
+                    '. Prompt excerpt: ' + (sunoTeaser || 'none recorded') +
+                    '. Session side: keep ' + modeLabel + ' as the main mode, with rhythm preference ' + rhythmLbl + ' and volume "' + vol + '".' +
+                    (hiStress ? ' Because stress is high, the next run could lower intensity or preview Calm/Sleep before playback.' : ''),
+                'Demo narration: read the concern, point to HR/HRV, then connect the track title and prompt keywords back to the recommendation.',
+                'To exit demo mode, choose "Use as template" from history or end the active session, then the report returns to the live LLM path.'
             ),
         };
 
         const recommendationPills = [
-            { label: '套用「' + modeLabel + '」预设', action: { mode: c.mode } },
-            { label: 'Calm · 30 分钟', action: { mode: 'calm', durationMin: 30 } },
+            { label: 'Apply ' + modeLabel + ' preset', action: { mode: c.mode } },
+            { label: 'Calm · 30 min', action: { mode: 'calm', durationMin: 30 } },
         ];
         if (hiStress || c.mode === 'sleep') {
-            recommendationPills.push({ label: '睡眠向 · 45 分钟', action: { mode: 'sleep', durationMin: 45 } });
+            recommendationPills.push({ label: 'Sleep-oriented · 45 min', action: { mode: 'sleep', durationMin: 45 } });
         }
         if (c.mode === 'focus' || c.mode === 'study') {
-            recommendationPills.push({ label: '专注 · 轻强度', action: { mode: c.mode, intensity: 2 } });
+            recommendationPills.push({ label: 'Focus · light intensity', action: { mode: c.mode, intensity: 2 } });
         }
         if (lowHrv && vit.stressScore != null && vit.stressScore >= 7) {
-            recommendationPills.push({ label: '减一档强度', action: { intensity: 2 } });
+            recommendationPills.push({ label: 'Lower intensity one step', action: { intensity: 2 } });
         }
 
         return { overview: overview, sections: sections, recommendationPills: recommendationPills };
@@ -8648,11 +8657,11 @@
 
     function buildDemoHistorySessions() {
         const feedbackRows = [
-            { calmAfter: 4, helpfulness: 'helped', soundFit: 'good', notes: '下班後腦袋终于安静下来，会再用。' },
-            { calmAfter: 5, helpfulness: 'helped', soundFit: 'good', notes: '比平时容易入睡，音色很柔和。' },
-            { calmAfter: 3, helpfulness: 'neutral', soundFit: 'good', notes: '专注力有提升，中间还是会想刷手机。' },
-            { calmAfter: 4, helpfulness: 'helped', soundFit: 'too_busy', notes: '焦虑缓解明显，偶尔觉得层次略满。' },
-            { calmAfter: 5, helpfulness: 'helped', soundFit: 'good', notes: '很适合反思沉淀，情绪有被接住的感觉。' },
+            { calmAfter: 4, helpfulness: 'helped', soundFit: 'good', notes: 'My mind quieted down after work. I would use this again.' },
+            { calmAfter: 5, helpfulness: 'helped', soundFit: 'good', notes: 'I fell asleep more easily than usual. The tone felt soft and safe.' },
+            { calmAfter: 3, helpfulness: 'neutral', soundFit: 'good', notes: 'Focus improved, although I still wanted to check my phone midway.' },
+            { calmAfter: 4, helpfulness: 'helped', soundFit: 'too_busy', notes: 'Anxiety eased noticeably, but some layers felt a little crowded.' },
+            { calmAfter: 5, helpfulness: 'helped', soundFit: 'good', notes: 'It worked well for reflection. The emotional tone felt supportive.' },
         ];
         const now = Date.now();
         return DEMO_HISTORY_CASE_ORDER.map((caseId, i) => {
@@ -8710,6 +8719,8 @@
             existing = existing.filter(s => !String(s.id || '').startsWith('sess_seed_'));
         }
         const seed = buildDemoHistorySessions();
+        const seedById = new Map(seed.map(s => [s.id, s]));
+        existing = existing.map(s => seedById.has(s.id) ? seedById.get(s.id) : s);
         const have = new Set(existing.map(s => s.id));
         let added = 0;
         seed.forEach(s => {
@@ -8722,8 +8733,8 @@
         try { localStorage.setItem(LS, JSON.stringify(existing)); } catch (_) {}
         if (opts.showToast && typeof window.showToast === 'function') {
             const msg = added > 0
-                ? ('已载入 ' + added + ' 条演示历史（共 ' + seed.length + ' 个 Demo Case）')
-                : ('演示历史已在库中（' + seed.length + ' 条）');
+                ? ('Loaded ' + added + ' demo history entries (' + seed.length + ' demo cases total).')
+                : ('Demo history is already available (' + seed.length + ' entries).');
             window.showToast(msg);
         }
         if (opts.openHistory && typeof window.somaOpenHistoryModal === 'function') {
