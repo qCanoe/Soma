@@ -121,6 +121,10 @@ class SystemConfig:
     knowledge_enabled_default: bool = os.environ.get(
         "KNOWLEDGE_ENABLED_DEFAULT", ""
     ).lower() in ("1", "true", "yes")
+    # Dense + lexical rerank when embeddings OK: (1-w)*cosine + w*lexical_hit_ratio; w=0 → dense only.
+    knowledge_hybrid_lexical_weight: float = _env_float(
+        "KNOWLEDGE_HYBRID_LEXICAL_WEIGHT", 0.22
+    )
 
     # Music generation bounds
     min_bpm: int = _env_int("MIN_BPM", 45)
@@ -194,6 +198,22 @@ class SystemConfig:
     # HR smoothing & temporal buffers
     hr_smoothing_window: int = _env_int("HR_SMOOTHING_WINDOW", 5)
     temporal_history_maxlen: int = _env_int("TEMPORAL_HISTORY_MAXLEN", 12)
+
+    # Suno / prompt output
+    suno_max_prompt_chars: int = _env_int("SUNO_MAX_PROMPT_CHARS", 500)
+
+    # Exercise / context scaling (0–1 multiplies HR load contribution when active)
+    activity_hr_load_scale: float = _env_float("ACTIVITY_HR_LOAD_SCALE", 0.38)
+    motion_exercise_hint_g: float = _env_float("MOTION_EXERCISE_HINT_G", 0.85)
+
+    # Stress-band hysteresis (samples required to move to a higher/lower band)
+    stress_band_enter_consecutive: int = _env_int("STRESS_BAND_ENTER_CONSECUTIVE", 2)
+    stress_band_exit_consecutive: int = _env_int("STRESS_BAND_EXIT_CONSECUTIVE", 2)
+
+    # Arousal variance → trend label
+    arousal_unstable_stdev_threshold: float = _env_float(
+        "AROUSAL_UNSTABLE_STDEV_THRESHOLD", 12.0
+    )
 
 
 # Module-level default instance — importable directly

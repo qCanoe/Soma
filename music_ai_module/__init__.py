@@ -22,6 +22,7 @@ from .models import (
     dataclass_to_dict,
 )
 from .pipeline import MusicAIPipeline
+from .personalization import PersonalizationHints, resolve_personalization_strategy
 from .processor import BiometricProcessor
 
 __all__ = [
@@ -36,4 +37,6 @@ __all__ = [
     "PhysiologicalState",
     "MusicStrategy",
     "dataclass_to_dict",
+    "PersonalizationHints",
+    "resolve_personalization_strategy",
 ]

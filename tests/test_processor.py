@@ -82,6 +82,41 @@ def test_avoid_instruments_filters_strategy(profile: StaticUserProfile) -> None:
     assert all("piano" not in ins for ins in lowered)
 
 
+def test_exercise_context_scales_hr_load(profile: StaticUserProfile) -> None:
+    cfg = SystemConfig(hr_smoothing_window=1, activity_hr_load_scale=0.25)
+    p = BiometricProcessor(cfg)
+    rest = BiometricProcessor(cfg)
+    bio_rest = _bio(hr=120, hrv=40.0, resp=16, noise=45.0, motion={"x": 0.01, "y": 0.01, "z": 0.01})
+    bio_move = AppleWatchBiometrics(
+        timestamp=bio_rest.timestamp,
+        heart_rate=120,
+        heart_rate_variability=40.0,
+        respiratory_rate=16,
+        environmental_audio_exposure=45.0,
+        body_motion={"x": 2.0, "y": 0.5, "z": 0.3},
+        activity_state="running",
+    )
+    out_rest = rest.process(profile, bio_rest)
+    out_move = p.process(profile, bio_move)
+    assert out_move["features"]["exercise_context"] is True
+    assert out_move["state"]["arousal_score"] <= out_rest["state"]["arousal_score"]
+
+
+def test_sensor_confidence_lowers_state_confidence(profile: StaticUserProfile) -> None:
+    cfg = SystemConfig(hr_smoothing_window=1)
+    b_low = AppleWatchBiometrics(
+        timestamp=_bio().timestamp,
+        heart_rate=85,
+        heart_rate_variability=45.0,
+        respiratory_rate=16,
+        environmental_audio_exposure=50.0,
+        body_motion={"x": 0.02, "y": 0.02, "z": 0.02},
+        sensor_confidence=0.45,
+    )
+    out = BiometricProcessor(cfg).process(profile, b_low)
+    assert out["state"]["confidence"] <= 0.55
+
+
 def test_noise_forbid_hysteresis_requires_two_samples(profile: StaticUserProfile) -> None:
     cfg = SystemConfig(
         hr_smoothing_window=1,
