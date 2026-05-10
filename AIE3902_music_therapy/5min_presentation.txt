@@ -1,0 +1,179 @@
+================================================================================
+  5-MINUTE PRESENTATION — AI-GENERATED THERAPEUTIC MUSIC FOR COLLEGE STUDENTS
+  Suno v5.5 | Insomnia · Anxiety · ADHD | N = 30
+================================================================================
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 1 — Title & One-Line Takeaway  (0:00 – 0:35)
+────────────────────────────────────────────────────────────────────────────────
+ON-SLIDE TEXT
+  • AI-Generated Therapeutic Music for College Stress
+  • 3 groups: Insomnia · Anxiety · ADHD
+  • Takeaway: Significant subjective + physiological improvement in 20 min
+  • Stat strip: p < 0.001 | HRV +39–50% | Completion ~90%
+
+VISUAL
+  → Simple title slide with a one-row summary stat strip at the bottom
+
+SCRIPT
+  "Today I'll share a pilot validation of AI-generated therapeutic music in
+  college students. Across insomnia, anxiety, and ADHD profiles, we saw
+  meaningful stress reduction within a 20-minute session, supported by both
+  self-report and Apple Watch physiology."
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 2 — Study Design  (0:35 – 1:05)
+────────────────────────────────────────────────────────────────────────────────
+ON-SLIDE TEXT
+  • N = 30 undergraduate students, 10 per group
+  • 5 AI-generated tracks per participant → 150 session records
+  • Measures: VAS anxiety (pre/post) · HR & HRV (Apple Watch) ·
+              Satisfaction Likert · MIR audio quality checks
+
+VISUAL
+  → Clean study flow diagram (Participants → Tracks → Measures → Analysis)
+
+SCRIPT
+  "This is a pilot with 30 undergraduates split into three stress profiles.
+  Each participant listened to five AI tracks and completed pre/post anxiety
+  ratings while HR and HRV were recorded concurrently on Apple Watch. We also
+  ran Music Information Retrieval checks on every generated track."
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 3 — Main Efficacy Result: Anxiety Reduction  (1:05 – 1:55)
+────────────────────────────────────────────────────────────────────────────────
+ON-SLIDE TEXT
+  • Mean ΔAnxiety ≈ 2.2–2.5 VAS points across all groups
+  • Improvement rate > 95% per group
+  • Strongest shift: Anxiety group (highest baseline stress ~7.1 VAS)
+
+  Group        Pre-VAS   Post-VAS   ΔAnxiety
+  Insomnia     ~6.2      ~3.9       ~2.3
+  Anxiety      ~7.1      ~4.6       ~2.5
+  ADHD         ~5.6      ~3.4       ~2.2
+
+VISUAL
+  → Pre/Post scatter plot + ΔAnxiety box plot (Section 3 figure)
+
+SCRIPT
+  "First, subjective outcomes. Pre- to post-session anxiety drops are
+  consistent across all groups, with an average reduction of 2.2 to 2.5 VAS
+  points and improvement rates above 95%. The anxiety-profile group shows the
+  largest shift — which makes sense because their baseline stress was highest,
+  leaving more room for relief."
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 4 — Objective Validation: Biofeedback  (1:55 – 2:45)
+────────────────────────────────────────────────────────────────────────────────
+ON-SLIDE TEXT
+  • Heart rate decreases: −6 to −9 bpm over 20 minutes
+  • HRV (RMSSD) increases: +39% to +50%
+  • All groups exceed pre-set recovery thresholds
+
+  Group      HR Drop   HRV Change
+  Insomnia   −8 bpm    +46%  ✅
+  Anxiety    −9 bpm    +50%  ✅
+  ADHD       −6 bpm    +39%  ✅
+
+VISUAL
+  → HR & HRV trend lines over 20-minute session (Section 8 figure)
+
+SCRIPT
+  "Second, objective physiology confirms the same pattern. Heart rate drops
+  by 6 to 9 beats per minute, while HRV rises by 39 to 50 percent over the
+  session. This indicates parasympathetic recovery — not just self-report
+  bias. Every group crossed its pre-defined efficacy threshold."
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 5 — Statistical Strength & Technical Reliability  (2:45 – 3:35)
+────────────────────────────────────────────────────────────────────────────────
+ON-SLIDE TEXT
+  Statistical inference
+  • Paired t-tests: all p < 0.001 (***)
+  • Cohen's d: Very Large (d > 1.2) for every group
+    – Insomnia d ≈ 1.25 · Anxiety d ≈ 1.97 · ADHD d ≈ 1.47
+
+  MIR technical compliance
+  • 15/15 tracks pass all 4 criteria:
+    BPM fluctuation < 2 · LUFS ≈ −23 · Roughness < 0.25 · FAD < 5.0
+  • Overall compliance rate: 100%
+
+VISUAL
+  → Effect size bar chart (Section 6) + MIR compliance panel (Section 9)
+
+SCRIPT
+  "Third, inferential statistics: all paired tests are significant well below
+  .001, with very large effect sizes — all above the d = 0.8 'large' benchmark.
+  On the engineering side, every single generated track passed tempo stability,
+  loudness, roughness, and audio distance thresholds. We have both behavioral
+  efficacy and technical consistency."
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 6 — User Experience Insights  (3:35 – 4:20)
+────────────────────────────────────────────────────────────────────────────────
+ON-SLIDE TEXT
+  What worked (Q21)
+  • Sleep onset, study focus, calming rhythm entrainment
+
+  Main pain point (Q22)
+  • Looping / repetition after ~10 minutes
+  • Binaural effects require headphones — hard in shared dorms
+
+  Feature requests (Q23)
+  • Pomodoro timer sync
+  • Schedule / study-app integration
+  • Student pricing plan
+
+VISUAL
+  → Open-ended keyword frequency bar charts (Section 11 figure)
+
+SCRIPT
+  "Qualitative feedback is practical and actionable. Students reported better
+  sleep transition and improved study focus. The biggest frustration was tracks
+  looping after around 10 minutes — too short for a real study session. The
+  clearest product opportunities are longer adaptive sessions, productivity
+  integrations, and an affordable student tier."
+
+────────────────────────────────────────────────────────────────────────────────
+SLIDE 7 — Conclusion & Next Steps  (4:20 – 5:00)
+────────────────────────────────────────────────────────────────────────────────
+ON-SLIDE TEXT
+  Evidence across three layers:
+  ① Subjective   — ΔAnxiety 2.2–2.5 pts · >95% improved · satisfaction ~4.0/5
+  ② Physiological — HR −6 to −9 bpm · HRV +39–50% in 20 min
+  ③ Technical    — 100% MIR compliance · safe loudness & spectral quality
+
+  Next step: Larger randomized longitudinal study with real-world deployment
+
+VISUAL
+  → Evidence triangle graphic: Subjective ↔ Physiological ↔ Technical
+
+SCRIPT
+  "In summary, this pilot demonstrates that AI-generated therapeutic music is
+  feasible, acceptable, and effective for college stress contexts. The signal
+  is consistent across three independent evidence layers: self-report,
+  biofeedback, and audio technical compliance. The next step is a larger
+  randomized study with longer follow-up and real-world deployment conditions.
+  Thank you."
+
+================================================================================
+  DELIVERY TIPS
+================================================================================
+  • Keep each slide to 1 headline + 3 bullets max.
+  • Spend most time on Slides 3–5 (core evidence).
+  • If asked about limitations: pilot size (N=30), simulated generation
+    environment, no control group, single institution.
+  • Common professor questions:
+    Q: "Why is Cohen's d so high for a small N?"
+    A: The intervention target was very specific and the VAS change was
+       consistent across participants — small SD of differences amplifies d.
+
+    Q: "Is this generalizable beyond college students?"
+    A: Not yet — this study was scoped to 18–22 undergrad profiles. Older
+       adults or clinical populations need separate validation.
+
+    Q: "What about placebo effect?"
+    A: Apple Watch biofeedback provides an objective cross-check. The
+       convergent physiological signal reduces but doesn't eliminate it.
+       A sham-music control arm is the key next step.
+================================================================================
